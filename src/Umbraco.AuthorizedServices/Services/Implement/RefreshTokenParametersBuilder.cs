@@ -7,9 +7,9 @@ internal sealed class RefreshTokenParametersBuilder : IRefreshTokenParametersBui
     public Dictionary<string, string> BuildParameters(ServiceDetail serviceDetail, string refreshToken) =>
         new Dictionary<string, string>
             {
-                    { "grant_type", "refresh_token" },
-                    { "client_id", serviceDetail.ClientId },
-                    { "client_secret", serviceDetail.ClientSecret },
-                    { "refresh_token", refreshToken }
+                { "grant_type", "refresh_token" },
+                { "client_id", serviceDetail.ClientId },
+                { "client_secret", serviceDetail.ClientSecret },
+                { "refresh_token", refreshToken }
             };
 }
