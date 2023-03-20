@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <Title>Umbraco Authorized Services</Title>
+    <Description>
+      Authorized Services is an extension from Umbraco intended to get you up to speed quickly with integrating external services. It handles the authentication and authorization flow for services requiring OAuth based flows.
+    </Description>
+    <PackageTags>umbraco umbraco-cms</PackageTags>
+    <StaticWebAssetBasePath>App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[11.0.0, 12)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="buildTransitive\**" PackagePath="buildTransitive" />
+    <Content Update="appsettings-schema.Umbraco.AuthorizedServices.json" PackagePath="" />
+  </ItemGroup>
+
+  <!-- Build client assets using NPM -->
+  <Import Project="build\Microsoft.AspNetCore.ClientAssets.targets" />
+  <Target Name="ClientAssetsBuildOutputPath" BeforeTargets="ClientAssetsBuild">
+	<WriteLinesToFile File="ClientApp\gulp\config.outputPath.js" Lines="export const outputPath = '../$(IntermediateOutputPath.Replace('\', '/'))clientassets';" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+  <ItemGroup>
+    <ClientAssetsInputs Remove="ClientApp\src\css\style.css" />
+  </ItemGroup>
+
+  <!-- Update package.manifest files with current build version after client assets build -->
+  <ItemGroup>
+    <PackageReference Include="Umbraco.JsonSchema.Extensions" Version="0.3.0" PrivateAssets="all" />
+  </ItemGroup>
+  <Target Name="UpdatePackageManifestVersion" DependsOnTargets="ClientAssetsBuild" AfterTargets="GetUmbracoBuildVersion">
+    <ItemGroup>
+      <_PackageManifestFiles Include="$(IntermediateOutputPath)clientassets\**\package.manifest" />
+    </ItemGroup>
+    <JsonPathUpdateValue JsonFile="%(_PackageManifestFiles.FullPath)" Path="$.version" Value="&quot;$(PackageVersion)&quot;" />
+  </Target>
+</Project>

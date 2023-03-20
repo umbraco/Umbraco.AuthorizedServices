@@ -1,0 +1,18 @@
+.umb-authorizedservices-sample-response-wrapper {
+  background: #F3F3F5;
+  border-radius: 3px;
+  border: 2px solid #F02E28;
+  padding: 10px 20px;
+  margin: 24px 0;
+}
+
+.umb-authorizedservices-sample-response-detail {
+  font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+  font-size: 12px;
+  min-height: 48px;
+  max-height: 512px;
+  overflow: auto;
+  white-space: pre;
+  text-align: left;
+  color: black;
+}

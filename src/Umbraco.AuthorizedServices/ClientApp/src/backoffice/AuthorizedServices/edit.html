@@ -1,0 +1,49 @@
+<div ng-controller="AuthorizedServiceEditController as vm">
+
+  <umb-editor-view ng-if="!vm.page.loading">
+      <umb-editor-header name="vm.displayName"
+                         name-locked="true"
+                         hide-icon="false"
+                         hide-description="false"
+                         hide-alias="true"
+                         on-back="vm.back()"
+                         show-back-button="true">
+      </umb-editor-header>
+
+      <umb-editor-container class="form-horizontal">
+
+        <umb-box>
+          <umb-box-content>
+            <p><b>{{ vm.displayName }}</b> has been configured as an authorized service.</p>
+            <div ng-show="vm.isAuthorized">
+              <p>It has been authorized for use.</p>
+              <umb-button ng-if="vm.sampleRequest"
+                          action="vm.sendSampleRequest()"
+                          type="button"
+                          label="Verify Sample Request"></umb-button>
+              <umb-button action="vm.revokeAccess()"
+                          type="button"
+                          button-style="danger"
+                          label="Revoke Access"></umb-button>
+
+              <div ng-show="vm.sampleRequestResponse">
+                <div class="umb-authorizedservices-sample-response-wrapper">
+                    <div class="umb-authorizedservices-sample-response-detail">{{vm.sampleRequestResponse}}</div>
+                </div>
+              </div>
+            </div>
+            <div ng-show="!vm.isAuthorized">
+              <p>It has not been authorized for use.</p>
+              <umb-button action="vm.authorizeAccess()"
+                          type="button"
+                          button-style="success"
+                          label="Authorize Service" />
+            </div>
+          </umb-box-content>
+        </umb-box>
+
+      </umb-editor-container>
+
+    </umb-editor-view>
+
+</div>

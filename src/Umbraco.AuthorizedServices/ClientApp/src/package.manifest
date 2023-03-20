@@ -1,0 +1,12 @@
+{
+    "name": "Umbraco Authorized Services",
+    "version": "",
+    "bundleOptions": "None",
+    "allowPackageTelemetry": true,
+    "css": [
+        "~/App_Plugins/UmbracoAuthorizedServices/css/style.css"
+    ],
+    "javascript": [
+        "~/App_Plugins/UmbracoAuthorizedServices/index.js"
+    ]
+}
