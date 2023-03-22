@@ -15,5 +15,5 @@ public class Token
 
     public DateTime? ExpiresOn { get; }
 
-    public bool HasOrIsAboutToExpire => ExpiresOn.HasValue && DateTime.Now.AddSeconds(30) > ExpiresOn;
+    public bool HasOrIsAboutToExpire => ExpiresOn.HasValue && DateTime.UtcNow.AddSeconds(30) > ExpiresOn;
 }

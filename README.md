@@ -58,6 +58,9 @@ Details of services available need to be applied to the Umbraco web application'
           "ClientId": "",
           "ClientSecret": "",
           "Scopes": "",
+          "AccessTokenResponseKey": "access_token",
+          "RefreshTokenResponseKey": "refresh_token",
+          "ExpiresInResponseKey": "expires_in",
           "SampleRequest": ""
         },
       ]
@@ -125,6 +128,18 @@ This value will be retrieved from the registered service app.  As the name sugge
 ###### Scopes *
 
 This value will be configured on the service app and retrieved from there. Best practice is to define only the set of permissions that the integration will need.  For GitHub, the single scope needed to retrieve details about a repository's contributors is `repo`.
+
+###### AccessTokenResponseKey
+
+The expected key for retrieving an access token from a response. If not provided the default `access_token` is assumed.
+
+###### RefreshTokenResponseKey
+
+The expected key for retrieving a refresh token from a response. If not provided the default `refresh_token` is assumed.
+
+###### ExpiresInResponseKey
+
+The expected key for retrieving the datetime of token expiry from a response. If not provided the default `expires_in` is assumed.
 
 ###### SampleRequest
 

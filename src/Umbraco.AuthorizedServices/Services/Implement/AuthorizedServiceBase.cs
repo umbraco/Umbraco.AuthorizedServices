@@ -50,10 +50,10 @@ internal abstract class AuthorizedServiceBase
         return serviceDetail;
     }
 
-    protected async Task<Token> CreateTokenFromResponse(string serviceAlias, ServiceDetail serviceDetail, HttpResponseMessage response)
+    protected async Task<Token> CreateTokenFromResponse(ServiceDetail serviceDetail, HttpResponseMessage response)
     {
         var responseContent = await response.Content.ReadAsStringAsync();
-        return _tokenFactory.CreateFromResponseContent(responseContent, serviceAlias, serviceDetail);
+        return _tokenFactory.CreateFromResponseContent(responseContent, serviceDetail);
     }
 
     protected void StoreToken(string serviceAlias, Token token)

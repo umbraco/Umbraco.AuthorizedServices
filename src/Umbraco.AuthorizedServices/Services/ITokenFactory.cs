@@ -5,5 +5,5 @@ namespace Umbraco.AuthorizedServices.Services;
 
 public interface ITokenFactory
 {
-    Token CreateFromResponseContent(string responseContent, string serviceAlias, ServiceDetail serviceDetail);
+    Token CreateFromResponseContent(string responseContent, ServiceDetail serviceDetail);
 }

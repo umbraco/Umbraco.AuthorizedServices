@@ -115,7 +115,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         HttpResponseMessage response = await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
         if (response.IsSuccessStatusCode)
         {
-            Token token = await CreateTokenFromResponse(serviceAlias, serviceDetail, response);
+            Token token = await CreateTokenFromResponse(serviceDetail, response);
 
             StoreToken(serviceAlias, token);
 

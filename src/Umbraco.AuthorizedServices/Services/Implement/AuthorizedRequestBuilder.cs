@@ -12,7 +12,12 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 
     public AuthorizedRequestBuilder(IJsonSerializer jsonSerializer) => _jsonSerializer = jsonSerializer;
 
-    public HttpRequestMessage CreateRequestMessage<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, Token token, TRequest? requestContent)
+    public HttpRequestMessage CreateRequestMessage<TRequest>(
+        ServiceDetail serviceDetail,
+        string path,
+        HttpMethod httpMethod,
+        Token token,
+        TRequest? requestContent)
         where TRequest : class
     {
         var requestMessage = new HttpRequestMessage

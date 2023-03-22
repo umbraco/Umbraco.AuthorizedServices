@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Cache;
 
@@ -33,7 +34,7 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         HttpResponseMessage response = await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
         if (response.IsSuccessStatusCode)
         {
-            Token token = await CreateTokenFromResponse(serviceAlias, serviceDetail, response);
+            Token token = await CreateTokenFromResponse(serviceDetail, response);
 
             StoreToken(serviceAlias, token);
 
@@ -41,8 +42,11 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         }
         else
         {
-            var responseContent = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException($"Error response from token request to '{serviceAlias}'. Response: {responseContent}");
+            throw new AuthorizedServiceHttpException(
+                $"Error response from token request to '{serviceAlias}'.",
+                response.StatusCode,
+                response.ReasonPhrase,
+                await response.Content.ReadAsStringAsync());
         }
     }
 }
