@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Serialization;
@@ -46,7 +47,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             return result;
         }
 
-        throw new InvalidOperationException($"Could not deserialize result of request to service '{serviceAlias}'");
+        throw new AuthorizedServiceException($"Could not deserialize result of request to service '{serviceAlias}'");
     }
 
     public async Task<string> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod)
@@ -60,7 +61,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         Token? token = GetAccessToken(serviceAlias);
         if (token == null)
         {
-            throw new InvalidOperationException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
+            throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
         }
 
         token = await EnsureAccessToken(serviceAlias, token);
@@ -75,7 +76,11 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             return await response.Content.ReadAsStringAsync();
         }
 
-        throw new InvalidOperationException($"Error response from '{serviceAlias}'");
+        throw new AuthorizedServiceHttpException(
+            $"Error response received from request to '{serviceAlias}'.",
+            response.StatusCode,
+            response.ReasonPhrase,
+            await response.Content.ReadAsStringAsync());
     }
 
     private async Task<Token> EnsureAccessToken(string serviceAlias, Token token)
@@ -85,14 +90,14 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             if (string.IsNullOrEmpty(token.RefreshToken))
             {
                 ClearAccessToken(serviceAlias);
-                throw new InvalidOperationException($"Cannot request service '{serviceAlias}' as the access token has expired and no refresh token is available to use. The expired token has been deleted.");
+                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and no refresh token is available to use. The expired token has been deleted.");
             }
 
             Token? refreshedToken = await RefreshAccessToken(serviceAlias, token.RefreshToken);
 
             if (refreshedToken == null)
             {
-                throw new InvalidOperationException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
+                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
             }
 
             return refreshedToken;
@@ -118,8 +123,11 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
         else
         {
-            var responseContent = await response.Content.ReadAsStringAsync();
-            throw new InvalidOperationException($"Error response from refresh token request to '{serviceAlias}'. Response: {responseContent}");
+            throw new AuthorizedServiceHttpException(
+                $"Error response from refresh token request to '{serviceAlias}'.",
+                response.StatusCode,
+                response.ReasonPhrase,
+                await response.Content.ReadAsStringAsync());
         }
     }
 
