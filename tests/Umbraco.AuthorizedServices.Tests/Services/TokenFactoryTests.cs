@@ -14,7 +14,7 @@ internal class TokenFactoryTests
         {
             Alias = "testService",
         };
-        const string ResponseContent = "{\r\n  \"refresh_token\": \"def\",\r\n  \"access_token\": \"abc\",\r\n  \"expires_in\": 1800\r\n}";
+        const string ResponseContent = "{\"refresh_token\": \"def\",\"access_token\": \"abc\",\"expires_in\": 1800}";
         DateTime utcNow = DateTime.UtcNow;
         var dateTimeProvider = new Mock<IDateTimeProvider>();
         dateTimeProvider

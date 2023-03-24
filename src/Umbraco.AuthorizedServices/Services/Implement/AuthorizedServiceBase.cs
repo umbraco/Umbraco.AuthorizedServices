@@ -12,7 +12,6 @@ internal abstract class AuthorizedServiceBase
     private readonly ITokenFactory _tokenFactory;
 
     public AuthorizedServiceBase(
-        IHttpClientFactory httpClientFactory,
         AppCaches appCaches,
         ITokenFactory tokenFactory,
         ITokenStorage tokenStorage,
@@ -20,7 +19,6 @@ internal abstract class AuthorizedServiceBase
         ILogger logger,
         AuthorizedServiceSettings authorizedServiceSettings)
     {
-        HttpClientFactory = httpClientFactory;
         AppCaches = appCaches;
         _tokenFactory = tokenFactory;
         TokenStorage = tokenStorage;
@@ -28,8 +26,6 @@ internal abstract class AuthorizedServiceBase
         Logger = logger;
         _authorizedServiceSettings = authorizedServiceSettings;
     }
-
-    protected IHttpClientFactory HttpClientFactory { get; }
 
     protected AppCaches AppCaches { get; }
 

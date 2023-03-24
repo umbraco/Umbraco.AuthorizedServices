@@ -12,7 +12,6 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     private readonly IAuthorizationParametersBuilder _authorizationParametersBuilder;
 
     public AuthorizedServiceAuthorizer(
-        IHttpClientFactory httpClientFactory,
         AppCaches appCaches,
         ITokenFactory tokenFactory,
         ITokenStorage tokenStorage,
@@ -20,7 +19,7 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         ILogger<AuthorizedServiceAuthorizer> logger,
         IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings,
         IAuthorizationParametersBuilder authorizationParametersBuilder)
-        : base(httpClientFactory, appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, authorizedServiceSettings.CurrentValue)
+        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, authorizedServiceSettings.CurrentValue)
     {
         _authorizationParametersBuilder = authorizationParametersBuilder;
     }

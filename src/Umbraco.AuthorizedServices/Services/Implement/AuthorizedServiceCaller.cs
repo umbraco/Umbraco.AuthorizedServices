@@ -11,23 +11,25 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthorizedServiceCaller
 {
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly IJsonSerializer _jsonSerializer;
     private readonly IAuthorizedRequestBuilder _authorizedRequestBuilder;
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
 
     public AuthorizedServiceCaller(
-        IHttpClientFactory httpClientFactory,
         AppCaches appCaches,
         ITokenFactory tokenFactory,
         ITokenStorage tokenStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceCaller> logger,
         IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings,
+        IHttpClientFactory httpClientFactory,
         IJsonSerializer jsonSerializer,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder)
-        : base(httpClientFactory, appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, authorizedServiceSettings.CurrentValue)
+        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, authorizedServiceSettings.CurrentValue)
     {
+        _httpClientFactory = httpClientFactory;
         _jsonSerializer = jsonSerializer;
         _authorizedRequestBuilder = authorizedRequestBuilder;
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
@@ -66,7 +68,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
         token = await EnsureAccessToken(serviceAlias, token);
 
-        HttpClient httpClient = HttpClientFactory.CreateClient();
+        HttpClient httpClient = _httpClientFactory.CreateClient();
 
         HttpRequestMessage requestMessage = _authorizedRequestBuilder.CreateRequestMessage(serviceDetail, path, httpMethod, token, requestContent);
 
