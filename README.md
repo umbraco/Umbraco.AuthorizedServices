@@ -256,7 +256,7 @@ The following details are those useful for those contributing to development of 
 
 ### Component Description
 
-Note that there has been a deliberate decision taken in designing the package to use a number of components, each responsible for a smal part of the authentication and authorization flow. In this way, there's more scope for an implementor to replace specific parts of the implementation should they need to.
+Note that there has been a deliberate decision taken in designing the package to use a number of components, each responsible for a small part of the authentication and authorization flow. In this way, there's more scope for an implementor to replace specific parts of the implementation should they need to.
 
 #### IAuthorizationClientFactory
 
@@ -270,7 +270,7 @@ Responsible for creating a dictionary of parameters provided in the request to r
 
 Responsible for sending the request to retrieve access tokens. Implemented by `AuthorizationRequestSender`, which depends on `IAuthorizationClientFactory`.
 
-### IAuthorizedServiceAuthorizer
+#### IAuthorizedServiceAuthorizer
 
 Responsible for making requests to the authorized services for the purposes of authorization. Implemented by `AuthorizedServiceAuthorizer`.
 
@@ -301,18 +301,6 @@ Responsible for instantiating a new strongly typed `Token` instance from the ser
 #### ITokenStorage
 
 Responsible for storing tokens. Implemented by `InMemoryTokenStorage` and `DatabaseTokenStorage`.
-
-### Next Steps
-
-- [ ] Validate approach with further providers. Where support isn't possible via existing configuration, consider if can extend with the addition of further elements or options.
-- [ ] Review and tighten up the core logic of authorization, handling logging, exceptions etc.
-- [ ] Replace the in-memory implementation of `ITokenStorage` database backed storage, including an Umbraco migration for creating the required table.
-- [ ] Use `ISecretEncryptor` to encrypt and descrypt the stored tokens.
-- [ ] Add inline documentation (i.e. XML headers) to all public interfaces, classes and methods.
-- [ ] Write unit tests for all component implementations.
-- [ ] Tidy up the user interface, surface the configuration details for each service.
-- [ ] Generate random state for validation between the authentication calls (a facility offered by GitHub).
-
 
 
 
