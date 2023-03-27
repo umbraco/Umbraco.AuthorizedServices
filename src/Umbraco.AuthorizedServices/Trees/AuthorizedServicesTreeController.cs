@@ -14,6 +14,9 @@ using Umbraco.Cms.Web.Common.ModelBinders;
 
 namespace Umbraco.AuthorizedServices.Trees;
 
+/// <summary>
+/// Defines an Umbraco <see cref="TreeController"/> for access to the configured authorized services.
+/// </summary>
 [Authorize(Policy = Cms.Web.Common.Authorization.AuthorizationPolicies.SectionAccessSettings)]
 [Tree(Cms.Core.Constants.Applications.Settings, Constants.Trees.AuthorizedServices, TreeTitle = "Authorized Services")]
 [PluginController(Constants.PluginName)]
@@ -22,6 +25,9 @@ public class AuthorizedServicesTreeController : TreeController
     private readonly IMenuItemCollectionFactory _menuItemCollectionFactory;
     private readonly AuthorizedServiceSettings _authorizedServiceSettings;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuthorizedServicesTreeController"/> class.
+    /// </summary>
     public AuthorizedServicesTreeController(
         ILocalizedTextService textService,
         UmbracoApiControllerTypeCollection umbracoApiControllerTypeCollection,
@@ -34,6 +40,7 @@ public class AuthorizedServicesTreeController : TreeController
         _authorizedServiceSettings = authorizedServiceSettings.CurrentValue;
     }
 
+    /// <inheritdoc/>
     protected override ActionResult<MenuItemCollection> GetMenuForNode(string id, [ModelBinder(typeof(HttpQueryStringModelBinder))] FormCollection queryStrings)
     {
         MenuItemCollection menu = _menuItemCollectionFactory.Create();
@@ -46,6 +53,7 @@ public class AuthorizedServicesTreeController : TreeController
         return menu;
     }
 
+    /// <inheritdoc/>
     protected override ActionResult<TreeNodeCollection> GetTreeNodes(string id, FormCollection queryStrings)
     {
         var nodes = new TreeNodeCollection();

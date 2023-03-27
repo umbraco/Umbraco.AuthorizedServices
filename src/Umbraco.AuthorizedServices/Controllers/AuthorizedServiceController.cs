@@ -10,6 +10,9 @@ using Umbraco.Cms.Web.Common.Attributes;
 
 namespace Umbraco.AuthorizedServices.Controllers;
 
+/// <summary>
+/// Backoffice controller used for working with authorized services.
+/// </summary>
 [PluginController(Constants.PluginName)]
 [Authorize(Policy = Cms.Web.Common.Authorization.AuthorizationPolicies.SectionAccessSettings)]
 public class AuthorizedServiceController : BackOfficeNotificationsController
@@ -19,6 +22,9 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     private readonly IAuthorizationUrlBuilder _authorizationUrlBuilder;
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuthorizedServiceController"/> class.
+    /// </summary>
     public AuthorizedServiceController(
         IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings,
         ITokenStorage tokenStorage,
@@ -31,6 +37,10 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         _authorizedServiceCaller = authorizedServiceCaller;
     }
 
+    /// <summary>
+    /// Retrieves the details for a service by alias.
+    /// </summary>
+    /// <param name="alias">The service alias.</param>
     [HttpGet]
     public AuthorizedServiceDisplay? GetByAlias(string alias)
     {
@@ -57,6 +67,12 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         };
     }
 
+    /// <summary>
+    /// Sends a sample request for an authorized service.
+    /// </summary>
+    /// <param name="alias">The service alias.</param>
+    /// <param name="path">The path to the sample request.</param>
+    /// <returns></returns>
     [HttpGet]
     public async Task<IActionResult> SendSampleRequest(string alias, string path)
     {
@@ -64,6 +80,10 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         return Ok(response);
     }
 
+    /// <summary>
+    /// Revokes access by removing the access token for an authorized service.
+    /// </summary>
+    /// <param name="model">Request model identifying the service.</param>
     [HttpPost]
     public IActionResult RevokeAccess(RevokeAccess model)
     {

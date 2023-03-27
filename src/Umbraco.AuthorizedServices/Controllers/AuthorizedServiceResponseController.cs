@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Extensions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
@@ -6,12 +7,23 @@ using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Umbraco.AuthorizedServices.Controllers
 {
+    /// <summary>
+    /// Controller that handles the returning messages for the authorization flow with an external service.
+    /// </summary>
     public class AuthorizedServiceResponseController : UmbracoApiController
     {
         private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AuthorizedServiceResponseController"/> class.
+        /// </summary>
         public AuthorizedServiceResponseController(IAuthorizedServiceAuthorizer serviceAuthorizer) => _serviceAuthorizer = serviceAuthorizer;
 
+        /// <summary>
+        /// Handles the returning messages for the authorization flow with an external service.
+        /// </summary>
+        /// <param name="code">The authorization code.</param>
+        /// <param name="state">The state.</param>
         public async Task<IActionResult> HandleIdentityResponse(string code, string state)
         {
             var stateParts = state.Split('|');
@@ -28,7 +40,7 @@ namespace Umbraco.AuthorizedServices.Controllers
                 return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");
             }
 
-            throw new InvalidOperationException("Failed to obtain access token");
+            throw new AuthorizedServiceException("Failed to obtain access token");
         }
     }
 }
