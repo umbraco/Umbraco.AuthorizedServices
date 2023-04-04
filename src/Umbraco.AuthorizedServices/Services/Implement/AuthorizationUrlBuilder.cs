@@ -19,6 +19,10 @@ internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
             url.Append("&redirect_uri=").Append(httpContext.GetAuthorizedServiceRedirectUri());
         }
 
+        url.Append("&response_type=code");
+
+        url.Append("&response_mode=query");
+
         url.Append("&scope=").Append(serviceDetail.Scopes);
 
         url.Append("&state=").Append(serviceDetail.Alias + "|" + Constants.Authorization.State);
