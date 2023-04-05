@@ -12,7 +12,7 @@ public class AddDatabaseTokenStorageTable : MigrationBase
 
     protected override void Migrate()
     {
-        Logger.LogDebug($"Running migration {Constants.Migrations.AddDatabaseTokenStorageTable}");
+        Logger.LogDebug($"Running migration {nameof(AddDatabaseTokenStorageTable)}");
 
         if (TableExists(Constants.Migrations.TableName))
         {
