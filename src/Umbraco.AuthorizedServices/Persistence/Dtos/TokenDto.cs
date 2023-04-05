@@ -11,6 +11,7 @@ public class TokenDto
 {
     [Column("serviceAlias")]
     [PrimaryKeyColumn(Name = "PK_serviceAlias", AutoIncrement = false)]
+    [Length(100)]
     public string ServiceAlias { get; set; } = string.Empty;
 
     [Column("accessToken")]
