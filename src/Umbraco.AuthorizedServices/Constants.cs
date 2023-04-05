@@ -18,7 +18,7 @@ public static class Constants
     {
         public const string TableName = "umbracoAuthorizedServiceToken";
 
-        public const string MigrationPlan = "DatabaseTokenStorage";
+        public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
 
         public const string TargetState = "authorizationToken-db";
     }
