@@ -14,7 +14,7 @@ public class AddDatabaseTokenStorageTable : MigrationBase
     {
         Logger.LogDebug($"Running migration {Constants.Migrations.AddDatabaseTokenStorageTable}");
 
-        if(TableExists(Constants.Migrations.TableName))
+        if (TableExists(Constants.Migrations.TableName))
         {
             Logger.LogDebug($"The database table {Constants.Migrations.TableName} already exists, skipping.");
         }
