@@ -13,4 +13,13 @@ public static class Constants
     {
         internal const string State = "abc123"; // TODO: This needs to be a random string.
     }
+
+    public static class Migrations
+    {
+        public const string TableName = "umbracoAuthorizedServiceToken";
+
+        public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
+
+        public const string TargetState = "authorizedServices-db";
+    }
 }

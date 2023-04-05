@@ -28,5 +28,30 @@ public class TestAuthorizedServicesController : UmbracoApiController
             HttpMethod.Get);
         return Content(string.Join(", ", response.Results.Select(x => x.Properties.FirstName + " " + x.Properties.LastName)));
     }
+
+    public async Task<IActionResult> GetFormsFromDynamics()
+    {
+        DynamicsFormResponse response = await _authorizedServiceCaller.SendRequestAsync<DynamicsFormResponse>(
+            "dynamics",
+            "/msdyncrm_marketingforms",
+            HttpMethod.Get);
+
+        return Content(string.Join(", ", response.Results.Select(x => x.Name)));
+    }
+
+    public async Task<IActionResult> GetSearchResultsFromGoogle()
+    {
+        var response = await _authorizedServiceCaller.SendRequestRawAsync(
+            "google",
+            "/v1/urlInspection/index:inspect",
+            HttpMethod.Post,
+            new GoogleSearchResponse
+            {
+                InspectionUrl = "https://umbraco.dk",
+                SiteUrl = "https://umbraco.dk/products"
+            });
+
+        return Content(response);
+    }
 }
 
