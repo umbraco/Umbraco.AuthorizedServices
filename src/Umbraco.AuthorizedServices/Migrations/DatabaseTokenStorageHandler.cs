@@ -31,7 +31,7 @@ public class DatabaseTokenStorageHandler : INotificationHandler<UmbracoApplicati
 
     public void Handle(UmbracoApplicationStartingNotification notification)
     {
-        if (_runtimeState.Level < RuntimeLevel.Run)
+        if (_runtimeState.Level != RuntimeLevel.Run)
         {
             return;
         }
