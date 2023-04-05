@@ -20,6 +20,6 @@ public static class Constants
 
         public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
 
-        public const string TargetState = "authorizationToken-db";
+        public const string TargetState = "authorizedServices-db";
     }
 }
