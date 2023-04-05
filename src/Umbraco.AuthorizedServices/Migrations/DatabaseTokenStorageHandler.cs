@@ -24,11 +24,8 @@ public class DatabaseTokenStorageHandler : INotificationHandler<UmbracoApplicati
         IRuntimeState runtimeState)
     {
         _coreScopeProvider = coreScopeProvider;
-
         _migrationPlanExecutor = migrationPlanExecutor;
-
         _keyValueService = keyValueService;
-
         _runtimeState = runtimeState;
     }
 
