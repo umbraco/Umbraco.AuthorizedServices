@@ -29,15 +29,6 @@ public class TestAuthorizedServicesController : UmbracoApiController
         return Content(string.Join(", ", response.Results.Select(x => x.Properties.FirstName + " " + x.Properties.LastName)));
     }
 
-    public async Task<IActionResult> GetProductsFromShopify()
-    {
-        ShopifyProductResponse response = await _authorizedServiceCaller.SendRequestAsync<ShopifyProductResponse>(
-           "shopify",
-           "/admin/api/2022-01/products.json",
-           HttpMethod.Get);
-        return Content(string.Empty);
-    }
-
     public async Task<IActionResult> GetFormsFromDynamics()
     {
         DynamicsFormResponse response = await _authorizedServiceCaller.SendRequestAsync<DynamicsFormResponse>(

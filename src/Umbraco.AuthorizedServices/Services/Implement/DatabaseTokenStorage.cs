@@ -1,5 +1,5 @@
-using Umbraco.AuthorizedServices.Migrations;
 using Umbraco.AuthorizedServices.Models;
+using Umbraco.AuthorizedServices.Persistence.Dtos;
 using Umbraco.Cms.Infrastructure.Scoping;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
@@ -15,9 +15,9 @@ internal sealed class DatabaseTokenStorage : ITokenStorage
 
     public Token? GetToken(string serviceAlias)
     {
-        using var scope = _scopeProvider.CreateScope();
+        using IScope scope = _scopeProvider.CreateScope();
 
-        var entity = scope.Database.FirstOrDefault<DatabaseTokenStorageSchema>("where serviceAlias = @0", serviceAlias);
+        TokenDto entity = scope.Database.FirstOrDefault<TokenDto>("where serviceAlias = @0", serviceAlias);
 
         return entity != null
             ? new Token(entity.AccessToken, entity.RefreshToken, entity.ExpiresOn)
@@ -26,24 +26,34 @@ internal sealed class DatabaseTokenStorage : ITokenStorage
 
     public void SaveToken(string serviceAlias, Token token)
     {
-        using var scope = _scopeProvider.CreateScope();
+        using IScope scope = _scopeProvider.CreateScope();
 
-        scope.Database.Insert(new DatabaseTokenStorageSchema
+        TokenDto entity = scope.Database.SingleOrDefault<TokenDto>("where serviceAlias = @0", serviceAlias);
+
+        bool insert = entity == null;
+        entity ??= new TokenDto { ServiceAlias = serviceAlias };
+
+        entity.AccessToken = token.AccessToken;
+        entity.RefreshToken = token.RefreshToken;
+        entity.ExpiresOn = token.ExpiresOn;
+
+        if (insert)
         {
-            ServiceAlias = serviceAlias,
-            AccessToken = token.AccessToken,
-            RefreshToken = token.RefreshToken ?? string.Empty,
-            ExpiresOn = token.ExpiresOn ?? default,
-        });
+            scope.Database.Insert(entity);
+        }
+        else
+        {
+            scope.Database.Update(entity);
+        }
 
         scope.Complete();
     }
 
     public void DeleteToken(string serviceAlias)
     {
-        using var scope = _scopeProvider.CreateScope();
+        using IScope scope = _scopeProvider.CreateScope();
 
-        var entity = scope.Database.Single<DatabaseTokenStorageSchema>("where serviceAlias = @0", serviceAlias);
+        TokenDto entity = scope.Database.Single<TokenDto>("where serviceAlias = @0", serviceAlias);
 
         scope.Database.Delete(entity);
 

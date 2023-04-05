@@ -1,5 +1,4 @@
 using Umbraco.Cms.Core;
-using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Migrations;
 using Umbraco.Cms.Core.Notifications;
@@ -10,14 +9,14 @@ using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
 
 namespace Umbraco.AuthorizedServices.Migrations;
 
-public class DatabaseTokenStorageHandler : INotificationHandler<UmbracoApplicationStartingNotification>
+public class DatabaseMigrationHandler : INotificationHandler<UmbracoApplicationStartingNotification>
 {
     private readonly ICoreScopeProvider _coreScopeProvider;
     private readonly IMigrationPlanExecutor _migrationPlanExecutor;
     private readonly IKeyValueService _keyValueService;
     private readonly IRuntimeState _runtimeState;
 
-    public DatabaseTokenStorageHandler(
+    public DatabaseMigrationHandler(
         ICoreScopeProvider coreScopeProvider,
         IMigrationPlanExecutor migrationPlanExecutor,
         IKeyValueService keyValueService,

@@ -33,6 +33,6 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
 
-        builder.AddNotificationHandler<UmbracoApplicationStartingNotification, DatabaseTokenStorageHandler>();
+        builder.AddNotificationHandler<UmbracoApplicationStartingNotification, DatabaseMigrationHandler>();
     }
 }

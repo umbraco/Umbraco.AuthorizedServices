@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-
+using Umbraco.AuthorizedServices.Persistence.Dtos;
 using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace Umbraco.AuthorizedServices.Migrations;
@@ -20,7 +20,7 @@ public class AddDatabaseTokenStorageTable : MigrationBase
         }
         else
         {
-            Create.Table<DatabaseTokenStorageSchema>().Do();
+            Create.Table<TokenDto>().Do();
         }
     }
 }

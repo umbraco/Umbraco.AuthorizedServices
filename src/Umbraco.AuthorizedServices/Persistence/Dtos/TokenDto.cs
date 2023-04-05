@@ -2,28 +2,27 @@ using NPoco;
 
 using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
-namespace Umbraco.AuthorizedServices.Migrations;
+namespace Umbraco.AuthorizedServices.Persistence.Dtos;
 
 [TableName(Constants.Migrations.TableName)]
-[PrimaryKey("Id", AutoIncrement = true)]
+[PrimaryKey("serviceAlias", AutoIncrement = false)]
 [ExplicitColumns]
-public class DatabaseTokenStorageSchema
+public class TokenDto
 {
-    [PrimaryKeyColumn(AutoIncrement = true, IdentitySeed = 1)]
-    [Column("id")]
-    public int Id { get; set; }
-
     [Column("serviceAlias")]
+    [PrimaryKeyColumn(Name = "PK_serviceAlias", AutoIncrement = false)]
     public string ServiceAlias { get; set; } = string.Empty;
 
     [Column("accessToken")]
-    [SpecialDbType(SpecialDbTypes.NVARCHARMAX)]
+    [Length(1000)]
     public string AccessToken { get; set; } = string.Empty;
 
     [Column("refreshToken")]
-    [SpecialDbType(SpecialDbTypes.NVARCHARMAX)]
-    public string RefreshToken { get; set; } = string.Empty;
+    [Length(1000)]
+    [NullSetting(NullSetting = NullSettings.Null)]
+    public string? RefreshToken { get; set; }
 
     [Column("expiresOn")]
+    [NullSetting(NullSetting = NullSettings.Null)]
     public DateTime? ExpiresOn { get; set; }
 }
