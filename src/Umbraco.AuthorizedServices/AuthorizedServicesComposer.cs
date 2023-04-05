@@ -31,7 +31,6 @@ internal class AuthorizedServicesComposer : IComposer
         // TODO: register ISecretEncryptor with key from config:
         //// builder.Services.AddUnique<ISecretEncryptor, factory => new SecretEncryptor("")));
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
-        //builder.Services.AddUnique<ITokenStorage, InMemoryTokenStorage>();
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
 
         builder.AddNotificationHandler<UmbracoApplicationStartingNotification, DatabaseTokenStorageHandler>();
