@@ -16,7 +16,7 @@ public static class Constants
 
     public static class Migrations
     {
-        public const string TableName = "umbracoAuthorizationToken";
+        public const string TableName = "umbracoAuthorizedServiceToken";
 
         public const string AddDatabaseTokenStorageTable = "AddDatabaseTokenStorageTable";
 
