@@ -2,9 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Models.Request;
 using Umbraco.AuthorizedServices.Services;
+using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
 
@@ -55,7 +57,11 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         string? authorizationUrl = null;
         if (!tokenExists)
         {
+            serviceDetail.State = AuthorizationStateHelpers.GenerateStateString();
+
             authorizationUrl = _authorizationUrlBuilder.BuildUrl(serviceDetail, HttpContext);
+
+            StateCache.Instance.Add(alias, serviceDetail.State);
         }
 
         return new AuthorizedServiceDisplay

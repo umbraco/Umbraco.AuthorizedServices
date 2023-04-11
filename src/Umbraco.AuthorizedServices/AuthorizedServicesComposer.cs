@@ -30,6 +30,10 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IRefreshTokenParametersBuilder, RefreshTokenParametersBuilder>();
         // TODO: register ISecretEncryptor with key from config:
         //// builder.Services.AddUnique<ISecretEncryptor, factory => new SecretEncryptor("")));
+
+        builder.Services.AddDataProtection();
+        builder.Services.AddUnique<ISecretEncryptor, DataEncryptor>();
+
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
 

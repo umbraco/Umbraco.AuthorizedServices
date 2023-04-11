@@ -13,6 +13,7 @@ public interface IAuthorizationUrlBuilder
     /// </summary>
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="httpContext">The HTTP context.</param>
+    /// <param name="state">The randomly generated state.</param>
     /// <returns>The authorization URL.</returns>
     string BuildUrl(ServiceDetail serviceDetail, HttpContext httpContext);
 }

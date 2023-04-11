@@ -109,6 +109,11 @@ public class ServiceDetail
     /// </summary>
     public string? SampleRequest { get; set; }
 
+    /// <summary>
+    /// Gets or sets the service's random state that is exchanged with the authorization server.
+    /// </summary>
+    public string State { get; set; } = string.Empty;
+
     internal string GetTokenHost() => string.IsNullOrWhiteSpace(TokenHost)
         ? IdentityHost
         : TokenHost;

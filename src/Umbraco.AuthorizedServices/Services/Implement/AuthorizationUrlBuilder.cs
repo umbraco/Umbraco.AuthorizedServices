@@ -25,7 +25,7 @@ internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
 
         url.Append("&response_mode=query");
 
-        url.Append("&state=").Append(serviceDetail.Alias + "|" + Constants.Authorization.State);
+        url.Append("&state=").Append(serviceDetail.Alias + "|" + serviceDetail.State);
 
         return url.ToString();
     }

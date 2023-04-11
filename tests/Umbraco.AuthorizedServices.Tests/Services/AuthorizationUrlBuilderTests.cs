@@ -16,7 +16,8 @@ internal class AuthorizationUrlBuilderTests
             IdentityHost = "https://service.url",
             RequestIdentityPath = "/login/oauth/authorize",
             ClientId = "TestClientId",
-            Scopes = "test"
+            Scopes = "test",
+            State = "state123"
         };
         var httpContext = new DefaultHttpContext();
         var sut = new AuthorizationUrlBuilder();
@@ -26,7 +27,7 @@ internal class AuthorizationUrlBuilderTests
 
         // Assert
         const string ExpectedUrl =
-            "https://service.url/login/oauth/authorize?client_id=TestClientId&scope=test&response_type=code&response_mode=query&state=testService|abc123";
+            "https://service.url/login/oauth/authorize?client_id=TestClientId&scope=test&response_type=code&response_mode=query&state=testService|state123";
         result.Should().Be(ExpectedUrl);
     }
 
@@ -42,6 +43,7 @@ internal class AuthorizationUrlBuilderTests
             ClientId = "TestClientId",
             Scopes = "test",
             AuthorizationRequestsRequireRedirectUri = true,
+            State = "state123"
         };
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Scheme = "https";

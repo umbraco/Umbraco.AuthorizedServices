@@ -3,6 +3,7 @@ using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Extensions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
+using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Umbraco.AuthorizedServices.Controllers
@@ -27,12 +28,15 @@ namespace Umbraco.AuthorizedServices.Controllers
         public async Task<IActionResult> HandleIdentityResponse(string code, string state)
         {
             var stateParts = state.Split('|');
-            if (stateParts.Length != 2 && stateParts[1] != Constants.Authorization.State)
+            if (stateParts.Length != 2 && stateParts[1] != StateCache.Instance.Get(stateParts[0]))
             {
                 throw new InvalidOperationException("State doesn't match.");
             }
 
             var serviceAlias = stateParts[0];
+
+            StateCache.Instance.Remove(serviceAlias);
+
             var redirectUri = HttpContext.GetAuthorizedServiceRedirectUri();
             AuthorizationResult result = await _serviceAuthorizer.AuthorizeServiceAsync(serviceAlias, code, redirectUri);
             if (result.Success)
