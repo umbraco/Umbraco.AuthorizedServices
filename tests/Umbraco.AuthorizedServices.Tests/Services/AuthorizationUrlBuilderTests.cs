@@ -16,14 +16,13 @@ internal class AuthorizationUrlBuilderTests
             IdentityHost = "https://service.url",
             RequestIdentityPath = "/login/oauth/authorize",
             ClientId = "TestClientId",
-            Scopes = "test",
-            State = "state123"
+            Scopes = "test"
         };
         var httpContext = new DefaultHttpContext();
         var sut = new AuthorizationUrlBuilder();
-
+        var state = "state123";
         // Act
-        var result = sut.BuildUrl(serviceDetail, httpContext);
+        var result = sut.BuildUrl(serviceDetail, httpContext, state);
 
         // Assert
         const string ExpectedUrl =
@@ -42,16 +41,16 @@ internal class AuthorizationUrlBuilderTests
             RequestIdentityPath = "/login/oauth/authorize",
             ClientId = "TestClientId",
             Scopes = "test",
-            AuthorizationRequestsRequireRedirectUri = true,
-            State = "state123"
+            AuthorizationRequestsRequireRedirectUri = true
         };
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Scheme = "https";
         httpContext.Request.Host = new HostString("www.test.com");
         var sut = new AuthorizationUrlBuilder();
+        var state = "abc123";
 
         // Act
-        var result = sut.BuildUrl(serviceDetail, httpContext);
+        var result = sut.BuildUrl(serviceDetail, httpContext, state);
 
         // Assert
         const string ExpectedUrl =

@@ -1,4 +1,4 @@
-namespace Umbraco.AuthorizedServices.Services.Implement;
+namespace Umbraco.AuthorizedServices.Services;
 
 internal class StateCache
 {

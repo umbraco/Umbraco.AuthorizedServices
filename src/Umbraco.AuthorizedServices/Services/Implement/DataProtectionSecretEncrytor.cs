@@ -5,17 +5,23 @@ using Umbraco.AuthorizedServices.Configuration;
 
 namespace Umbraco.AuthorizedServices.Services.Implement
 {
-    internal sealed class DataEncryptor : ISecretEncryptor
+    internal sealed class DataProtectionSecretEncrytor : ISecretEncryptor
     {
         private readonly AuthorizedServiceSettings _settings;
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
-        public DataEncryptor(IOptions<AuthorizedServiceSettings> options, IDataProtectionProvider dataProtectionProvider)
+        private readonly IDataProtector _protector;
+
+        private const string Purpose = "UmbracoAuthorizedServiceTokens";
+
+        public DataProtectionSecretEncrytor(IOptions<AuthorizedServiceSettings> options, IDataProtectionProvider dataProtectionProvider)
         {
             _settings = options.Value;
 
             _dataProtectionProvider = dataProtectionProvider;
+
+            _protector = _dataProtectionProvider.CreateProtector(Purpose);
         }
 
         public string Encrypt(string value)
@@ -30,9 +36,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement
                 throw new ArgumentException("The value to be encrypted cannot be empty.", nameof(value));
             }
 
-            IDataProtector protector = _dataProtectionProvider.CreateProtector(_settings.TokenEncryptionKey);
-
-            return protector.Protect(value);
+            return _protector.Protect(value);
 
         }
 
@@ -48,9 +52,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement
                 throw new ArgumentException("The value to be decrypted cannot be empty.", nameof(value));
             }
 
-            IDataProtector protector = _dataProtectionProvider.CreateProtector(_settings.TokenEncryptionKey);
-
-            return protector.Unprotect(value);
+            return _protector.Unprotect(value);
         }
     }
 }

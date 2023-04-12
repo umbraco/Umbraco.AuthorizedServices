@@ -1,4 +1,3 @@
-using StackExchange.Profiling.Internal;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Persistence.Dtos;
 using Umbraco.Cms.Infrastructure.Scoping;

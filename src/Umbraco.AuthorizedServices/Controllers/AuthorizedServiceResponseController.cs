@@ -3,7 +3,6 @@ using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Extensions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
-using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Umbraco.AuthorizedServices.Controllers
