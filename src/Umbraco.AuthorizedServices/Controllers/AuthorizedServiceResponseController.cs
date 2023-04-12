@@ -27,9 +27,14 @@ namespace Umbraco.AuthorizedServices.Controllers
         public async Task<IActionResult> HandleIdentityResponse(string code, string state)
         {
             var stateParts = state.Split('|');
-            if (stateParts.Length != 2 && stateParts[1] != StateCache.Instance.Get(stateParts[0]))
+            if (stateParts.Length != 2)
             {
-                throw new InvalidOperationException("State doesn't match.");
+                throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
+            }
+            
+            if (stateParts[1] != StateCache.Instance.Get(stateParts[0])
+            {
+                throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");                
             }
 
             var serviceAlias = stateParts[0];
