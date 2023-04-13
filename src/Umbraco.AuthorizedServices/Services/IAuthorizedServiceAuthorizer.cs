@@ -13,6 +13,7 @@ public interface IAuthorizedServiceAuthorizer
     /// <param name="serviceAlias">The service alias.</param>
     /// <param name="authorizationCode">The authorization code.</param>
     /// <param name="redirectUri">The redirect URL.</param>
+    /// <param name="codeVerifier">The string used to validate requests for OAuth with PKCE flows.</param>
     /// <returns>A <see cref="Task{AuthorizationResult}"/> representing the result of the asynchronous operation.</returns>
-    Task<AuthorizationResult> AuthorizeServiceAsync(string serviceAlias, string authorizationCode, string redirectUri);
+    Task<AuthorizationResult> AuthorizeServiceAsync(string serviceAlias, string authorizationCode, string redirectUri, string codeVerifier);
 }

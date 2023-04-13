@@ -31,4 +31,10 @@ public class AuthorizedServiceDisplay
     /// </summary>
     [DataMember(Name = "sampleRequest")]
     public string? SampleRequest { get; set; }
+
+    /// <summary>
+    /// Gets or sets the service's settings.
+    /// </summary>
+    [DataMember(Name = "settings")]
+    public Dictionary<string, string> Settings { get; set; } = new Dictionary<string, string>();
 }

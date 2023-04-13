@@ -24,11 +24,11 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         _authorizationParametersBuilder = authorizationParametersBuilder;
     }
 
-    public async Task<AuthorizationResult> AuthorizeServiceAsync(string serviceAlias, string authorizationCode, string redirectUri)
+    public async Task<AuthorizationResult> AuthorizeServiceAsync(string serviceAlias, string authorizationCode, string redirectUri, string codeVerifier)
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParameters(serviceDetail, authorizationCode, redirectUri);
+        Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParameters(serviceDetail, authorizationCode, redirectUri, codeVerifier);
 
         HttpResponseMessage response = await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
         if (response.IsSuccessStatusCode)

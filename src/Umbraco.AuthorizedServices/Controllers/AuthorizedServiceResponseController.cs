@@ -13,11 +13,18 @@ namespace Umbraco.AuthorizedServices.Controllers
     public class AuthorizedServiceResponseController : UmbracoApiController
     {
         private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
+        private readonly IAuthorizedServiceAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizedServiceResponseController"/> class.
         /// </summary>
-        public AuthorizedServiceResponseController(IAuthorizedServiceAuthorizer serviceAuthorizer) => _serviceAuthorizer = serviceAuthorizer;
+        public AuthorizedServiceResponseController(
+            IAuthorizedServiceAuthorizer serviceAuthorizer,
+            IAuthorizedServiceAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache)
+        {
+            _serviceAuthorizer = serviceAuthorizer;
+            _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
+        }
 
         /// <summary>
         /// Handles the returning messages for the authorization flow with an external service.
@@ -31,18 +38,20 @@ namespace Umbraco.AuthorizedServices.Controllers
             {
                 throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
             }
-            
-            if (stateParts[1] != StateCache.Instance.Get(stateParts[0])
+
+            if (_authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]) is not AuthorizedServiceAuthorizationPayload cachedPayload
+                || stateParts[1] != cachedPayload.State)
             {
-                throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");                
+                throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");
             }
 
             var serviceAlias = stateParts[0];
 
-            StateCache.Instance.Remove(serviceAlias);
-
             var redirectUri = HttpContext.GetAuthorizedServiceRedirectUri();
-            AuthorizationResult result = await _serviceAuthorizer.AuthorizeServiceAsync(serviceAlias, code, redirectUri);
+            var codeVerifier = cachedPayload.CodeVerifier;
+            _authorizedServiceAuthorizationPayloadCache.Remove(stateParts[0]);
+            AuthorizationResult result = await _serviceAuthorizer.AuthorizeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
+
             if (result.Success)
             {
                 return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");

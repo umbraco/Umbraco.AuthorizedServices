@@ -14,8 +14,6 @@ public enum TokenRequestContentFormat
 /// </summary>
 public class AuthorizedServiceSettings
 {
-    public string TokenEncryptionKey { get; set; } = string.Empty;
-
     public List<ServiceDetail> Services { get; set; } = new List<ServiceDetail>();
 }
 
@@ -88,6 +86,11 @@ public class ServiceDetail
     /// Gets or sets the scopes required for working with the service.
     /// </summary>
     public string Scopes { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Enables or disables the OAuth flow with PKCE.
+    /// </summary>
+    public bool UseProofKeyForCodeExchange { get; set; }
 
     /// <summary>
     /// Gets or sets the key expected in the token response that identifies the access token.

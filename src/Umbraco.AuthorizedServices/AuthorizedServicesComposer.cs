@@ -29,6 +29,8 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IDateTimeProvider, DateTimeProvider>();
         builder.Services.AddUnique<IRefreshTokenParametersBuilder, RefreshTokenParametersBuilder>();
 
+        builder.Services.AddUnique<IAuthorizedServiceAuthorizationPayloadCache, AuthorizedServiceAuthorizationPayloadCache>();
+
         builder.Services.AddDataProtection();
         builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncrytor>();
 

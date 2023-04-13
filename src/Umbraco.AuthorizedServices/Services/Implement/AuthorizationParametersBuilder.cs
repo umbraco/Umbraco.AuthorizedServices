@@ -4,8 +4,9 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal sealed class AuthorizationParametersBuilder : IAuthorizationParametersBuilder
 {
-    public Dictionary<string, string> BuildParameters(ServiceDetail serviceDetail, string authorizationCode, string redirectUri) =>
-        new Dictionary<string, string>
+    public Dictionary<string, string> BuildParameters(ServiceDetail serviceDetail, string authorizationCode, string redirectUri, string codeVerifier = "")
+    {
+        var parametersDictionary = new Dictionary<string, string>
             {
                 { "grant_type", "authorization_code" },
                 { "client_id", serviceDetail.ClientId },
@@ -13,4 +14,12 @@ internal sealed class AuthorizationParametersBuilder : IAuthorizationParametersB
                 { "code", authorizationCode },
                 { "redirect_uri", redirectUri }
             };
+
+        if (serviceDetail.UseProofKeyForCodeExchange)
+        {
+            parametersDictionary.Add("code_verifier", codeVerifier);
+        }
+
+        return parametersDictionary;
+    }
 }
