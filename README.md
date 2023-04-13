@@ -155,15 +155,15 @@ An optional sample request can be provided, which can be used to check that an a
 
 With one or more service configured, it will be available from the items within a tree in the _Settings_ section:
 
-_[insert screenshot]_
+![image](https://user-images.githubusercontent.com/95346674/231862806-f2cd3c57-253b-4b9a-bbb1-c88a8cd7ca80.png)
 
 Clicking on an item will show some details about the configured service, and it's authentication status.
 
-_[insert screenshot]_
+![image](https://user-images.githubusercontent.com/95346674/231862912-29c8e1a1-2ebb-47c8-9303-d510dc6d4b80.png)
 
 If the service is not yet authorized, click the _Authorize Service_ button to trigger the authentication and authorization flow. You will be directed to the service to login, and optionally choose an account.  You will then be asked to agree to the permissions requested by the app. Finally you will be redirect back to the Umbraco backoffice and should see confirmation that an access token has been retrieved and stored such that the service is now authorized. If provided, you can click the _Verify Sample Request_ button to ensure that service's API can be called.
 
-_[insert screenshot]_
+![image](https://user-images.githubusercontent.com/95346674/231863001-e0ab4aaa-9eb7-47b5-9980-df0d7fd0a5b2.png)
 
 ### Calling an Service
 
