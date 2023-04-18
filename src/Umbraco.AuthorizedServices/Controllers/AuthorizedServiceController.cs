@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
-using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Models.Request;
 using Umbraco.AuthorizedServices.Services;
@@ -23,6 +22,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     private readonly IAuthorizationUrlBuilder _authorizationUrlBuilder;
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
     private readonly IAuthorizedServiceAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
+    private readonly IAuthorizedServiceAuthorizationPayloadBuilder _authorizedServiceAuthorizationPayloadBuilder;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceController"/> class.
@@ -32,13 +32,15 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         ITokenStorage tokenStorage,
         IAuthorizationUrlBuilder authorizationUrlBuilder,
         IAuthorizedServiceCaller authorizedServiceCaller,
-        IAuthorizedServiceAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache)
+        IAuthorizedServiceAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
+        IAuthorizedServiceAuthorizationPayloadBuilder authorizedServiceAuthorizationPayloadBuilder)
     {
         _authorizedServiceSettings = authorizedServiceSettings.CurrentValue;
         _tokenStorage = tokenStorage;
         _authorizationUrlBuilder = authorizationUrlBuilder;
         _authorizedServiceCaller = authorizedServiceCaller;
         _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
+        _authorizedServiceAuthorizationPayloadBuilder = authorizedServiceAuthorizationPayloadBuilder;
     }
 
     /// <summary>
@@ -59,7 +61,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         string? authorizationUrl = null;
         if (!tokenExists)
         {
-            AuthorizedServiceAuthorizationPayload authorizationPayload = AuthorizationHelpers.GeneratePayload();
+            AuthorizedServiceAuthorizationPayload authorizationPayload = _authorizedServiceAuthorizationPayloadBuilder.BuildPayload();
 
             _authorizedServiceAuthorizationPayloadCache.Add(alias, authorizationPayload);
 

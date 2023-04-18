@@ -7,7 +7,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
 {
-    public string BuildUrl(ServiceDetail serviceDetail, HttpContext httpContext, string state, string codeChallenge = "")
+    public string BuildUrl(ServiceDetail serviceDetail, HttpContext httpContext, string state, string codeChallenge)
     {
         var url = new StringBuilder();
         url.Append(serviceDetail.IdentityHost);

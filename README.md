@@ -311,6 +311,9 @@ Responsible for storing tokens. Implemented by `InMemoryTokenStorage` and `Datab
 #### IAuthorizedServiceCache
 Responsible for caching data payload. Implemented by `AuthorizedServiceAuthorizationPayloadCache` to store the authorization payload.
 
+#### IAuthorizedServiceAuthorizationPayloadBuilder
+Responsible for generating the authorization payload used between the authorization and access token requests. Implemented by `AuthorizedServiceAuthorizationPayloadBuilder`.
+
 
 
 

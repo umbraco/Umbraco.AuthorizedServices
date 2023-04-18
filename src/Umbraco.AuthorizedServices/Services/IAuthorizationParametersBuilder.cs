@@ -15,5 +15,5 @@ public interface IAuthorizationParametersBuilder
     /// <param name="redirectUri">The redirect URL.</param>
     /// <param name="codeVerifier">The code verifier that was hashed and sent as code challenge.</param>
     /// <returns>A dictionary containing the authorization parameters.</returns>
-    Dictionary<string, string> BuildParameters(ServiceDetail serviceDetail, string authorizationCode, string redirectUri, string codeVerifier = "");
+    Dictionary<string, string> BuildParameters(ServiceDetail serviceDetail, string authorizationCode, string redirectUri, string codeVerifier);
 }

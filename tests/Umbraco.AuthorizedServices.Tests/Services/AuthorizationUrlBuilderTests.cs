@@ -21,8 +21,9 @@ internal class AuthorizationUrlBuilderTests
         var httpContext = new DefaultHttpContext();
         var sut = new AuthorizationUrlBuilder();
         var state = "state123";
+        var codeChallenge = "codeChallenge123";
         // Act
-        var result = sut.BuildUrl(serviceDetail, httpContext, state);
+        var result = sut.BuildUrl(serviceDetail, httpContext, state, codeChallenge);
 
         // Assert
         const string ExpectedUrl =
@@ -48,9 +49,10 @@ internal class AuthorizationUrlBuilderTests
         httpContext.Request.Host = new HostString("www.test.com");
         var sut = new AuthorizationUrlBuilder();
         var state = "abc123";
+        var codeChallenge = "codeChallenge123";
 
         // Act
-        var result = sut.BuildUrl(serviceDetail, httpContext, state);
+        var result = sut.BuildUrl(serviceDetail, httpContext, state, codeChallenge);
 
         // Assert
         const string ExpectedUrl =

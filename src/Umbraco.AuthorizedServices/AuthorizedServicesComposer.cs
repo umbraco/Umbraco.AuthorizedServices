@@ -30,6 +30,7 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IRefreshTokenParametersBuilder, RefreshTokenParametersBuilder>();
 
         builder.Services.AddUnique<IAuthorizedServiceAuthorizationPayloadCache, AuthorizedServiceAuthorizationPayloadCache>();
+        builder.Services.AddUnique<IAuthorizedServiceAuthorizationPayloadBuilder, AuthorizedServiceAuthorizationPayloadBuilder>();
 
         builder.Services.AddDataProtection();
         builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncrytor>();

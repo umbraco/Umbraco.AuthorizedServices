@@ -4,7 +4,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement
 {
     internal sealed class DataProtectionSecretEncrytor : ISecretEncryptor
     {
-        public IDataProtector Protector { get; set; }
+        private readonly IDataProtector _protector;
 
         private readonly IDataProtectionProvider _dataProtectionProvider;
 
@@ -14,11 +14,11 @@ namespace Umbraco.AuthorizedServices.Services.Implement
         {
             _dataProtectionProvider = dataProtectionProvider;
 
-            Protector = _dataProtectionProvider.CreateProtector(Purpose);
+            _protector = _dataProtectionProvider.CreateProtector(Purpose);
         }
 
-        public string Encrypt(string value) => Protector.Protect(value);
+        public string Encrypt(string value) => _protector.Protect(value);
 
-        public string Decrypt(string value) => Protector.Unprotect(value);
+        public string Decrypt(string value) => _protector.Unprotect(value);
     }
 }

@@ -16,10 +16,11 @@ internal class AuthorizationParametersBuilderTests
         };
         const string AuthorizationCode = "1234";
         const string RedirectUrl = "https://test.url";
+        const string CodeVerifier = "TestCodeVerifier";
         var sut = new AuthorizationParametersBuilder();
 
         // Act
-        Dictionary<string, string> result = sut.BuildParameters(serviceDetail, AuthorizationCode, RedirectUrl);
+        Dictionary<string, string> result = sut.BuildParameters(serviceDetail, AuthorizationCode, RedirectUrl, CodeVerifier);
 
         // Assert
         result.Count.Should().Be(5);

@@ -16,5 +16,5 @@ public interface IAuthorizationUrlBuilder
     /// <param name="state">The randomly generated state.</param>
     /// <param name="codeChallenge">Code verifier hash used for PKCE OAuth flows.</param>
     /// <returns>The authorization URL.</returns>
-    string BuildUrl(ServiceDetail serviceDetail, HttpContext httpContext, string state, string codeChallenge = "");
+    string BuildUrl(ServiceDetail serviceDetail, HttpContext httpContext, string state, string codeChallenge);
 }

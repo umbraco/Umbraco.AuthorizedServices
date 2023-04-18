@@ -4,7 +4,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal sealed class AuthorizationParametersBuilder : IAuthorizationParametersBuilder
 {
-    public Dictionary<string, string> BuildParameters(ServiceDetail serviceDetail, string authorizationCode, string redirectUri, string codeVerifier = "")
+    public Dictionary<string, string> BuildParameters(ServiceDetail serviceDetail, string authorizationCode, string redirectUri, string codeVerifier)
     {
         var parametersDictionary = new Dictionary<string, string>
             {

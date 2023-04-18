@@ -39,8 +39,8 @@ namespace Umbraco.AuthorizedServices.Controllers
                 throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
             }
 
-            if (_authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]) is not AuthorizedServiceAuthorizationPayload cachedPayload
-                || stateParts[1] != cachedPayload.State)
+            if (_authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]) is not AuthorizedServiceAuthorizationPayload cachedAuthorizationPayload
+                || stateParts[1] != cachedAuthorizationPayload.State)
             {
                 throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");
             }
@@ -48,7 +48,7 @@ namespace Umbraco.AuthorizedServices.Controllers
             var serviceAlias = stateParts[0];
 
             var redirectUri = HttpContext.GetAuthorizedServiceRedirectUri();
-            var codeVerifier = cachedPayload.CodeVerifier;
+            var codeVerifier = cachedAuthorizationPayload.CodeVerifier;
             _authorizedServiceAuthorizationPayloadCache.Remove(stateParts[0]);
             AuthorizationResult result = await _serviceAuthorizer.AuthorizeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
 
