@@ -4,9 +4,9 @@ using Umbraco.AuthorizedServices.Models;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
-internal class AuthorizedServiceAuthorizationPayloadBuilder : IAuthorizedServiceAuthorizationPayloadBuilder
+internal sealed class AuthorizationPayloadBuilder : IAuthorizationPayloadBuilder
 {
-    public AuthorizedServiceAuthorizationPayload BuildPayload()
+    public AuthorizationPayload BuildPayload()
     {
         const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -35,7 +35,7 @@ internal class AuthorizedServiceAuthorizationPayloadBuilder : IAuthorizedService
             .Replace('+', '-')
             .Replace('/', '_');
 
-        return new AuthorizedServiceAuthorizationPayload
+        return new AuthorizationPayload
         {
             State = state,
             CodeVerifier = codeVerifier,

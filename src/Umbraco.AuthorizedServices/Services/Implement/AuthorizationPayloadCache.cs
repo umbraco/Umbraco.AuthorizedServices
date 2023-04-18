@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace Umbraco.AuthorizedServices.Services.Implement
 {
-    internal class AuthorizedServiceAuthorizationPayloadCache : IAuthorizedServiceAuthorizationPayloadCache
+    internal class AuthorizationPayloadCache : IAuthorizationPayloadCache
     {
         protected const string CacheItemName = "{0}-payload";
 

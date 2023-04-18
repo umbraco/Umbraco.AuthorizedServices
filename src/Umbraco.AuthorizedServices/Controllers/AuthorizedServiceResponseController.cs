@@ -13,14 +13,14 @@ namespace Umbraco.AuthorizedServices.Controllers
     public class AuthorizedServiceResponseController : UmbracoApiController
     {
         private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
-        private readonly IAuthorizedServiceAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
+        private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizedServiceResponseController"/> class.
         /// </summary>
         public AuthorizedServiceResponseController(
             IAuthorizedServiceAuthorizer serviceAuthorizer,
-            IAuthorizedServiceAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache)
+            IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache)
         {
             _serviceAuthorizer = serviceAuthorizer;
             _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
@@ -39,7 +39,7 @@ namespace Umbraco.AuthorizedServices.Controllers
                 throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
             }
 
-            if (_authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]) is not AuthorizedServiceAuthorizationPayload cachedAuthorizationPayload
+            if (_authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]) is not AuthorizationPayload cachedAuthorizationPayload
                 || stateParts[1] != cachedAuthorizationPayload.State)
             {
                 throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");

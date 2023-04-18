@@ -6,15 +6,11 @@ namespace Umbraco.AuthorizedServices.Services.Implement
     {
         private readonly IDataProtector _protector;
 
-        private readonly IDataProtectionProvider _dataProtectionProvider;
-
         private const string Purpose = "UmbracoAuthorizedServiceTokens";
 
         public DataProtectionSecretEncrytor(IDataProtectionProvider dataProtectionProvider)
         {
-            _dataProtectionProvider = dataProtectionProvider;
-
-            _protector = _dataProtectionProvider.CreateProtector(Purpose);
+            _protector = dataProtectionProvider.CreateProtector(Purpose);
         }
 
         public string Encrypt(string value) => _protector.Protect(value);

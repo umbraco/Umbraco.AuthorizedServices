@@ -3,7 +3,7 @@ namespace Umbraco.AuthorizedServices.Models;
 /// <summary>
 /// Defines a payload object used in the authorization flow.
 /// </summary>
-public class AuthorizedServiceAuthorizationPayload
+public class AuthorizationPayload
 {
     /// <summary>
     /// Gets or sets a random state parameter sent to the authorization server.

@@ -14,6 +14,8 @@ public enum TokenRequestContentFormat
 /// </summary>
 public class AuthorizedServiceSettings
 {
+    public string TokenEncryptionKey { get; set; } = string.Empty;
+
     public List<ServiceDetail> Services { get; set; } = new List<ServiceDetail>();
 }
 

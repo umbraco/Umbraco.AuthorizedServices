@@ -29,11 +29,15 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IDateTimeProvider, DateTimeProvider>();
         builder.Services.AddUnique<IRefreshTokenParametersBuilder, RefreshTokenParametersBuilder>();
 
-        builder.Services.AddUnique<IAuthorizedServiceAuthorizationPayloadCache, AuthorizedServiceAuthorizationPayloadCache>();
-        builder.Services.AddUnique<IAuthorizedServiceAuthorizationPayloadBuilder, AuthorizedServiceAuthorizationPayloadBuilder>();
+        builder.Services.AddUnique<IAuthorizationPayloadCache, AuthorizationPayloadCache>();
+        builder.Services.AddUnique<IAuthorizationPayloadBuilder, AuthorizationPayloadBuilder>();
 
-        builder.Services.AddDataProtection();
-        builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncrytor>();
+        builder.Services.AddUnique<ISecretEncryptor>(factory =>
+            {
+                var tokenEncryptionKey = configSection.GetValue<string>(nameof(AuthorizedServiceSettings.TokenEncryptionKey));
+
+                return new SecretEncryptor(tokenEncryptionKey ?? string.Empty);
+            });
 
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
