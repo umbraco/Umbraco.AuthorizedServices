@@ -88,7 +88,7 @@ public class ServiceDetail
     public string Scopes { get; set; } = string.Empty;
 
     /// <summary>
-    /// Enables or disables the OAuth flow with PKCE.
+    /// Gets or sets a value indicating whether the OAuth flow should use with PKCE.
     /// </summary>
     public bool UseProofKeyForCodeExchange { get; set; }
 
