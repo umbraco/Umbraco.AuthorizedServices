@@ -16,7 +16,7 @@ public class AuthorizedServiceAuthorizationPayload
     public string CodeVerifier { get; set; } = string.Empty;
 
     /// <summary>
-    /// Hashed value of the code verifier for OAuth with PKCE flows. Sent as a query string parameter in the authorization URL.
+    /// Gets or sets the hashed value of the code verifier for OAuth with PKCE flows. Sent as a query string parameter in the authorization URL.
     /// </summary>
     public string CodeChallenge { get; set; } = string.Empty;
 }
