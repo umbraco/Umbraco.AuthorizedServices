@@ -6,7 +6,7 @@ namespace Umbraco.AuthorizedServices.Models;
 public class AuthorizedServiceAuthorizationPayload
 {
     /// <summary>
-    /// Random parameter sent to the authorization server.
+    /// Gets or sets a random state parameter sent to the authorization server.
     /// </summary>
     public string State { get; set; } = string.Empty;
 
