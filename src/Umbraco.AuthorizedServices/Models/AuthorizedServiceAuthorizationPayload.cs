@@ -11,7 +11,7 @@ public class AuthorizedServiceAuthorizationPayload
     public string State { get; set; } = string.Empty;
 
     /// <summary>
-    /// String value used for OAuth with PKCE flows. Sent to the authorization server when requesting an access token.
+    /// Gets or sets a string value used for OAuth with PKCE flows. Sent to the authorization server when requesting an access token.
     /// </summary>
     public string CodeVerifier { get; set; } = string.Empty;
 
