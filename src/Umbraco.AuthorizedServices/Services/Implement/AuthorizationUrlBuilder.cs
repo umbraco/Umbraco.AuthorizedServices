@@ -27,7 +27,7 @@ internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
 
         url.Append("&state=").Append(serviceDetail.Alias + "|" + state);
 
-        if(serviceDetail.UseProofKeyForCodeExchange)
+        if (serviceDetail.UseProofKeyForCodeExchange)
         {
             url.Append("&code_challenge=").Append(codeChallenge);
             url.Append("&code_challenge_method=S256");
