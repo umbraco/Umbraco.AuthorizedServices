@@ -28,8 +28,17 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IAuthorizedServiceCaller, AuthorizedServiceCaller>();
         builder.Services.AddUnique<IDateTimeProvider, DateTimeProvider>();
         builder.Services.AddUnique<IRefreshTokenParametersBuilder, RefreshTokenParametersBuilder>();
-        // TODO: register ISecretEncryptor with key from config:
-        //// builder.Services.AddUnique<ISecretEncryptor, factory => new SecretEncryptor("")));
+
+        builder.Services.AddUnique<IAuthorizationPayloadCache, AuthorizationPayloadCache>();
+        builder.Services.AddUnique<IAuthorizationPayloadBuilder, AuthorizationPayloadBuilder>();
+
+        builder.Services.AddUnique<ISecretEncryptor>(factory =>
+            {
+                var tokenEncryptionKey = configSection.GetValue<string>(nameof(AuthorizedServiceSettings.TokenEncryptionKey));
+
+                return new AesSecretEncryptor(tokenEncryptionKey ?? string.Empty);
+            });
+
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
 

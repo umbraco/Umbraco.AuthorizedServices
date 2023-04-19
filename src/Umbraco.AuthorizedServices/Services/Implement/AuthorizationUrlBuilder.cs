@@ -7,7 +7,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
 {
-    public string BuildUrl(ServiceDetail serviceDetail, HttpContext httpContext)
+    public string BuildUrl(ServiceDetail serviceDetail, HttpContext httpContext, string state, string codeChallenge)
     {
         var url = new StringBuilder();
         url.Append(serviceDetail.IdentityHost);
@@ -25,7 +25,13 @@ internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
 
         url.Append("&response_mode=query");
 
-        url.Append("&state=").Append(serviceDetail.Alias + "|" + Constants.Authorization.State);
+        url.Append("&state=").Append(serviceDetail.Alias + "|" + state);
+
+        if (serviceDetail.UseProofKeyForCodeExchange)
+        {
+            url.Append("&code_challenge=").Append(codeChallenge);
+            url.Append("&code_challenge_method=S256");
+        }
 
         return url.ToString();
     }

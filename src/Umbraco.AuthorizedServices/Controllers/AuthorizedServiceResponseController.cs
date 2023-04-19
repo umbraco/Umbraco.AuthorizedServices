@@ -13,11 +13,18 @@ namespace Umbraco.AuthorizedServices.Controllers
     public class AuthorizedServiceResponseController : UmbracoApiController
     {
         private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
+        private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizedServiceResponseController"/> class.
         /// </summary>
-        public AuthorizedServiceResponseController(IAuthorizedServiceAuthorizer serviceAuthorizer) => _serviceAuthorizer = serviceAuthorizer;
+        public AuthorizedServiceResponseController(
+            IAuthorizedServiceAuthorizer serviceAuthorizer,
+            IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache)
+        {
+            _serviceAuthorizer = serviceAuthorizer;
+            _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
+        }
 
         /// <summary>
         /// Handles the returning messages for the authorization flow with an external service.
@@ -27,14 +34,24 @@ namespace Umbraco.AuthorizedServices.Controllers
         public async Task<IActionResult> HandleIdentityResponse(string code, string state)
         {
             var stateParts = state.Split('|');
-            if (stateParts.Length != 2 && stateParts[1] != Constants.Authorization.State)
+            if (stateParts.Length != 2)
             {
-                throw new InvalidOperationException("State doesn't match.");
+                throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
+            }
+
+            AuthorizationPayload? cachedAuthorizationPayload = _authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]);
+            if (cachedAuthorizationPayload == null || stateParts[1] != cachedAuthorizationPayload.State)
+            {
+                throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");
             }
 
             var serviceAlias = stateParts[0];
+
             var redirectUri = HttpContext.GetAuthorizedServiceRedirectUri();
-            AuthorizationResult result = await _serviceAuthorizer.AuthorizeServiceAsync(serviceAlias, code, redirectUri);
+            var codeVerifier = cachedAuthorizationPayload.CodeVerifier;
+            _authorizedServiceAuthorizationPayloadCache.Remove(stateParts[0]);
+            AuthorizationResult result = await _serviceAuthorizer.AuthorizeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
+
             if (result.Success)
             {
                 return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");

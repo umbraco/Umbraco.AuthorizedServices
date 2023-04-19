@@ -90,6 +90,11 @@ public class ServiceDetail
     public string Scopes { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets a value indicating whether the OAuth flow should use Proof of Key Code Exchange (PKCE).
+    /// </summary>
+    public bool UseProofKeyForCodeExchange { get; set; }
+
+    /// <summary>
     /// Gets or sets the key expected in the token response that identifies the access token.
     /// </summary>
     public string AccessTokenResponseKey { get; set; } = "access_token";

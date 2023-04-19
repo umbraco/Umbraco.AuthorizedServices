@@ -57,6 +57,7 @@ Details of services available need to be applied to the Umbraco web application'
           "RequestTokenFormat": "",
           "ClientId": "",
           "ClientSecret": "",
+          "UseProofKeyForCodeExchange": true|false,
           "Scopes": "",
           "AccessTokenResponseKey": "access_token",
           "RefreshTokenResponseKey": "refresh_token",
@@ -125,6 +126,12 @@ This value will be retrieved from the registered service app.
 
 This value will be retrieved from the registered service app.  As the name suggests, it should be kept secret and so is probably best not added directly to `appSettings.json` and checked into source control.
 
+###### UseProofKeyForCodeExchange *
+This flag will extend the OAuth flow with an additional security layer called [PKCE - Proof Key for Code Exchange](https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow-with-proof-key-for-code-exchange-pkce).
+In the OAuth with PKCE flow, a random code will be generated on the client and stored under the name `code_verifier`, and then using the `SHA-256` algorithm it will be hashed under the name `code_challenge`.
+When the authorization URL is generated, the `code_challenge` will be sent to the OAuth Server, which will store it. The next request for access token will pass the `code_verifier` as a header key, and the OAuth Server will 
+compare it with the previously sent `code_challenge`.
+
 ###### Scopes *
 
 This value will be configured on the service app and retrieved from there. Best practice is to define only the set of permissions that the integration will need.  For GitHub, the single scope needed to retrieve details about a repository's contributors is `repo`.
@@ -149,15 +156,15 @@ An optional sample request can be provided, which can be used to check that an a
 
 With one or more service configured, it will be available from the items within a tree in the _Settings_ section:
 
-_[insert screenshot]_
+![image](https://user-images.githubusercontent.com/95346674/231862806-f2cd3c57-253b-4b9a-bbb1-c88a8cd7ca80.png)
 
 Clicking on an item will show some details about the configured service, and it's authentication status.
 
-_[insert screenshot]_
+![image](https://user-images.githubusercontent.com/95346674/231862912-29c8e1a1-2ebb-47c8-9303-d510dc6d4b80.png)
 
 If the service is not yet authorized, click the _Authorize Service_ button to trigger the authentication and authorization flow. You will be directed to the service to login, and optionally choose an account.  You will then be asked to agree to the permissions requested by the app. Finally you will be redirect back to the Umbraco backoffice and should see confirmation that an access token has been retrieved and stored such that the service is now authorized. If provided, you can click the _Verify Sample Request_ button to ensure that service's API can be called.
 
-_[insert screenshot]_
+![image](https://user-images.githubusercontent.com/95346674/231863001-e0ab4aaa-9eb7-47b5-9980-df0d7fd0a5b2.png)
 
 ### Calling an Service
 
@@ -292,7 +299,15 @@ Responsible for creating a dictionary of parameters provided in the request to r
 
 #### ISecretEncryptor
 
-Responsible for encrypting and decrypting stored tokens (or other values). Implemented by `SecretEncryptor`.
+Responsible for encrypting and decrypting stored tokens (or other values). 
+It has two implementations:
+- `AesSecretEncryptor` - default implementation that is using a standard `AES` cryptographic algorithm for encrypting/decrypting values based on the provided `TokenEncryptionKey`.
+- `DataProtectionSecretEncryptor` - additional implementation that uses the `IDataProtectionProvider` interface for providing data protection services.
+Switching the encryption engine to `DataProtectionSecretEncryptor` can be done in code, adding these two lines:
+```
+builder.Services.AddDataProtection();
+builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncrytor>();
+```
 
 #### ITokenFactory
 
@@ -302,7 +317,8 @@ Responsible for instantiating a new strongly typed `Token` instance from the ser
 
 Responsible for storing tokens. Implemented by `InMemoryTokenStorage` and `DatabaseTokenStorage`.
 
+#### IAuthorizedServiceCache
+Responsible for caching data payload. Implemented by `AuthorizedServiceAuthorizationPayloadCache` to store the authorization payload.
 
-
-
-
+#### IAuthorizedServiceAuthorizationPayloadBuilder
+Responsible for generating the authorization payload used between the authorization and access token requests. Implemented by `AuthorizedServiceAuthorizationPayloadBuilder`.

@@ -1,4 +1,4 @@
-function AuthorizedServiceEditController(this: any, $routeParams, authorizedServiceResource, notificationsService) {
+function AuthorizedServiceEditController(this: any, $routeParams, $location, authorizedServiceResource, notificationsService) {
 
   const vm = this;
   const serviceAlias = $routeParams.id;
@@ -12,6 +12,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, authorizedServ
         vm.authorizationUrl = serviceData.authorizationUrl;
         vm.sampleRequest = serviceData.sampleRequest;
         vm.sampleRequestResponse = null;
+        vm.settings = serviceData.settings;
       });
   }
 
@@ -36,6 +37,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, authorizedServ
   };
 
   vm.back = function () {
+    $location.path("/settings");
   };
 
   loadServiceDetails(serviceAlias);

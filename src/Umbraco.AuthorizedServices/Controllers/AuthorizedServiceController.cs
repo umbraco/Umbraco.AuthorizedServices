@@ -21,6 +21,8 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     private readonly ITokenStorage _tokenStorage;
     private readonly IAuthorizationUrlBuilder _authorizationUrlBuilder;
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
+    private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
+    private readonly IAuthorizationPayloadBuilder _authorizedServiceAuthorizationPayloadBuilder;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceController"/> class.
@@ -29,12 +31,16 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings,
         ITokenStorage tokenStorage,
         IAuthorizationUrlBuilder authorizationUrlBuilder,
-        IAuthorizedServiceCaller authorizedServiceCaller)
+        IAuthorizedServiceCaller authorizedServiceCaller,
+        IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
+        IAuthorizationPayloadBuilder authorizedServiceAuthorizationPayloadBuilder)
     {
         _authorizedServiceSettings = authorizedServiceSettings.CurrentValue;
         _tokenStorage = tokenStorage;
         _authorizationUrlBuilder = authorizationUrlBuilder;
         _authorizedServiceCaller = authorizedServiceCaller;
+        _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
+        _authorizedServiceAuthorizationPayloadBuilder = authorizedServiceAuthorizationPayloadBuilder;
     }
 
     /// <summary>
@@ -55,7 +61,12 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         string? authorizationUrl = null;
         if (!tokenExists)
         {
-            authorizationUrl = _authorizationUrlBuilder.BuildUrl(serviceDetail, HttpContext);
+            AuthorizationPayload authorizationPayload = _authorizedServiceAuthorizationPayloadBuilder.BuildPayload();
+
+            _authorizedServiceAuthorizationPayloadCache.Add(alias, authorizationPayload);
+
+            authorizationUrl = _authorizationUrlBuilder
+                .BuildUrl(serviceDetail, HttpContext, authorizationPayload.State, authorizationPayload.CodeChallenge);
         }
 
         return new AuthorizedServiceDisplay
@@ -63,7 +74,27 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
             DisplayName = serviceDetail.DisplayName,
             IsAuthorized = tokenExists,
             AuthorizationUrl = authorizationUrl,
-            SampleRequest = serviceDetail.SampleRequest
+            SampleRequest = serviceDetail.SampleRequest,
+            Settings = new Dictionary<string, string>
+            {
+                { nameof(ServiceDetail.Alias), serviceDetail.Alias },
+                { nameof(ServiceDetail.DisplayName), serviceDetail.DisplayName },
+                { nameof(ServiceDetail.ApiHost), serviceDetail.ApiHost },
+                { nameof(ServiceDetail.IdentityHost), serviceDetail.IdentityHost },
+                { nameof(ServiceDetail.TokenHost), serviceDetail.TokenHost },
+                { nameof(ServiceDetail.RequestIdentityPath), serviceDetail.RequestIdentityPath },
+                { nameof(ServiceDetail.RequestTokenPath), serviceDetail.RequestTokenPath },
+                { nameof(ServiceDetail.RequestTokenFormat), serviceDetail.RequestTokenFormat.ToString() },
+                { nameof(ServiceDetail.ClientId), serviceDetail.ClientId },
+                { nameof(ServiceDetail.ClientSecret), new string('*', serviceDetail.ClientSecret.Length) },
+                { nameof(ServiceDetail.Scopes), serviceDetail.Scopes },
+                {
+                    nameof(ServiceDetail.SampleRequest),
+                    !string.IsNullOrEmpty(serviceDetail.SampleRequest)
+                        ? serviceDetail.SampleRequest
+                        : string.Empty
+                }
+            }
         };
     }
 

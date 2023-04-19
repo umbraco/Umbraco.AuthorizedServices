@@ -16,3 +16,18 @@
   text-align: left;
   color: black;
 }
+
+.settings-list {
+  list-style: none;
+  padding-inline-start: 0px;
+  margin: 0;
+}
+
+.settings-list li {
+    font-size: 15px;
+    padding: 10px 0 10px 0;
+}
+
+  .settings-list span {
+    font-weight: 700;
+  }

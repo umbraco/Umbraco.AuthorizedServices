@@ -24,7 +24,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
         AuthorizedServiceAuthorizer sut = CreateService();
 
         // Act
-        AuthorizationResult result = await sut.AuthorizeServiceAsync(ServiceAlias, "1234", "https://test.url/handle-auth");
+        AuthorizationResult result = await sut.AuthorizeServiceAsync(ServiceAlias, "1234", "https://test.url/handle-auth", "5678");
 
         // Assert
         result.Success.Should().BeTrue();
@@ -40,7 +40,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
         AuthorizedServiceAuthorizer sut = CreateService(withSuccessReponse: false);
 
         // Act
-        Func<Task> act = () => sut.AuthorizeServiceAsync(ServiceAlias, "1234", "https://test.url/handle-auth");
+        Func<Task> act = () => sut.AuthorizeServiceAsync(ServiceAlias, "1234", "https://test.url/handle-auth", "5678");
 
         // Assert
         await act.Should().ThrowAsync<AuthorizedServiceHttpException>();
