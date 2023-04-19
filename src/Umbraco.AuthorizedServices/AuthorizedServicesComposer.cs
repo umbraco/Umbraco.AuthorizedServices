@@ -36,7 +36,7 @@ internal class AuthorizedServicesComposer : IComposer
             {
                 var tokenEncryptionKey = configSection.GetValue<string>(nameof(AuthorizedServiceSettings.TokenEncryptionKey));
 
-                return new SecretEncryptor(tokenEncryptionKey ?? string.Empty);
+                return new AesSecretEncryptor(tokenEncryptionKey ?? string.Empty);
             });
 
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();

@@ -1,10 +1,12 @@
+using Umbraco.AuthorizedServices.Models;
+
 namespace Umbraco.AuthorizedServices.Services;
 
 public interface IAuthorizationPayloadCache
 {
-    void Add(string key, object value);
+    void Add(string key, AuthorizationPayload value);
 
-    object? Get(string key);
+    AuthorizationPayload? Get(string key);
 
     void Remove(string key);
 

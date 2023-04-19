@@ -4,11 +4,11 @@ using System.Text;
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
 // Hat-tip: https://stackoverflow.com/a/51947250/489433
-internal sealed class SecretEncryptor : ISecretEncryptor
+internal sealed class AesSecretEncryptor : ISecretEncryptor
 {
     private readonly string _secretKey;
 
-    public SecretEncryptor(string secretKey) => _secretKey = secretKey;
+    public AesSecretEncryptor(string secretKey) => _secretKey = secretKey;
 
     public string Encrypt(string value)
     {

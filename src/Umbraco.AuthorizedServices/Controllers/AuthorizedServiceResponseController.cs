@@ -39,8 +39,8 @@ namespace Umbraco.AuthorizedServices.Controllers
                 throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
             }
 
-            if (_authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]) is not AuthorizationPayload cachedAuthorizationPayload
-                || stateParts[1] != cachedAuthorizationPayload.State)
+            AuthorizationPayload? cachedAuthorizationPayload = _authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]);
+            if (cachedAuthorizationPayload == null || stateParts[1] != cachedAuthorizationPayload.State)
             {
                 throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");
             }
