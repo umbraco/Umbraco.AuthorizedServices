@@ -25,6 +25,14 @@ stages:
       NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
       npm_config_cache: $(Pipeline.Workspace)/.npm_client
     jobs:
+      - job: Test
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: test
+              projects: 'Umbraco.AuthorizedServices.Tests.csproj'
+              publishTestResults: false
+              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
       - job: Build
         pool: 
           vmImage: ubuntu-latest
