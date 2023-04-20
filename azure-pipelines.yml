@@ -29,10 +29,9 @@ stages:
         steps:
           - task: DotNetCoreCLI@2
             inputs:
-              command: test
-              projects: 'Umbraco.AuthorizedServices.Tests.csproj'
-              publishTestResults: false
-              arguments: '--configuration $(buildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+              command: 'test'
+              projects: 'tests/Umbraco.AuthorizedServices.Tests/Umbraco.AuthorizedServices.Tests.csproj'
+              arguments: '--configuration $(buildConfiguration)'
       - job: Build
         pool: 
           vmImage: ubuntu-latest
