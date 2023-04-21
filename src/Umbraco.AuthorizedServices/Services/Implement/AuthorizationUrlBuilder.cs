@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Umbraco.AuthorizedServices.Configuration;
@@ -12,7 +13,9 @@ internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
         var url = new StringBuilder();
         url.Append(serviceDetail.IdentityHost);
         url.Append(serviceDetail.RequestIdentityPath);
-        url.Append("?client_id=").Append(serviceDetail.ClientId);
+        url.Append("?response_type=code");
+        url.Append("&client_id=").Append(serviceDetail.ClientId);
+        url.Append("&response_mode=query");
 
         if (serviceDetail.AuthorizationRequestsRequireRedirectUri)
         {
@@ -21,11 +24,7 @@ internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
 
         url.Append("&scope=").Append(serviceDetail.Scopes);
 
-        url.Append("&response_type=code");
-
-        url.Append("&response_mode=query");
-
-        url.Append("&state=").Append(serviceDetail.Alias + "|" + state);
+        url.Append("&state=").Append(serviceDetail.Alias + WebUtility.UrlEncode("|") + state);
 
         if (serviceDetail.UseProofKeyForCodeExchange)
         {
