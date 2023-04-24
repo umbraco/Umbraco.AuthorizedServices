@@ -24,7 +24,7 @@ internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
 
         url.Append("&scope=").Append(serviceDetail.Scopes);
 
-        url.Append("&state=").Append(serviceDetail.Alias + WebUtility.UrlEncode("|") + state);
+        url.Append("&state=").Append(serviceDetail.Alias + Constants.Separator + state);
 
         if (serviceDetail.UseProofKeyForCodeExchange)
         {

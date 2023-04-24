@@ -4,6 +4,8 @@ public static class Constants
 {
     public const string PluginName = "UmbracoAuthorizedServices";
 
+    public const string Separator = "-";
+
     public static class Trees
     {
         public const string AuthorizedServices = nameof(AuthorizedServices);
