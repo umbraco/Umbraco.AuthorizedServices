@@ -259,6 +259,14 @@ As integrations with more providers are successfully completed, we plan to maint
 
 ## Package Development
 
+### Branching Strategy
+
+The branching strategy in this repository follows a "gitflow" model:
+
+- `main` contains the latest released version
+- `develop` contains the work for the next minor release
+- as needed `support/x.x.x` branches are introduced from tags used for updates to older versions
+
 The following details are those useful for those contributing to development of the package, and for anyone interested in the how it has been implemented. For anyone using the package too, and finding the existing configuration options aren't sufficient to specify a particular service, there may be scope to provide a custom implementation for particular components.
 
 ### Component Description
