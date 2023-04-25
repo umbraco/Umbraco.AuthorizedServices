@@ -92,3 +92,11 @@ stages:
             inputs:
               targetPath: $(Build.SourcesDirectory)
               artifactName: build_output
+  - stage: Test
+    jobs:
+      - job: UnitTests
+        steps:
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'test'
+              projects: '''**/Umbraco.AuthorizedServices.Tests/*.csproj'''
