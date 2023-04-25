@@ -100,5 +100,5 @@ stages:
         displayName: Run Unit Tests
         steps:
           # Test
-          - script: dotnet test
+          - script: dotnet test $(solution) --configuration $(buildConfiguration)
             displayName: Run tests
