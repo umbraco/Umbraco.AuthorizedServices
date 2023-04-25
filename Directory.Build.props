@@ -18,7 +18,7 @@
   <PropertyGroup>
     <!-- TODO: Enable when final version is shipped (because there's currently no previous version) -->
     <EnablePackageValidation>false</EnablePackageValidation>
-    <PackageValidationBaselineVersion>11.0.0</PackageValidationBaselineVersion>
+    <PackageValidationBaselineVersion>1.0.0</PackageValidationBaselineVersion>
     <EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
     <EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>
     <GenerateCompatibilitySuppressionFile>true</GenerateCompatibilitySuppressionFile>
