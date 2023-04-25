@@ -98,35 +98,9 @@ stages:
     jobs:
       - job: UnitTests
         displayName: Run Unit Tests
-        pool:
-          vmImage: 'windows-latest'
         steps:
-          # Checkout source
-          - checkout: self
-
-          # Setup test environment
-          - task: DownloadPipelineArtifact@2
-            displayName: Download build artifacts
+          - task: DotNetCoreCLI@2
             inputs:
-              artifact: build_output
-              path: $(Build.SourcesDirectory)
-
-          - task: UseDotNet@2
-            displayName: Use .NET SDK from global.json
-            inputs:
-              useGlobalJson: true
-
-          # Test
-          - script: dotnet test $(solution) --configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Build.ArtifactStagingDirectory)/tests
-            displayName: Run dotnet test
-
-          # Publish
-          - task: PublishTestResults@2
-            displayName: Publish test results
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: VSTest
-              testResultsFiles: '*.trx'
-              searchFolder: $(Build.ArtifactStagingDirectory)/tests
-              testRunTitle: Unit Tests - $(Agent.OS)
-              configuration: $(buildConfiguration)
+              command: test
+              projects: '**/Umbraco.AuthorizedServices.Tests/*.csproj'
+              arguments: '--configuration $(buildConfiguration)'
