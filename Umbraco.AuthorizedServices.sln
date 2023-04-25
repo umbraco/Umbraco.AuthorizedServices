@@ -17,13 +17,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		icon.png = icon.png
 		README.md = README.md
 		version.json = version.json
+		umbraco-marketplace.json = umbraco-marketplace.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{49BBAC1E-F1C7-48E2-BCF7-240B9144983F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.AuthorizedServices.TestSite", "examples\Umbraco.AuthorizedServices.TestSite\Umbraco.AuthorizedServices.TestSite.csproj", "{D63A0D65-08F3-497C-9311-0FBFC3AF2F4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Umbraco.AuthorizedServices.Tests", "tests\Umbraco.AuthorizedServices.Tests\Umbraco.AuthorizedServices.Tests.csproj", "{3AB01311-A4B3-4F64-B9D5-8C96B0F6321A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Umbraco.AuthorizedServices.Tests", "tests\Umbraco.AuthorizedServices.Tests\Umbraco.AuthorizedServices.Tests.csproj", "{3AB01311-A4B3-4F64-B9D5-8C96B0F6321A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
