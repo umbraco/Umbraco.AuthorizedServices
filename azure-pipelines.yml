@@ -99,4 +99,4 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: 'test'
-              arguments: '--no-build --configuration $(buildConfiguration)'
+              arguments: '--no-build --logger trx --configuration $(buildConfiguration)'
