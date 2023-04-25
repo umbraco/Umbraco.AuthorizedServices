@@ -92,16 +92,46 @@ stages:
             inputs:
               targetPath: $(Build.SourcesDirectory)
               artifactName: build_output
-  - stage: Test
+  - stage: UnitTests
+    displayName: Unit Tests
+    dependsOn: Build
     jobs:
       - job: UnitTests
+        displayName: Run Unit Tests
+        strategy:
+          matrix:
+            Windows:
+              vmImage: 'windows-latest'
+            Linux:
+              vmImage: 'ubuntu-latest'
+            macOS:
+              vmImage: 'macos-latest'
+        pool:
+          vmImage: $(vmImage)
         steps:
+          # Checkout source
+          - checkout: self
+
+          # Setup test environment
+          - task: DownloadPipelineArtifact@2
+            displayName: Download build artifacts
+            inputs:
+              artifact: build_output
+              path: $(Build.SourcesDirectory)
+
+          - task: UseDotNet@2
+            displayName: Use .NET SDK from global.json
+            inputs:
+              useGlobalJson: true
+
           # Test
           - script: dotnet test $(solution) --configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Build.ArtifactStagingDirectory)/tests
             displayName: Run dotnet test
+
           # Publish
           - task: PublishTestResults@2
             displayName: Publish test results
+            condition: succeededOrFailed()
             inputs:
               testResultsFormat: VSTest
               testResultsFiles: '*.trx'
