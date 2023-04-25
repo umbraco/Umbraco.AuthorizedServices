@@ -20,7 +20,7 @@ internal class AuthorizationUrlBuilderTests
         };
         var httpContext = new DefaultHttpContext();
         var sut = new AuthorizationUrlBuilder();
-        var state = "state123";
+        var state = "state123-";
         var codeChallenge = "codeChallenge123";
         // Act
         var result = sut.BuildUrl(serviceDetail, httpContext, state, codeChallenge);
