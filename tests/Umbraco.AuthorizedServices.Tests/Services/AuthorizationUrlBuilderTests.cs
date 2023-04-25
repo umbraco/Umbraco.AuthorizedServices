@@ -27,7 +27,7 @@ internal class AuthorizationUrlBuilderTests
 
         // Assert
         const string ExpectedUrl =
-            "https://service.url/login/oauth/authorize?client_id=TestClientId&scope=test&response_type=code&response_mode=query&state=testService|state123";
+            "https://service.url/login/oauth/authorize?response_type=code&client_id=TestClientId&response_mode=query&scope=test&state=testService-state123";
         result.Should().Be(ExpectedUrl);
     }
 
@@ -56,7 +56,7 @@ internal class AuthorizationUrlBuilderTests
 
         // Assert
         const string ExpectedUrl =
-            "https://service.url/login/oauth/authorize?client_id=TestClientId&redirect_uri=https://www.test.com/umbraco/api/AuthorizedServiceResponse/HandleIdentityResponse&scope=test&response_type=code&response_mode=query&state=testService|abc123";
+            "https://service.url/login/oauth/authorize?response_type=code&client_id=TestClientId&response_mode=query&redirect_uri=https://www.test.com/umbraco/api/AuthorizedServiceResponse/HandleIdentityResponse&scope=test&state=testService-abc123";
         result.Should().Be(ExpectedUrl);
     }
 }

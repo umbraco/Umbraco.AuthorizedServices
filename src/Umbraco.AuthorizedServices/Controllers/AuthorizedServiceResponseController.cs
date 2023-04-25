@@ -33,7 +33,7 @@ namespace Umbraco.AuthorizedServices.Controllers
         /// <param name="state">The state.</param>
         public async Task<IActionResult> HandleIdentityResponse(string code, string state)
         {
-            var stateParts = state.Split('|');
+            var stateParts = state.Split(Constants.Separator);
             if (stateParts.Length != 2)
             {
                 throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
