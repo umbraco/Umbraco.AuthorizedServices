@@ -97,11 +97,8 @@ stages:
       - job: UnitTests
         steps:
           # Test
-          - task: DotNetCoreCLI@2
+          - script: dotnet test $(solution) --configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Build.ArtifactStagingDirectory)/tests
             displayName: Run dotnet test
-            inputs:
-              command: 'test'
-              arguments: '--no-build --logger trx --configuration $(buildConfiguration) --results-directory $(Build.ArtifactStagingDirectory)/tests'
           # Publish
           - task: PublishTestResults@2
             displayName: Publish test results
