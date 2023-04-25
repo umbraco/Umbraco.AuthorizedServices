@@ -99,4 +99,4 @@ stages:
           - task: DotNetCoreCLI@2
             inputs:
               command: 'test'
-              projects: '''**/Umbraco.AuthorizedServices.Tests/*.csproj'''
+              projects: '**/Umbraco.AuthorizedServices.Tests/*.csproj'
