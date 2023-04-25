@@ -100,5 +100,5 @@ stages:
         displayName: Run Unit Tests
         steps:
           # Test
-          - script: dotnet test $(solution)
+          - script: dotnet test
             displayName: Run tests
