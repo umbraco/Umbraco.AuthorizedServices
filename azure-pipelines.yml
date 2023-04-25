@@ -98,16 +98,8 @@ stages:
     jobs:
       - job: UnitTests
         displayName: Run Unit Tests
-        strategy:
-          matrix:
-            Windows:
-              vmImage: 'windows-latest'
-            Linux:
-              vmImage: 'ubuntu-latest'
-            macOS:
-              vmImage: 'macos-latest'
         pool:
-          vmImage: $(vmImage)
+          vmImage: 'windows-latest'
         steps:
           # Checkout source
           - checkout: self
