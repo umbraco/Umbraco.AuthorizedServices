@@ -99,8 +99,6 @@ stages:
       - job: UnitTests
         displayName: Run Unit Tests
         steps:
-          - task: DotNetCoreCLI@2
-            inputs:
-              command: test
-              projects: '**/Umbraco.AuthorizedServices.Tests/*.csproj'
-              arguments: '--configuration $(buildConfiguration)'
+          # Test
+          - script: dotnet test $(solution)
+            displayName: Run tests
