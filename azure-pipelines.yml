@@ -96,7 +96,18 @@ stages:
     jobs:
       - job: UnitTests
         steps:
+          # Test
           - task: DotNetCoreCLI@2
+            displayName: Run dotnet test
             inputs:
               command: 'test'
-              arguments: '--no-build --logger trx --configuration $(buildConfiguration)'
+              arguments: '--no-build --logger trx --configuration $(buildConfiguration) --results-directory $(Build.ArtifactStagingDirectory)/tests'
+          # Publish
+          - task: PublishTestResults@2
+            displayName: Publish test results
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: '*.trx'
+              searchFolder: $(Build.ArtifactStagingDirectory)/tests
+              testRunTitle: Unit Tests - $(Agent.OS)
+              configuration: $(buildConfiguration)
