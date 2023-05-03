@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Serialization;
@@ -39,7 +40,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             return null;
         }
 
-        var serializedContent = _jsonSerializer.Serialize(requestContent);
+        var serializedContent = JsonSerializer.Serialize(requestContent);
         return new StringContent(serializedContent, Encoding.UTF8, "application/json");
     }
 }

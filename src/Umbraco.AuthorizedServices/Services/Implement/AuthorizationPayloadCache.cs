@@ -9,7 +9,8 @@ namespace Umbraco.AuthorizedServices.Services.Implement
 
         private readonly ConcurrentDictionary<string, AuthorizationPayload> _internalCache = new();
 
-        public void Add(string key, AuthorizationPayload value) => _internalCache.GetOrAdd(string.Format(CacheItemName, key), value);
+        public void Add(string key, AuthorizationPayload value) =>
+            _internalCache.AddOrUpdate(string.Format(CacheItemName, key), value, (key, oldValue) => value);
 
         public AuthorizationPayload? Get(string key) => _internalCache.GetValueOrDefault(string.Format(CacheItemName, key));
 
