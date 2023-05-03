@@ -11,13 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		.globalconfig = .globalconfig
-		azure-pipelines.yml = azure-pipelines.yml
+		azure-pipeline - Umbraco.AuthorizedServices.yml = azure-pipeline - Umbraco.AuthorizedServices.yml
 		Directory.Build.props = Directory.Build.props
 		global.json = global.json
 		icon.png = icon.png
 		README.md = README.md
-		version.json = version.json
 		umbraco-marketplace.json = umbraco-marketplace.json
+		version.json = version.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{49BBAC1E-F1C7-48E2-BCF7-240B9144983F}"
