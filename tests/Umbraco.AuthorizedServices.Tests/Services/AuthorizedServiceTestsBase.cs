@@ -19,7 +19,8 @@ internal abstract class AuthorizedServiceTestsBase
                 new ServiceDetail
                 {
                     Alias = ServiceAlias,
-                    ApiHost = "https://service.url"
+                    ApiHost = "https://service.url",
+                    JsonSerializer = JsonSerializerOption.JsonNet
                 }
             }
         };

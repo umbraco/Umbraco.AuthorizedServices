@@ -13,7 +13,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthorizedServiceCaller
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IJsonSerializer _jsonSerializer;
+    private readonly JsonSerializerFactory _jsonSerializerFactory;
     private readonly IAuthorizedRequestBuilder _authorizedRequestBuilder;
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
 
@@ -25,13 +25,13 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         ILogger<AuthorizedServiceCaller> logger,
         IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings,
         IHttpClientFactory httpClientFactory,
-        IJsonSerializer jsonSerializer,
+        JsonSerializerFactory jsonSerializerFactory,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder)
         : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, authorizedServiceSettings.CurrentValue)
     {
         _httpClientFactory = httpClientFactory;
-        _jsonSerializer = jsonSerializer;
+        _jsonSerializerFactory = jsonSerializerFactory;
         _authorizedRequestBuilder = authorizedRequestBuilder;
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
     }
@@ -54,7 +54,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
         if (!string.IsNullOrWhiteSpace(responseContent))
         {
-            TResponse? result = _jsonSerializer.Deserialize<TResponse>(responseContent);
+            IJsonSerializer jsonSerializer = _jsonSerializerFactory.GetSerializer(serviceAlias);
+            TResponse? result = jsonSerializer.Deserialize<TResponse>(responseContent);
             if (result != null)
             {
                 return result;
