@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
@@ -35,21 +36,34 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
     }
 
-    public async Task<TResponse> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod)
-      => await SendRequestAsync<object, TResponse>(serviceAlias, path, httpMethod, null);
+    public async Task SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
+      => await SendRequestAsync<EmptyResponse, object>(serviceAlias, path, httpMethod, null);
 
-    public async Task<TResponse> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+    public async Task<TResponse?> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod)
+      => await SendRequestAsync<EmptyResponse, TResponse>(serviceAlias, path, httpMethod, null);
+
+    public async Task<TResponse?> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class
     {
         string responseContent = await SendRequestRawAsync(serviceAlias, path, httpMethod, requestContent);
 
-        TResponse? result = _jsonSerializer.Deserialize<TResponse>(responseContent);
-        if (result != null)
+        if (typeof(TResponse) == typeof(EmptyResponse))
         {
-            return result;
+            return default;
         }
 
-        throw new AuthorizedServiceException($"Could not deserialize result of request to service '{serviceAlias}'");
+        if (!string.IsNullOrWhiteSpace(responseContent))
+        {
+            TResponse? result = _jsonSerializer.Deserialize<TResponse>(responseContent);
+            if (result != null)
+            {
+                return result;
+            }
+
+            throw new AuthorizedServiceException($"Could not deserialize result of request to service '{serviceAlias}'");
+        }
+
+        return default;
     }
 
     public async Task<string> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod)
@@ -76,6 +90,10 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadAsStringAsync();
+        }
+        else if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            return string.Empty;
         }
 
         throw new AuthorizedServiceHttpException(
@@ -161,4 +179,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     }
 
     private static string GetTokenCacheKey(string serviceAlias) => $"Umbraco_AuthorizedServiceToken_{serviceAlias}";
+
+    private class EmptyResponse
+    {
+    }
 }

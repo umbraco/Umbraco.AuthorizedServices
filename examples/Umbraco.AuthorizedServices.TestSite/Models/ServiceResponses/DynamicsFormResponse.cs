@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 
-namespace Umbraco.AuthorizedServices.TestSite.Models;
+namespace Umbraco.AuthorizedServices.TestSite.Models.ServiceResponses;
 
 public class DynamicsFormResponse
 {

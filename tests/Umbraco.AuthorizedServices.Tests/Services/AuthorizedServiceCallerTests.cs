@@ -30,11 +30,11 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
 
         // Act
-        TestResponseData result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+        TestResponseData? result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Should().NotBeNull();
-        result.Foo.Should().Be("bar");
+        result!.Foo.Should().Be("bar");
 
         TokenStorageMock
             .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<Token>()), Times.Never);
@@ -87,11 +87,11 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
 
         // Act
-        TestResponseData result = await sut.SendRequestAsync<TestRequestData, TestResponseData>(ServiceAlias, path, HttpMethod.Get, data);
+        TestResponseData? result = await sut.SendRequestAsync<TestRequestData, TestResponseData>(ServiceAlias, path, HttpMethod.Get, data);
 
         // Assert
         result.Should().NotBeNull();
-        result.Foo.Should().Be("bar");
+        result!.Foo.Should().Be("bar");
 
         TokenStorageMock
             .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<Token>()), Times.Never);
@@ -137,11 +137,11 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
 
         // Act
-        TestResponseData result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+        TestResponseData? result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Should().NotBeNull();
-        result.Foo.Should().Be("bar");
+        result!.Foo.Should().Be("bar");
 
         TokenStorageMock
             .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<Token>(y => y.AccessToken == "abc")), Times.Once);
