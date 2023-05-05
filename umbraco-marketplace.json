@@ -1,0 +1,13 @@
+{
+  "AuthorDetails": {
+    "Description": "Umbraco HQ",
+    "Url": "https://umbraco.com/",
+    "ImageUrl": "https://avatars.githubusercontent.com/u/1419552?s=200&v=4"
+  },
+  "Category": "Developer Tools",
+  "LicenseType": "Free",
+  "PackageType": "Package",
+  "PackagesByAuthor": [],
+  "RelatedPackages": [],
+  "Tags": [ "integration", "authorization" ]
+}
