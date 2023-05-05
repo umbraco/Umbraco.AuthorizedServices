@@ -7,19 +7,7 @@
   "Category": "Developer Tools",
   "LicenseType": "Free",
   "PackageType": "Package",
-  "PackagesByAuthor": [
-    "Umbraco.Cms.Integrations.Commerce.CommerceTools",
-    "Umbraco.Cms.Integrations.Commerce.Shopify",
-    "Umbraco.Cms.Integrations.SEO.Semrush",
-    "Umbraco.Cms.Integrations.SEO.GoogleSearchConsole.URLInspectionTool",
-    "Umbraco.Cms.Integrations.Crm.Hubspot",
-    "Umbraco.Cms.Integrations.Crm.Dynamics",
-    "Umbraco.Cms.Integrations.Crm.ActiveCampaign",
-    "Umbraco.Cms.Integrations.Automation.Zapier",
-    "Umbraco.Cms.Integrations.DAM.Aprimo",
-    "Umbraco.Cms.Integrations.PIM.Inriver"
-  ],
+  "PackagesByAuthor": [],
   "RelatedPackages": [],
-  "Tags": [ "integration", "authorization" ],
-  "Title": "Umbraco Authorized Services"
+  "Tags": [ "integration", "authorization" ]
 }
