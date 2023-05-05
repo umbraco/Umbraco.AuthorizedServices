@@ -20,6 +20,6 @@
     "Umbraco.Cms.Integrations.PIM.Inriver"
   ],
   "RelatedPackages": [],
-  "Tags": [],
+  "Tags": [ "integration", "authorization" ],
   "Title": "Umbraco Authorized Services"
 }
