@@ -6,7 +6,7 @@
   },
   "Category": "Developer Tools",
   "LicenseType": "Free",
-  "PackageType": "Integration",
+  "PackageType": "Package",
   "PackagesByAuthor": [
     "Umbraco.Cms.Integrations.Commerce.CommerceTools",
     "Umbraco.Cms.Integrations.Commerce.Shopify",
