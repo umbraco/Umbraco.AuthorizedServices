@@ -8,9 +8,9 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 {
-    private readonly IJsonSerializer _jsonSerializer;
+    private readonly JsonSerializerFactory _jsonSerializerFactory;
 
-    public AuthorizedRequestBuilder(IJsonSerializer jsonSerializer) => _jsonSerializer = jsonSerializer;
+    public AuthorizedRequestBuilder(JsonSerializerFactory jsonSerializerFactory) => _jsonSerializerFactory = jsonSerializerFactory;
 
     public HttpRequestMessage CreateRequestMessage<TRequest>(
         ServiceDetail serviceDetail,
@@ -24,7 +24,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         {
             Method = httpMethod,
             RequestUri = new Uri(serviceDetail.ApiHost + path),
-            Content = GetRequestContent(requestContent)
+            Content = GetRequestContent(serviceDetail, requestContent)
         };
 
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
@@ -32,14 +32,15 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         return requestMessage;
     }
 
-    private StringContent? GetRequestContent<TRequest>(TRequest? requestContent)
+    private StringContent? GetRequestContent<TRequest>(ServiceDetail serviceDetail, TRequest? requestContent)
     {
         if (requestContent == null)
         {
             return null;
         }
 
-        var serializedContent = _jsonSerializer.Serialize(requestContent);
+        IJsonSerializer jsonSerializer = _jsonSerializerFactory.GetSerializer(serviceDetail.Alias);
+        var serializedContent = jsonSerializer.Serialize(requestContent);
         return new StringContent(serializedContent, Encoding.UTF8, "application/json");
     }
 }

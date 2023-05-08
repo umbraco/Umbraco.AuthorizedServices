@@ -1,7 +1,6 @@
-namespace Umbraco.AuthorizedServices.Services.Implement
+namespace Umbraco.AuthorizedServices.Services.Implement;
+
+internal class DateTimeProvider : IDateTimeProvider
 {
-    internal class DateTimeProvider : IDateTimeProvider
-    {
-        public DateTime UtcNow() => DateTime.UtcNow;
-    }
+    public DateTime UtcNow() => DateTime.UtcNow;
 }

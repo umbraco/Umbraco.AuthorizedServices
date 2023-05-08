@@ -57,7 +57,7 @@ public class AuthorizedServicesTreeController : TreeController
     protected override ActionResult<TreeNodeCollection> GetTreeNodes(string id, FormCollection queryStrings)
     {
         var nodes = new TreeNodeCollection();
-        foreach (ServiceDetail service in _authorizedServiceSettings.Services)
+        foreach (ServiceDetail service in _authorizedServiceSettings.Services.OrderBy(x => x.DisplayName))
         {
             TreeNode node = CreateTreeNode(service.Alias, "-1", queryStrings, service.DisplayName, service.Icon, false);
             nodes.Add(node);

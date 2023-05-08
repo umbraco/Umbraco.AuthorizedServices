@@ -1,4 +1,4 @@
-namespace Umbraco.AuthorizedServices.TestSite.Models;
+namespace Umbraco.AuthorizedServices.TestSite.Models.ServiceResponses;
 
 public class GitHubContributorResponse
 {

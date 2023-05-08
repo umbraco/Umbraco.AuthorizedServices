@@ -1,3 +1,5 @@
+using Umbraco.Cms.Core.Serialization;
+
 namespace Umbraco.AuthorizedServices.Configuration;
 
 /// <summary>
@@ -7,6 +9,27 @@ public enum TokenRequestContentFormat
 {
     Querystring,
     FormUrlEncoded
+}
+
+/// <summary>
+/// Defines options for the JSON serializer to use when building requests and deserializing responses.
+/// </summary>
+public enum JsonSerializerOption
+{
+    /// <summary>
+    /// Uses the default Umbraco JSON serializer registered as <see cref="IJsonSerializer" />.
+    /// </summary>
+    Default,
+
+    /// <summary>
+    /// Uses JSON.Net for serialization.
+    /// </summary>
+    JsonNet,
+
+    /// <summary>
+    /// Uses System.Text.Json for serialization.
+    /// </summary>
+    SystemTextJson
 }
 
 /// <summary>
@@ -73,6 +96,11 @@ public class ServiceDetail
     /// Gets or sets the format to use for encoding the request for a token.
     /// </summary>
     public TokenRequestContentFormat RequestTokenFormat { get; set; } = TokenRequestContentFormat.Querystring;
+
+    /// <summary>
+    /// Gets or sets the JSON serializer to use when building requests and deserializing responses.
+    /// </summary>
+    public JsonSerializerOption JsonSerializer { get; set; } = JsonSerializerOption.Default;
 
     /// <summary>
     /// Gets or sets the client Id for the app registered with the service.

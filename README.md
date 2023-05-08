@@ -54,6 +54,7 @@ Details of services available need to be applied to the Umbraco web application'
           "RequestIdentityPath": "",
           "AuthorizationRequestsRequireRedirectUri": true|false,
           "RequestTokenPath": "",
+          "JsonSerializer": ""
           "RequestTokenFormat": "",
           "ClientId": "",
           "ClientSecret": "",
@@ -117,6 +118,14 @@ Used, along with `TokenHost` to construct a URL used for retrieving access token
 ###### RequestTokenFormat
 
 An enum value that controls how the request to retrive an access token is formatted. Options are `Querystring` and `FormUrlEncoded`. `Querystring` is the default value and is used for GitHub.
+
+###### RequestTokenFormat
+
+An enum value that defines the JSON serializer to use when creating requests and deserializing responses. Options are `Default` and `JsonNet` and `SystemTextJson`.
+
+- `Default` - uses the Umbraco CMS default `IJsonSerializer`.
+- `JsonNet` - uses the JSON.Net serializer.
+- `SystemTextJson` - uses the System.Text.Json serializer.
 
 ###### ClientId *
 

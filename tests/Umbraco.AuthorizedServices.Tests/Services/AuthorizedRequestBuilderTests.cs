@@ -1,11 +1,13 @@
+using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Models;
+using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Infrastructure.Serialization;
 
 namespace Umbraco.AuthorizedServices.Tests.Services;
 
-internal class AuthorizedRequestBuilderTests
+internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
 {
     [Test]
     public async Task CreateRequestMessage_ReturnsExpectedResult()
@@ -20,8 +22,9 @@ internal class AuthorizedRequestBuilderTests
         const string AccessToken = "1234";
         var token = new Token(AccessToken, null, DateTime.Now.AddDays(7));
         var data = new TestRequestData("bar");
-        var serializer = new JsonNetSerializer();
-        var sut = new AuthorizedRequestBuilder(serializer);
+        Mock<IOptionsMonitor<AuthorizedServiceSettings>> optionsMonitorMock = CreateOptionsMonitorSettings();
+        var factory = new JsonSerializerFactory(optionsMonitorMock.Object, new JsonNetSerializer());
+        var sut = new AuthorizedRequestBuilder(factory);
 
         // Act
         HttpRequestMessage result = sut.CreateRequestMessage(serviceDetail, Path, HttpMethod.Post, token, data);
