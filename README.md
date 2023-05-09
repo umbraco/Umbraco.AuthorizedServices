@@ -2,7 +2,7 @@
 
 ## Aims
 
-**Umbraco Authorized Services** is an Umbraco package designed to reduce the effort needed to integrate third party solutions that require authentication and authorization via an OAuth flow into Umbraco solutions.  It's based on the premise that working with these services requires a fair bit of plumbing code to handle creating an authorized connection.  This is necessary efore the developer working with the service can get to actually using the provided API to implement the business requirements.
+**Umbraco Authorized Services** is an Umbraco package designed to reduce the effort needed to integrate third party solutions that require authentication and authorization via an OAuth flow into Umbraco solutions.  It's based on the premise that working with these services requires a fair bit of plumbing code to handle creating an authorized connection.  This is necessary before the developer working with the service can get to actually using the provided API to implement the business requirements.
 
 Having worked with a few OAuth integrations across different providers, as would be expected, there are quite a few similarities to the flow that needs to be implemented.  Steps include:
 
@@ -23,7 +23,11 @@ For the solution developer, the Umbraco Authorized Services offers two primary f
 
 Firstly there's an tree available in the _Settings_ section of the backoffice, called _Authorized Services_. The tree shows the list of services based on the details provided in configuration.
 
+[insert pic]
+
 Each tree entry has a management screen where an administrator can authenticate with an app that has been setup with the service.  The status of each service, in terms of whether the authentication and authorization flow has been completed and an access token stored, is shown on this screen.
+
+[insert pic]
 
 Secondly, the developer has access to an interface - `IAuthorizedServiceCaller` - that they can inject instances of and use to make authorized requests to the service's API.
 
@@ -31,7 +35,7 @@ Secondly, the developer has access to an interface - `IAuthorizedServiceCaller` 
 
 ### App Creation
 
-Services that this package are intented to support will offer an OAuth authentication and authorization flow against an "app" that the developer will need to create with the service.  From this various information will be available, including for example a "client ID" and "client secret" that will need to be applied in configuration.
+Services that this package are intended to support will offer an OAuth authentication and authorization flow against an "app" that the developer will need to create with the service.  From this various information will be available, including for example a "client ID" and "client secret" that will need to be applied in configuration.
 
 ### Configuring a Service
 
@@ -54,7 +58,7 @@ Details of services available need to be applied to the Umbraco web application'
           "RequestIdentityPath": "",
           "AuthorizationRequestsRequireRedirectUri": true|false,
           "RequestTokenPath": "",
-          "JsonSerializer": ""
+          "JsonSerializer": "",
           "RequestTokenFormat": "",
           "ClientId": "",
           "ClientSecret": "",
@@ -77,7 +81,7 @@ Not all values are required for all services.  Those that are required are marke
 
 ##### TokenEncryptionKey
 
-Provides an optional key used to encrypt and decrypt tokens when they are saved and retreived from storage respectively.
+Provides an optional key used to encrypt and decrypt tokens when they are saved and retrieved from storage respectively.
 
 ##### Services
 
@@ -117,7 +121,7 @@ Used, along with `TokenHost` to construct a URL used for retrieving access token
 
 ###### RequestTokenFormat
 
-An enum value that controls how the request to retrive an access token is formatted. Options are `Querystring` and `FormUrlEncoded`. `Querystring` is the default value and is used for GitHub.
+An enum value that controls how the request to retrieve an access token is formatted. Options are `Querystring` and `FormUrlEncoded`. `Querystring` is the default value and is used for GitHub.
 
 ###### RequestTokenFormat
 
@@ -138,7 +142,7 @@ This value will be retrieved from the registered service app.  As the name sugge
 ###### UseProofKeyForCodeExchange *
 This flag will extend the OAuth flow with an additional security layer called [PKCE - Proof Key for Code Exchange](https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow-with-proof-key-for-code-exchange-pkce).
 In the OAuth with PKCE flow, a random code will be generated on the client and stored under the name `code_verifier`, and then using the `SHA-256` algorithm it will be hashed under the name `code_challenge`.
-When the authorization URL is generated, the `code_challenge` will be sent to the OAuth Server, which will store it. The next request for access token will pass the `code_verifier` as a header key, and the OAuth Server will 
+When the authorization URL is generated, the `code_challenge` will be sent to the OAuth Server, which will store it. The next request for access token will pass the `code_verifier` as a header key, and the OAuth Server will
 compare it with the previously sent `code_challenge`.
 
 ###### Scopes *
@@ -165,15 +169,9 @@ An optional sample request can be provided, which can be used to check that an a
 
 With one or more service configured, it will be available from the items within a tree in the _Settings_ section:
 
-![image](https://user-images.githubusercontent.com/95346674/231862806-f2cd3c57-253b-4b9a-bbb1-c88a8cd7ca80.png)
-
 Clicking on an item will show some details about the configured service, and it's authentication status.
 
-![image](https://user-images.githubusercontent.com/95346674/231862912-29c8e1a1-2ebb-47c8-9303-d510dc6d4b80.png)
-
 If the service is not yet authorized, click the _Authorize Service_ button to trigger the authentication and authorization flow. You will be directed to the service to login, and optionally choose an account.  You will then be asked to agree to the permissions requested by the app. Finally you will be redirect back to the Umbraco backoffice and should see confirmation that an access token has been retrieved and stored such that the service is now authorized. If provided, you can click the _Verify Sample Request_ button to ensure that service's API can be called.
-
-![image](https://user-images.githubusercontent.com/95346674/231863001-e0ab4aaa-9eb7-47b5-9980-df0d7fd0a5b2.png)
 
 ### Calling an Service
 
@@ -192,7 +190,7 @@ The parameters for the request are as follows:
 - `httpMethod` - the HTTP method to use for the request (e.g. `HttpMethod.Get`).
 
 There is also a type parameter:
-- `TResponse` - defines the strongly typed representation of the service method's response, that the raw response content will be deserialised into.
+- `TResponse` - defines the strongly typed representation of the service method's response, that the raw response content will be deserialized into.
 
 If you need to provide data in the request, as is usually the case for POST or PUT requests that required the creation or update of a resource, an overload is available:
 
@@ -226,45 +224,7 @@ Task<TResponse> GetRequestAsync<TResponse>(string serviceAlias, string path);
 
 ## Providers
 
-The following service providers have been tested against the package implementation. For each one the necessary configuration is listed.
-
-As integrations with more providers are successfully completed, we plan to maintain the details for each here. Pull requests updating this list with verified integrations are welcome.
-
-### GitHub
-
-```json
-{
-    "Alias": "github",
-    "DisplayName": "GitHub",
-    "ApiHost": "https://api.github.com",
-    "IdentityHost": "https://github.com",
-    "TokenHost": "https://github.com",
-    "RequestIdentityPath": "/login/oauth/authorize",
-    "RequestTokenPath": "/login/oauth/access_token",
-    "ClientId": "",
-    "ClientSecret": "",
-    "Scopes": ""
-}
-```
-
-### Hubspot
-
-```json
-{
-    "Alias": "hubspot",
-    "DisplayName": "HubSpot",
-    "ApiHost": "https://api.hubapi.com",
-    "IdentityHost": "https://app-eu1.hubspot.com",
-    "TokenHost": "https://api.hubapi.com",
-    "RequestIdentityPath": "/oauth/authorize",
-    "AuthorizationRequestsRequireRedirectUri": true,
-    "RequestTokenPath": "/oauth/v1/token",
-    "RequestTokenFormat": "FormUrlEncoded",
-    "ClientId": "",
-    "ClientSecret": "",
-    "Scopes": ""
-}
-```
+The list of providers for which the package has been verified is maintained at the [Umbraco Documentation website](https://docs.umbraco.com/umbraco-dxp/packages/authorized-services#verified-providers).
 
 ## Package Development
 
@@ -316,7 +276,7 @@ Responsible for creating a dictionary of parameters provided in the request to r
 
 #### ISecretEncryptor
 
-Responsible for encrypting and decrypting stored tokens (or other values). 
+Responsible for encrypting and decrypting stored tokens (or other values).
 It has two implementations:
 - `AesSecretEncryptor` - default implementation that is using a standard `AES` cryptographic algorithm for encrypting/decrypting values based on the provided `TokenEncryptionKey`.
 - `DataProtectionSecretEncryptor` - additional implementation that uses the `IDataProtectionProvider` interface for providing data protection services.
