@@ -24,7 +24,7 @@ internal sealed class TokenFactory : ITokenFactory
 
         DateTime? expiresOn = null;
         var expiresInValue = tokenResponse[serviceDetail.ExpiresInResponseKey]?.ToString();
-        if (!string.IsNullOrEmpty(expiresInValue))
+        if (!string.IsNullOrEmpty(expiresInValue) && !expiresInValue.Equals("0"))
         {
             var expiresInSeconds = int.Parse(expiresInValue);
             expiresOn = _dateTimeProvider.UtcNow().AddSeconds(expiresInSeconds);

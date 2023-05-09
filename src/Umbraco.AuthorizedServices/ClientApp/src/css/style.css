@@ -17,6 +17,10 @@
   color: black;
 }
 
+.auth-srv {
+    font-size: 15px;
+}
+
 .settings-list {
   list-style: none;
   padding-inline-start: 0px;
