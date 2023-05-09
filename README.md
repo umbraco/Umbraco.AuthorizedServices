@@ -277,10 +277,14 @@ Responsible for creating a dictionary of parameters provided in the request to r
 #### ISecretEncryptor
 
 Responsible for encrypting and decrypting stored tokens (or other values).
+
 It has two implementations:
+
 - `AesSecretEncryptor` - default implementation that is using a standard `AES` cryptographic algorithm for encrypting/decrypting values based on the provided `TokenEncryptionKey`.
 - `DataProtectionSecretEncryptor` - additional implementation that uses the `IDataProtectionProvider` interface for providing data protection services.
+
 Switching the encryption engine to `DataProtectionSecretEncryptor` can be done in code, adding these two lines:
+
 ```
 builder.Services.AddDataProtection();
 builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncrytor>();
@@ -295,7 +299,9 @@ Responsible for instantiating a new strongly typed `Token` instance from the ser
 Responsible for storing tokens. Implemented by `InMemoryTokenStorage` and `DatabaseTokenStorage`.
 
 #### IAuthorizedServiceCache
+
 Responsible for caching data payload. Implemented by `AuthorizedServiceAuthorizationPayloadCache` to store the authorization payload.
 
 #### IAuthorizedServiceAuthorizationPayloadBuilder
+
 Responsible for generating the authorization payload used between the authorization and access token requests. Implemented by `AuthorizedServiceAuthorizationPayloadBuilder`.
