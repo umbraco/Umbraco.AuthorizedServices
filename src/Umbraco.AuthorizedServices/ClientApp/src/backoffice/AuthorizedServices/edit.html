@@ -1,6 +1,6 @@
 <div ng-controller="AuthorizedServiceEditController as vm">
   <umb-editor-view ng-if="!vm.page.loading">
-    <umb-editor-header name="vm.displayName"
+    <umb-editor-header name="vm.headerName"
                        name-locked="true"
                        hide-icon="false"
                        hide-description="false"
@@ -51,12 +51,22 @@
         <umb-box-content>
           <uui-icon-registry-essential>
             <uui-card-content-node name="{{ vm.displayName }}">
-              <ul class="settings-list">
-                <li ng-repeat="(key, value) in vm.settings">
-                  <span>{{ key }}:</span> {{ value }}
-                </li>
-              </ul>
+              <table class="umb-authorizedservices-settings-table">
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="(key, value) in vm.settings">
+                    <td>{{ key }}</td>
+                    <td>{{ value }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </uui-card-content-node>
+
           </uui-icon-registry-essential>
         </umb-box-content>
       </umb-box>

@@ -8,6 +8,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
       .then(function (response) {
         const serviceData = response.data;
         vm.displayName = serviceData.displayName;
+        vm.headerName = "Authorized Services: " + vm.displayName;
         vm.isAuthorized = serviceData.isAuthorized;
         vm.authorizationUrl = serviceData.authorizationUrl;
         vm.sampleRequest = serviceData.sampleRequest;

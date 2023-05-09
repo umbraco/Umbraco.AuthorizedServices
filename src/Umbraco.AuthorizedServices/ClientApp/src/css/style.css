@@ -21,17 +21,14 @@
     font-size: 15px;
 }
 
-.settings-list {
-  list-style: none;
-  padding-inline-start: 0px;
-  margin: 0;
+.umb-authorizedservices-settings-table th {
+  font-size: 16px;
+  text-align: left;
+  padding: 4px 8px;
+}
+.umb-authorizedservices-settings-table td {
+  font-size: 14px;
+  text-align: left;
+  padding: 4px 8px;
 }
 
-.settings-list li {
-    font-size: 15px;
-    padding: 10px 0 10px 0;
-}
-
-  .settings-list span {
-    font-weight: 700;
-  }
