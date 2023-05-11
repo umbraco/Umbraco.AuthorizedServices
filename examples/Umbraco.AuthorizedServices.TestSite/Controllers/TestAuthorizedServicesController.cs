@@ -68,5 +68,21 @@ public class TestAuthorizedServicesController : UmbracoApiController
 
         return Content(response);
     }
+
+    public async Task<IActionResult> GetFoldersFromDropbox()
+    {
+        var response = await _authorizedServiceCaller.SendRequestRawAsync(
+            "dropbox",
+            "/2/files/list_folder",
+            HttpMethod.Post,
+            new DropboxFolderResponse
+            {
+                IncludeDeleted = false,
+                IncludeMediaInfo = true,
+                Path = ""
+            });
+
+        return Content(response);
+    }
 }
 

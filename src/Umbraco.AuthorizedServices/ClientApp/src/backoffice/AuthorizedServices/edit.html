@@ -13,31 +13,37 @@
       <umb-box>
         <umb-box-header title="Status"></umb-box-header>
         <umb-box-content>
-          <p><b>{{ vm.displayName }}</b> has been configured as an authorized service.</p>
-          <div ng-show="vm.isAuthorized">
-            <p>It has been authorized for use.</p>
-            <umb-button ng-if="vm.sampleRequest"
-                        action="vm.sendSampleRequest()"
-                        type="button"
-                        label="Verify Sample Request"></umb-button>
-            <umb-button action="vm.revokeAccess()"
-                        type="button"
-                        button-style="danger"
-                        label="Revoke Access"></umb-button>
+          <uui-icon-registry-essential>
+            <uui-card-content-node name="{{ vm.displayName }}">
+              <uui-icon slot="icon" name="{{vm.isAuthorized ? 'unlock' : 'lock' }}"></uui-icon>
+              <uui-tag size="s" slot="tag" color="{{ vm.isAuthorized ? 'positive' : 'danger' }}">
+                {{ vm.isAuthorized ? 'Authorized' : 'Not Authorized' }}
+              </uui-tag>
+              <p class="auth-srv"><b>{{ vm.displayName }}</b> has been configured as an authorized service.</p>
+              <div ng-show="vm.isAuthorized">
+                <umb-button ng-if="vm.sampleRequest"
+                            action="vm.sendSampleRequest()"
+                            type="button"
+                            label="Verify Sample Request"></umb-button>
+                <umb-button action="vm.revokeAccess()"
+                            type="button"
+                            button-style="danger"
+                            label="Revoke Access"></umb-button>
 
-            <div ng-show="vm.sampleRequestResponse">
-              <div class="umb-authorizedservices-sample-response-wrapper">
-                <div class="umb-authorizedservices-sample-response-detail">{{vm.sampleRequestResponse}}</div>
+                <div ng-show="vm.sampleRequestResponse">
+                  <div class="umb-authorizedservices-sample-response-wrapper">
+                    <div class="umb-authorizedservices-sample-response-detail">{{vm.sampleRequestResponse}}</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div ng-show="!vm.isAuthorized">
-            <p>It has not been authorized for use.</p>
-            <umb-button action="vm.authorizeAccess()"
-                        type="button"
-                        button-style="success"
-                        label="Authorize Service" />
-          </div>
+              <div ng-show="!vm.isAuthorized">
+                <umb-button action="vm.authorizeAccess()"
+                            type="button"
+                            button-style="success"
+                            label="Authorize Service" />
+              </div>
+            </uui-card-content-node>
+          </uui-icon-registry-essential>
         </umb-box-content>
       </umb-box>
       <umb-box>
@@ -45,10 +51,6 @@
         <umb-box-content>
           <uui-icon-registry-essential>
             <uui-card-content-node name="{{ vm.displayName }}">
-              <uui-icon slot="icon" name="{{vm.isAuthorized ? 'unlock' : 'lock' }}"></uui-icon>
-              <uui-tag size="s" slot="tag" color="{{ vm.isAuthorized ? 'positive' : 'danger' }}">
-                {{ vm.isAuthorized ? 'Authorized' : 'Not Authorized' }}
-              </uui-tag>
               <table class="umb-authorizedservices-settings-table">
                 <thead>
                   <tr>

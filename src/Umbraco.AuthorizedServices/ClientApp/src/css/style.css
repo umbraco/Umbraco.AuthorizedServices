@@ -17,6 +17,10 @@
   color: black;
 }
 
+.auth-srv {
+    font-size: 15px;
+}
+
 .umb-authorizedservices-settings-table th {
   font-size: 16px;
   text-align: left;
