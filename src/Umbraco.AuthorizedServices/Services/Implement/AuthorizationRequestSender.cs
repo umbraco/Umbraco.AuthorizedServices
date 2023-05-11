@@ -16,7 +16,7 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
 
         var url = serviceDetail.GetTokenHost() + serviceDetail.RequestTokenPath;
 
-        if(serviceDetail.IncludeBasicTokenWithAuthorizationHeader)
+        if (serviceDetail.IncludeBasicTokenWithAuthorizationHeader)
         {
             BuildBasicTokenHeader(ref httpClient, serviceDetail);
         }
