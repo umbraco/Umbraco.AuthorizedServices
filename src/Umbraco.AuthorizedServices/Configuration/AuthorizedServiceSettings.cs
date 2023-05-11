@@ -83,7 +83,7 @@ public class ServiceDetail
     public string RequestIdentityPath { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets a vallue indicating whether authorization requests require sending the redirect URL.
+    /// Gets or sets a value indicating whether authorization requests require sending the redirect URL.
     /// </summary>
     public bool AuthorizationRequestsRequireRedirectUri { get; set; } = false;
 
@@ -101,6 +101,11 @@ public class ServiceDetail
     /// Gets or sets the JSON serializer to use when building requests and deserializing responses.
     /// </summary>
     public JsonSerializerOption JsonSerializer { get; set; } = JsonSerializerOption.Default;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the basic token should be included in the token request.
+    /// </summary>
+    public bool IncludeBasicTokenWithAuthorizationHeader { get; set; } = false;
 
     /// <summary>
     /// Gets or sets the client Id for the app registered with the service.

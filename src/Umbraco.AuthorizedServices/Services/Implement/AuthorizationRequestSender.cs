@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text;
 using Umbraco.AuthorizedServices.Configuration;
 
@@ -14,6 +15,11 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
         var url = serviceDetail.GetTokenHost() + serviceDetail.RequestTokenPath;
+
+        if(serviceDetail.IncludeBasicTokenWithAuthorizationHeader)
+        {
+            BuildBasicTokenHeader(ref httpClient, serviceDetail);
+        }
 
         HttpContent? content = null;
         switch (serviceDetail.RequestTokenFormat)
@@ -42,5 +48,13 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         }
 
         return qs.ToString();
+    }
+
+    private static void BuildBasicTokenHeader(ref HttpClient httpClient, ServiceDetail serviceDetail)
+    {
+        var authenticationString = $"{serviceDetail.ClientId}:{serviceDetail.ClientSecret}";
+        var base64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(authenticationString));
+
+        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", base64String);
     }
 }
