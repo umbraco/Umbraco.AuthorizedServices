@@ -56,11 +56,11 @@ Details of services available need to be applied to the Umbraco web application'
           "IdentityHost": "",
           "TokenHost": "",
           "RequestIdentityPath": "",
-          "AuthorizationRequestsRequireRedirectUri": true|false,
+          "AuthorizationUrlRequiresRedirectUrl": true|false,
           "RequestTokenPath": "",
           "JsonSerializer": "",
           "RequestTokenFormat": "",
-          "IncludeBasicTokenWithAuthorizationHeader": true|false,
+          "AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken": true|false,
           "ClientId": "",
           "ClientSecret": "",
           "UseProofKeyForCodeExchange": true|false,
@@ -112,7 +112,7 @@ Some providers make available a separately hosted service for handling requests 
 
 Used, along with `IdentityHost` to construct a URL that the user is redirected to when initiating the authorization of the service via the backoffice. For GitHub, the required value is `/login/oauth/authorize`.
 
-###### AuthorizationRequestsRequireRedirectUri
+###### AuthorizationUrlRequiresRedirectUrl
 
 Some providers require a redirect URL to be provided with the authentication request. For others, instead it's necessary to configure this as part of the registered app. The default value if not provided via configuration is `false`, which is sufficient for the GitHub example.
 
@@ -132,7 +132,7 @@ An enum value that defines the JSON serializer to use when creating requests and
 - `JsonNet` - uses the JSON.Net serializer.
 - `SystemTextJson` - uses the System.Text.Json serializer.
 
-###### IncludeBasicTokenWithAuthorizationHeader
+###### AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken
 
 This flag indicates whether the basic token should be included in the request for access token. If true, a base64 encoding of <clientId>:<clientSecret> will be added to 
 the authorization header.

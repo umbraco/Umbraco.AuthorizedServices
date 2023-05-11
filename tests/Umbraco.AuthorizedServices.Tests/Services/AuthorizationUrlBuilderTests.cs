@@ -42,7 +42,7 @@ internal class AuthorizationUrlBuilderTests
             RequestIdentityPath = "/login/oauth/authorize",
             ClientId = "TestClientId",
             Scopes = "test",
-            AuthorizationRequestsRequireRedirectUri = true
+            AuthorizationUrlRequiresRedirectUrl = true
         };
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Scheme = "https";

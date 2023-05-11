@@ -16,9 +16,9 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
 
         var url = serviceDetail.GetTokenHost() + serviceDetail.RequestTokenPath;
 
-        if (serviceDetail.IncludeBasicTokenWithAuthorizationHeader)
+        if (serviceDetail.AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken)
         {
-            BuildBasicTokenHeader(ref httpClient, serviceDetail);
+            BuildBasicTokenHeader(httpClient, serviceDetail);
         }
 
         HttpContent? content = null;
@@ -50,7 +50,7 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         return qs.ToString();
     }
 
-    private static void BuildBasicTokenHeader(ref HttpClient httpClient, ServiceDetail serviceDetail)
+    private static void BuildBasicTokenHeader(HttpClient httpClient, ServiceDetail serviceDetail)
     {
         var authenticationString = $"{serviceDetail.ClientId}:{serviceDetail.ClientSecret}";
         var base64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(authenticationString));
