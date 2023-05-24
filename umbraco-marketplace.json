@@ -1,13 +1,14 @@
 {
+  "$schema": "https://marketplace.umbraco.com/umbraco-marketplace-schema.json",
   "AuthorDetails": {
     "Description": "Umbraco HQ",
     "Url": "https://umbraco.com/",
     "ImageUrl": "https://avatars.githubusercontent.com/u/1419552?s=200&v=4"
   },
+  "DocumentationUrl": "https//docs.umbraco.com/umbraco-dxp/packages/authorized-services",
   "Category": "Developer Tools",
+  "IssueTrackerUrl": "https://github.com/umbraco/Umbraco.AuthorizedServices/issues",
   "LicenseType": "Free",
   "PackageType": "Package",
-  "PackagesByAuthor": [],
-  "RelatedPackages": [],
   "Tags": [ "integration", "authorization" ]
 }
