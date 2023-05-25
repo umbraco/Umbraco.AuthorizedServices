@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 ## Umbraco AuthorizedServices specific
 ##
 /src/Umbraco.AuthorizedServices/ClientApp/gulp/config.outputPath.js
+
+# Git
+.orig
