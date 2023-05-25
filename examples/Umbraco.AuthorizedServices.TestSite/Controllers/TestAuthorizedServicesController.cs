@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Umbraco.AuthorizedServices.Extensions;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.TestSite.Models.ServiceResponses;
 using Umbraco.Cms.Web.Common.Controllers;
@@ -13,10 +14,9 @@ public class TestAuthorizedServicesController : UmbracoApiController
 
     public async Task<IActionResult> GetUmbracoContributorsFromGitHub()
     {
-        List<GitHubContributorResponse>? response = await _authorizedServiceCaller.SendRequestAsync<List<GitHubContributorResponse>>(
+        List<GitHubContributorResponse>? response = await _authorizedServiceCaller.GetRequestAsync<List<GitHubContributorResponse>>(
             "github",
-            "/repos/Umbraco/Umbraco-CMS/contributors",
-            HttpMethod.Get);
+            "/repos/Umbraco/Umbraco-CMS/contributors");
         if (response == null)
         {
             return Problem("Could not retrieve contributors.");
@@ -27,24 +27,26 @@ public class TestAuthorizedServicesController : UmbracoApiController
 
     public async Task<IActionResult> GetContactsFromHubspot()
     {
-        HubspotContactResponse? response = await _authorizedServiceCaller.SendRequestAsync<HubspotContactResponse>(
+        HubspotContactResponse? response = await _authorizedServiceCaller.GetRequestAsync<HubspotContactResponse>(
             "hubspot",
-            "/crm/v3/objects/contacts?limit=10&archived=false",
-            HttpMethod.Get);
+            "/crm/v3/objects/contacts?limit=10&archived=false");
         if (response == null)
         {
             return Problem("Could not retrieve contacts.");
         }
 
-        return Content(string.Join(", ", response.Results.Select(x => x.Properties.FirstName + " " + x.Properties.LastName)));
+        return Content(
+            string.Join(
+                ", ",
+                response.Results
+                    .Select(x => x.Properties.FirstName + " " + x.Properties.LastName)));
     }
 
     public async Task<IActionResult> GetFormsFromDynamics()
     {
-        DynamicsFormResponse? response = await _authorizedServiceCaller.SendRequestAsync<DynamicsFormResponse>(
+        DynamicsFormResponse? response = await _authorizedServiceCaller.GetRequestAsync<DynamicsFormResponse>(
             "dynamics",
-            "/msdyncrm_marketingforms",
-            HttpMethod.Get);
+            "/msdyncrm_marketingforms");
 
         if (response == null)
         {
