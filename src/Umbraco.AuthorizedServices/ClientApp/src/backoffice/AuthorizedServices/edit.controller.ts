@@ -37,10 +37,6 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
       });
   };
 
-  vm.back = function () {
-    $location.path("/settings");
-  };
-
   loadServiceDetails(serviceAlias);
 
 }
