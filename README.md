@@ -2,7 +2,7 @@
 
 ## Aims
 
-**Umbraco Authorized Services** is an Umbraco package designed to reduce the effort needed to integrate third party solutions that require authentication and authorization via an OAuth flow into Umbraco solutions.  It's based on the premise that working with these services requires a fair bit of plumbing code to handle creating an authorized connection.  This is necessary before the developer working with the service can get to actually using the provided API to implement the business requirements.
+**Umbraco Authorized Services** is an Umbraco package designed to reduce the effort needed to integrate third party services that require authentication and authorization via an OAuth flow into Umbraco solutions.  It's based on the premise that working with these services requires a fair bit of plumbing code to handle creating an authorized connection.  This is necessary before the developer working with the service can get to actually using the provided API to implement the business requirements.
 
 Having worked with a few OAuth integrations across different providers, as would be expected, there are quite a few similarities to the flow that needs to be implemented.  Steps include:
 
