@@ -25,7 +25,7 @@ Firstly there's an tree available in the _Settings_ section of the backoffice, c
 
 Each tree entry has a management screen where an administrator can authenticate with an app that has been setup with the service.  The status of each service, in terms of whether the authentication and authorization flow has been completed and an access token stored, is shown on this screen.
 
-[insert pic]
+![Backoffice settings screen](https://2904150615-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FeCauR3aomRsx2gdckuDO%2Fuploads%2Fgit-blob-d8f49355a2c62920863e5653f7ad97e135fbc7cb%2Fauthorized-services-tree.png?alt=media)
 
 Secondly, the developer has access to an interface - `IAuthorizedServiceCaller` - that they can inject instances of and use to make authorized requests to the service's API.
 
