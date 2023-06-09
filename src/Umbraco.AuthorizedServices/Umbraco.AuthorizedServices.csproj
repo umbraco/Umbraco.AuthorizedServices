@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Title>Umbraco Authorized Services</Title>
     <Description>
-      Authorized Services is an extension from Umbraco intended to get you up to speed quickly with integrating external services. It handles the authentication and authorization flow for services using OAOAut.
+      Authorized Services is an extension from Umbraco intended to get you up to speed quickly with integrating external services. It handles the authentication and authorization flow for services using OAuth.
     </Description>
     <PackageTags>umbraco umbraco-marketplace</PackageTags>
     <StaticWebAssetBasePath>App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>

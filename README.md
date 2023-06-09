@@ -23,8 +23,6 @@ For the solution developer, the Umbraco Authorized Services offers two primary f
 
 Firstly there's an tree available in the _Settings_ section of the backoffice, called _Authorized Services_. The tree shows the list of services based on the details provided in configuration.
 
-[insert pic]
-
 Each tree entry has a management screen where an administrator can authenticate with an app that has been setup with the service.  The status of each service, in terms of whether the authentication and authorization flow has been completed and an access token stored, is shown on this screen.
 
 [insert pic]
