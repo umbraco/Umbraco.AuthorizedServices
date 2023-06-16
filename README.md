@@ -1,4 +1,4 @@
-# Umbraco Authorized Services
+# Umbraco Authorized Services [![NuGet](https://img.shields.io/nuget/vpre/Umbraco.AuthorizedServices.svg)](https://www.nuget.org/packages/Umbraco.AuthorizedServices) [![NuGet](https://img.shields.io/nuget/dt/Umbraco.AuthorizedServices.svg)](https://www.nuget.org/packages/Umbraco.AuthorizedServices) [![Umbraco Marketplace](https://img.shields.io/badge/umbraco-marketplace-%233544B1)](https://marketplace.umbraco.com/package/umbraco.authorizedservices)
 
 ## Aims
 
