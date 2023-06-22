@@ -32,14 +32,7 @@
     <ClientAssetsInputs Remove="ClientApp\src\css\style.css" />
   </ItemGroup>
 
-  <!-- Update package.manifest files with current build version after client assets build -->
   <ItemGroup>
     <PackageReference Include="Umbraco.JsonSchema.Extensions" Version="0.3.0" PrivateAssets="all" />
   </ItemGroup>
-  <Target Name="UpdatePackageManifestVersion" DependsOnTargets="ClientAssetsBuild" AfterTargets="GetUmbracoBuildVersion">
-    <ItemGroup>
-      <_PackageManifestFiles Include="$(IntermediateOutputPath)clientassets\**\package.manifest" />
-    </ItemGroup>
-    <JsonPathUpdateValue JsonFile="%(_PackageManifestFiles.FullPath)" Path="$.version" Value="&quot;$(PackageVersion)&quot;" />
-  </Target>
 </Project>

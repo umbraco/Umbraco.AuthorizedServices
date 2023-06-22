@@ -31,6 +31,23 @@ Secondly, the developer has access to an interface - `IAuthorizedServiceCaller` 
 
 ## Usage
 
+### Installation
+
+To easily install the package you can use the `Package Manager Console` from Visual Studio, or the `dotnet CLI` tool.
+
+#### Package Manager Console
+```
+Install-Package
+Umbraco.AuthorizedServices
+```
+
+#### Dotnet CLI
+```
+dotnet add package
+Umbraco.AuthorizedServices
+```
+
+
 ### App Creation
 
 Services that this package are intended to support will offer an OAuth authentication and authorization flow against an "app" that the developer will need to create with the service.  From this various information will be available, including for example a "client ID" and "client secret" that will need to be applied in configuration.

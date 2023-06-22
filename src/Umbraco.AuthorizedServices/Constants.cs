@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Umbraco.AuthorizedServices;
 
 public static class Constants
@@ -5,6 +7,8 @@ public static class Constants
     public const string PluginName = "UmbracoAuthorizedServices";
 
     public const string Separator = "-";
+
+    public static readonly string InformationalVersion = FileVersionInfo.GetVersionInfo(typeof(Constants).Assembly.Location).ProductVersion!;
 
     public static class Trees
     {
