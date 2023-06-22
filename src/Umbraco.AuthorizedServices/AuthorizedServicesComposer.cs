@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Manifests;
 using Umbraco.AuthorizedServices.Migrations;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
@@ -17,6 +18,9 @@ internal class AuthorizedServicesComposer : IComposer
     {
         IConfigurationSection configSection = builder.Config.GetSection("Umbraco:AuthorizedServices");
         builder.Services.Configure<AuthorizedServiceSettings>(configSection);
+
+        // manifest filter
+        builder.ManifestFilters().Append<AuthorizedServicesManifestFilter>();
 
         builder.Services.AddUnique<IAuthorizationClientFactory, AuthorizationClientFactory>();
         builder.Services.AddUnique<IAuthorizationParametersBuilder, AuthorizationParametersBuilder>();
