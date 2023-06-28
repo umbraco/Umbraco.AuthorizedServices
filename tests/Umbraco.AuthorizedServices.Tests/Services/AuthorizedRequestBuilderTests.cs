@@ -39,9 +39,10 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         var content = await stringContent!.ReadAsStringAsync();
         content.Should().Be("{\"Foo\":\"bar\"}");
 
-        result.Headers.Count().Should().Be(2);
+        result.Headers.Count().Should().Be(3);
         result.Headers.Authorization!.ToString().Should().Be("Bearer 1234");
         result.Headers.UserAgent.ToString().Should().Be("UmbracoServiceIntegration/1.0.0");
+        result.Headers.Accept!.ToString().Should().Be("application/json");
     }
 
     private class TestRequestData
