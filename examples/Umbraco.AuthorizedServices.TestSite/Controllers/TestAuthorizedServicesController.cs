@@ -86,5 +86,19 @@ public class TestAuthorizedServicesController : UmbracoApiController
 
         return Content(response);
     }
+
+    public async Task<IActionResult> GetAssetsFromAssetBank(string assetIds)
+    {
+        AssetBankSearchResponse? response = await _authorizedServiceCaller.GetRequestAsync<AssetBankSearchResponse>(
+            "assetBank",
+            "/assetbank-rya-assets-test/rest/asset-search?assetIds=" + assetIds);
+
+        if (response == null)
+        {
+            return Problem("Could not retrieve assets.");
+        }
+
+        return Content(string.Join(", ", response.Select(x => x.ToString())));
+    }
 }
 
