@@ -29,6 +29,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
         requestMessage.Headers.UserAgent.Add(new ProductInfoHeaderValue("UmbracoServiceIntegration", "1.0.0"));
+        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         return requestMessage;
     }
 
