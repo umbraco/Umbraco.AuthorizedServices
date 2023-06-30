@@ -39,6 +39,10 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<ISecretEncryptor>(factory =>
             {
                 var tokenEncryptionKey = configSection.GetValue<string>(nameof(AuthorizedServiceSettings.TokenEncryptionKey));
+                if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
+                {
+                    return new NoopSecretEncryptor();
+                }
 
                 return new AesSecretEncryptor(tokenEncryptionKey ?? string.Empty);
             });

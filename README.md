@@ -297,9 +297,10 @@ Responsible for creating a dictionary of parameters provided in the request to r
 
 Responsible for encrypting and decrypting stored tokens (or other values).
 
-It has two implementations:
+It has three implementations:
 
 - `AesSecretEncryptor` - default implementation that is using a standard `AES` cryptographic algorithm for encrypting/decrypting values based on the provided `TokenEncryptionKey`.
+- `NoopSecretEncryptor` - provides no encryption saving the provided token as is.  Used by default if no `TokenEncryptionKey` is provided.
 - `DataProtectionSecretEncryptor` - additional implementation that uses the `IDataProtectionProvider` interface for providing data protection services.
 
 Switching the encryption engine to `DataProtectionSecretEncryptor` can be done in code, adding these two lines:
