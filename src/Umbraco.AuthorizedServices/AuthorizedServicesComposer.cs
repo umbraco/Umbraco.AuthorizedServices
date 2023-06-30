@@ -1,11 +1,14 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Manifests;
 using Umbraco.AuthorizedServices.Migrations;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Extensions;
@@ -16,7 +19,8 @@ internal class AuthorizedServicesComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
     {
-        IConfigurationSection configSection = builder.Config.GetSection("Umbraco:AuthorizedServices");
+        const string ConfigurationRoot = "Umbraco:AuthorizedServices";
+        IConfigurationSection configSection = builder.Config.GetSection(ConfigurationRoot);
         builder.Services.Configure<AuthorizedServiceSettings>(configSection);
 
         // manifest filter
@@ -38,13 +42,26 @@ internal class AuthorizedServicesComposer : IComposer
 
         builder.Services.AddUnique<ISecretEncryptor>(factory =>
             {
+                ILogger<AuthorizedServicesComposer> logger = factory.GetRequiredService<ILogger<AuthorizedServicesComposer>>();
                 var tokenEncryptionKey = configSection.GetValue<string>(nameof(AuthorizedServiceSettings.TokenEncryptionKey));
+
                 if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
                 {
+                    logger.LogWarning($"No encryption key was found in configuration at {ConfigurationRoot}:{nameof(AuthorizedServiceSettings.TokenEncryptionKey)}. Falling back to using the Umbraco:CMS:{nameof(GlobalSettings)}:{nameof(GlobalSettings.Id)} value.");
+
+                    IOptions<GlobalSettings> globalSettings = factory.GetRequiredService<IOptions<GlobalSettings>>();
+                    tokenEncryptionKey = globalSettings.Value.Id;
+
                     return new NoopSecretEncryptor();
                 }
 
-                return new AesSecretEncryptor(tokenEncryptionKey ?? string.Empty);
+                if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
+                {
+                    logger.LogWarning($"Could not fallback back to using the Umbraco:CMS:{nameof(GlobalSettings)}:{nameof(GlobalSettings.Id)} value as it has not been completed. Access tokens will not be encrypted when stored in the local database.");
+                    return new NoopSecretEncryptor();
+                }
+
+                return new AesSecretEncryptor(tokenEncryptionKey);
             });
 
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();

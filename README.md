@@ -97,6 +97,8 @@ Not all values are required for all services.  Those that are required are marke
 
 Provides an optional key used to encrypt and decrypt tokens when they are saved and retrieved from storage respectively.
 
+If not provided, the value stored in configuration at `Umbraco:CMS:Global:Id` will be used.
+
 ##### Services
 
 The collection of services available for authorization and usage.
@@ -300,10 +302,10 @@ Responsible for encrypting and decrypting stored tokens (or other values).
 It has three implementations:
 
 - `AesSecretEncryptor` - default implementation that is using a standard `AES` cryptographic algorithm for encrypting/decrypting values based on the provided `TokenEncryptionKey`.
-- `NoopSecretEncryptor` - provides no encryption saving the provided token as is.  Used by default if no `TokenEncryptionKey` is provided.
+- `NoopSecretEncryptor` - provides no encryption saving the provided token as is.
 - `DataProtectionSecretEncryptor` - additional implementation that uses the `IDataProtectionProvider` interface for providing data protection services.
 
-Switching the encryption engine to `DataProtectionSecretEncryptor` can be done in code, adding these two lines:
+Switching the encryption engine to for example `DataProtectionSecretEncryptor` can be done in code, adding these two lines:
 
 ```
 builder.Services.AddDataProtection();
