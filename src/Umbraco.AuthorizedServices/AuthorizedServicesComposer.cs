@@ -51,8 +51,6 @@ internal class AuthorizedServicesComposer : IComposer
 
                     IOptions<GlobalSettings> globalSettings = factory.GetRequiredService<IOptions<GlobalSettings>>();
                     tokenEncryptionKey = globalSettings.Value.Id;
-
-                    return new NoopSecretEncryptor();
                 }
 
                 if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
