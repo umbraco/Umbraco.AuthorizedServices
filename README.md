@@ -37,14 +37,12 @@ To easily install the package you can use the `Package Manager Console` from Vis
 
 #### Package Manager Console
 ```
-Install-Package
-Umbraco.AuthorizedServices
+Install-Package Umbraco.AuthorizedServices
 ```
 
 #### Dotnet CLI
 ```
-dotnet add package
-Umbraco.AuthorizedServices
+dotnet add package Umbraco.AuthorizedServices
 ```
 
 
