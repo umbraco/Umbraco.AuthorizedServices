@@ -308,7 +308,6 @@ It has three implementations:
 Switching the encryption engine to for example `DataProtectionSecretEncryptor` can be done in code, adding these two lines:
 
 ```
-builder.Services.AddDataProtection();
 builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncrytor>();
 ```
 
