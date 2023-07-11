@@ -14,7 +14,7 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
         : this(authorizedServiceSettings.Value.TokenEncryptionKey)
     { }
 
-    public AesSecretEncryptor(string secretKey)
+    internal AesSecretEncryptor(string secretKey)
         => _secretKey = secretKey;
 
     public string Encrypt(string value)
