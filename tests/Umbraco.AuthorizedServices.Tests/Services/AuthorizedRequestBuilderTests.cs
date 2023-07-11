@@ -15,15 +15,15 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         // Arrange
         var serviceDetail = new ServiceDetail
         {
-            Alias = "testService",
+            Alias = ServiceAlias,
             ApiHost = "https://service.url",
         };
         const string Path = "/api/test";
         const string AccessToken = "1234";
         var token = new Token(AccessToken, null, DateTime.Now.AddDays(7));
         var data = new TestRequestData("bar");
-        Mock<IOptionsMonitor<AuthorizedServiceSettings>> optionsMonitorMock = CreateOptionsMonitorSettings();
-        var factory = new JsonSerializerFactory(optionsMonitorMock.Object, new JsonNetSerializer());
+        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail();
+        var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
         var sut = new AuthorizedRequestBuilder(factory);
 
         // Act
@@ -51,5 +51,4 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
 
         public string Foo { get; }
     }
-
 }

@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Options;
+using Umbraco.AuthorizedServices.Configuration;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
@@ -8,7 +10,12 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
 {
     private readonly string _secretKey;
 
-    public AesSecretEncryptor(string secretKey) => _secretKey = secretKey;
+    public AesSecretEncryptor(IOptions<AuthorizedServiceSettings> authorizedServiceSettings)
+        : this(authorizedServiceSettings.Value.TokenEncryptionKey)
+    { }
+
+    public AesSecretEncryptor(string secretKey)
+        => _secretKey = secretKey;
 
     public string Encrypt(string value)
     {

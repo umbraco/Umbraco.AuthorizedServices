@@ -11,12 +11,12 @@ namespace Umbraco.AuthorizedServices.Services;
 /// </summary>
 public class JsonSerializerFactory
 {
-    private readonly AuthorizedServiceSettings _authorizedServiceSettings;
+    private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
     private readonly IJsonSerializer _jsonSerializer;
 
-    public JsonSerializerFactory(IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings, IJsonSerializer jsonSerializer)
+    public JsonSerializerFactory(IOptionsMonitor<ServiceDetail> serviceDetailOptions, IJsonSerializer jsonSerializer)
     {
-        _authorizedServiceSettings = authorizedServiceSettings.CurrentValue;
+        _serviceDetailOptions = serviceDetailOptions;
         _jsonSerializer = jsonSerializer;
     }
 
@@ -27,11 +27,7 @@ public class JsonSerializerFactory
     /// <returns>An implementation of <see cref="IJsonSerializer"/>.</returns>
     public IJsonSerializer GetSerializer(string serviceAlias)
     {
-        ServiceDetail? serviceDetail = _authorizedServiceSettings.Services.SingleOrDefault(x => x.Alias == serviceAlias);
-        if (serviceDetail == null)
-        {
-            throw new ArgumentException(nameof(serviceAlias), $"Could not find a registered service with the provided alias of {serviceAlias}");
-        }
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(serviceAlias);
 
         switch (serviceDetail.JsonSerializer)
         {
