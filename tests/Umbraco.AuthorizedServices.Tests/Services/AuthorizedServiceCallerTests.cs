@@ -166,8 +166,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             .Setup(x => x.SendRequest(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.Is<Dictionary<string, string>>(y => y["grant_type"] == "refresh_token")))
             .ReturnsAsync(httpResponseMessage);
 
-        Mock<IOptionsMonitor<AuthorizedServiceSettings>> optionsMonitorMock = CreateOptionsMonitorSettings();
-        var factory = new JsonSerializerFactory(optionsMonitorMock.Object, new JsonNetSerializer());
+        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail();
+        var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
 
         return new AuthorizedServiceCaller(
             AppCaches.Disabled,
@@ -175,7 +175,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             TokenStorageMock.Object,
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceCaller>(),
-            optionsMonitorMock.Object,
+            optionsMonitorServiceDetailMock.Object,
             new TestHttpClientFactory(statusCode, responseContent),
             factory,
             new AuthorizedRequestBuilder(factory),

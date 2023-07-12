@@ -17,9 +17,9 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         ITokenStorage tokenStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceAuthorizer> logger,
-        IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings,
+        IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IAuthorizationParametersBuilder authorizationParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, authorizedServiceSettings.CurrentValue)
+        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _authorizationParametersBuilder = authorizationParametersBuilder;
     }

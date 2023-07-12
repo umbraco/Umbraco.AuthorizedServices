@@ -10,22 +10,16 @@ internal abstract class AuthorizedServiceTestsBase
 
     protected Mock<ITokenStorage> TokenStorageMock { get; set; } = null!;
 
-    protected static Mock<IOptionsMonitor<AuthorizedServiceSettings>> CreateOptionsMonitorSettings()
+    protected static Mock<IOptionsMonitor<ServiceDetail>> CreateOptionsMonitorServiceDetail()
     {
-        var settings = new AuthorizedServiceSettings
+        var optionsMonitorServiceDetailMock = new Mock<IOptionsMonitor<ServiceDetail>>();
+        optionsMonitorServiceDetailMock.Setup(o => o.Get(ServiceAlias)).Returns(new ServiceDetail()
         {
-            Services = new List<ServiceDetail>
-            {
-                new ServiceDetail
-                {
-                    Alias = ServiceAlias,
-                    ApiHost = "https://service.url",
-                    JsonSerializer = JsonSerializerOption.JsonNet
-                }
-            }
-        };
-        var optionsMonitorMock = new Mock<IOptionsMonitor<AuthorizedServiceSettings>>();
-        optionsMonitorMock.Setup(o => o.CurrentValue).Returns(settings);
-        return optionsMonitorMock;
+            Alias = ServiceAlias,
+            ApiHost = "https://service.url",
+            JsonSerializer = JsonSerializerOption.JsonNet
+        });
+
+        return optionsMonitorServiceDetailMock;
     }
 }

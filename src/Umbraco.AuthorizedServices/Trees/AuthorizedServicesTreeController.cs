@@ -23,7 +23,7 @@ namespace Umbraco.AuthorizedServices.Trees;
 public class AuthorizedServicesTreeController : TreeController
 {
     private readonly IMenuItemCollectionFactory _menuItemCollectionFactory;
-    private readonly AuthorizedServiceSettings _authorizedServiceSettings;
+    private readonly IOptionsMonitor<AuthorizedServiceSettings> _authorizedServiceSettings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServicesTreeController"/> class.
@@ -37,7 +37,7 @@ public class AuthorizedServicesTreeController : TreeController
         : base(textService, umbracoApiControllerTypeCollection, eventAggregator)
     {
         _menuItemCollectionFactory = menuItemCollectionFactory;
-        _authorizedServiceSettings = authorizedServiceSettings.CurrentValue;
+        _authorizedServiceSettings = authorizedServiceSettings;
     }
 
     /// <inheritdoc/>
@@ -57,7 +57,7 @@ public class AuthorizedServicesTreeController : TreeController
     protected override ActionResult<TreeNodeCollection> GetTreeNodes(string id, FormCollection queryStrings)
     {
         var nodes = new TreeNodeCollection();
-        foreach (ServiceDetail service in _authorizedServiceSettings.Services.OrderBy(x => x.DisplayName))
+        foreach (ServiceSummary? service in _authorizedServiceSettings.CurrentValue.Services.Values.OrderBy(x => x.DisplayName))
         {
             TreeNode node = CreateTreeNode(service.Alias, "-1", queryStrings, service.DisplayName, service.Icon, false);
             nodes.Add(node);

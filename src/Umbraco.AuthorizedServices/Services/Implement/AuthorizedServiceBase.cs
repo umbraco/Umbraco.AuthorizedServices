@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Cache;
@@ -8,7 +9,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal abstract class AuthorizedServiceBase
 {
-    private readonly AuthorizedServiceSettings _authorizedServiceSettings;
+    private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
     private readonly ITokenFactory _tokenFactory;
 
     public AuthorizedServiceBase(
@@ -17,14 +18,14 @@ internal abstract class AuthorizedServiceBase
         ITokenStorage tokenStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger logger,
-        AuthorizedServiceSettings authorizedServiceSettings)
+        IOptionsMonitor<ServiceDetail> serviceDetailOptions)
     {
         AppCaches = appCaches;
         _tokenFactory = tokenFactory;
         TokenStorage = tokenStorage;
         AuthorizationRequestSender = authorizationRequestSender;
         Logger = logger;
-        _authorizedServiceSettings = authorizedServiceSettings;
+        _serviceDetailOptions = serviceDetailOptions;
     }
 
     protected AppCaches AppCaches { get; }
@@ -35,16 +36,7 @@ internal abstract class AuthorizedServiceBase
 
     protected ILogger Logger { get; }
 
-    protected ServiceDetail GetServiceDetail(string serviceAlias)
-    {
-        ServiceDetail? serviceDetail = _authorizedServiceSettings.Services.SingleOrDefault(x => x.Alias == serviceAlias);
-        if (serviceDetail == null)
-        {
-            throw new InvalidOperationException($"Cannot find service config for service alias '{serviceAlias}'");
-        }
-
-        return serviceDetail;
-    }
+    protected ServiceDetail GetServiceDetail(string serviceAlias) => _serviceDetailOptions.Get(serviceAlias);
 
     protected async Task<Token> CreateTokenFromResponse(ServiceDetail serviceDetail, HttpResponseMessage response)
     {
