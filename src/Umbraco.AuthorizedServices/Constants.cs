@@ -4,6 +4,8 @@ namespace Umbraco.AuthorizedServices;
 
 public static class Constants
 {
+    internal const string PackageName = "Umbraco Authorized Services";
+
     public const string PluginName = "UmbracoAuthorizedServices";
 
     public const string Separator = "-";

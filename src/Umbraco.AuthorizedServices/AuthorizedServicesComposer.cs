@@ -2,12 +2,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Manifests;
-using Umbraco.AuthorizedServices.Migrations;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
-using Umbraco.Cms.Core.Notifications;
 using Umbraco.Extensions;
 
 namespace Umbraco.AuthorizedServices;
@@ -47,7 +45,5 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
 
         builder.Services.AddSingleton<JsonSerializerFactory>();
-
-        builder.AddNotificationHandler<UmbracoApplicationStartingNotification, DatabaseMigrationHandler>();
     }
 }
