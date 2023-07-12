@@ -1,7 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.Cms.Core.Configuration.Models;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
@@ -10,23 +12,46 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
 {
     private readonly string _secretKey;
 
-    public AesSecretEncryptor(IOptions<AuthorizedServiceSettings> authorizedServiceSettings)
-        : this(authorizedServiceSettings.Value.TokenEncryptionKey)
+    public AesSecretEncryptor(
+        IOptions<AuthorizedServiceSettings> authorizedServiceSettings,
+        IOptions<GlobalSettings> globalSettings,
+        ILogger<AesSecretEncryptor> logger)
+        : this(GetSecretKey(authorizedServiceSettings.Value, globalSettings.Value, logger))
     { }
 
-    internal AesSecretEncryptor(string secretKey)
-        => _secretKey = secretKey;
+    private static string GetSecretKey(
+        AuthorizedServiceSettings authorizedServiceSettings,
+        GlobalSettings globalSettings,
+        ILogger<AesSecretEncryptor> logger)
+    {
+        const string ConfigurationRoot = "Umbraco:AuthorizedServices";
+        var tokenEncryptionKey = authorizedServiceSettings.TokenEncryptionKey;
+        if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
+        {
+            logger.LogWarning($"No encryption key was found in configuration at {ConfigurationRoot}:{nameof(AuthorizedServiceSettings.TokenEncryptionKey)}. Falling back to using the Umbraco:CMS:{nameof(GlobalSettings)}:{nameof(GlobalSettings.Id)} value.");
+            tokenEncryptionKey = globalSettings.Id;
+        }
+
+        if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
+        {
+            logger.LogWarning($"Could not fallback back to using the Umbraco:CMS:{nameof(GlobalSettings)}:{nameof(GlobalSettings.Id)} value as it has not been completed. Access tokens will not be encrypted when stored in the local database.");
+        }
+
+        return tokenEncryptionKey;
+    }
+
+    internal AesSecretEncryptor(string secretKey) => _secretKey = secretKey;
 
     public string Encrypt(string value)
     {
-        if (string.IsNullOrEmpty(_secretKey))
-        {
-            throw new ArgumentException("No secret key has been configured.", nameof(_secretKey));
-        }
-
         if (string.IsNullOrEmpty(value))
         {
             throw new ArgumentException("The value to be encrypted cannot be empty.", nameof(value));
+        }
+
+        if (string.IsNullOrEmpty(_secretKey))
+        {
+            return value;
         }
 
         var buffer = Encoding.UTF8.GetBytes(value);
@@ -59,17 +84,27 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
 
     public string Decrypt(string value)
     {
-        if (string.IsNullOrEmpty(_secretKey))
-        {
-            throw new ArgumentException("No secret key has been configured.", nameof(_secretKey));
-        }
-
         if (string.IsNullOrEmpty(value))
         {
             throw new ArgumentException("The value to be decrypted cannot be empty.", nameof(value));
         }
 
-        var combined = Convert.FromBase64String(value);
+        if (string.IsNullOrEmpty(_secretKey))
+        {
+            return value;
+        }
+
+        byte[] combined;
+        try
+        {
+            combined = Convert.FromBase64String(value);
+        }
+        catch (FormatException)
+        {
+            // Can't convert from Base64 string. Probably means we've previously stored the token unencrypted, so we should return that.
+            return value;
+        }
+
         var buffer = new byte[combined.Length];
         var hash = SHA512.Create();
         var aesKey = new byte[24];

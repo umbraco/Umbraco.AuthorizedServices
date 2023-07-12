@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.DataProtection;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
-internal sealed class DataProtectionSecretEncrytor : ISecretEncryptor
+internal sealed class DataProtectionSecretEncryptor : ISecretEncryptor
 {
     private readonly IDataProtector _protector;
 
     private const string Purpose = "UmbracoAuthorizedServiceTokens";
 
-    public DataProtectionSecretEncrytor(IDataProtectionProvider dataProtectionProvider)
+    public DataProtectionSecretEncryptor(IDataProtectionProvider dataProtectionProvider)
     {
         _protector = dataProtectionProvider.CreateProtector(Purpose);
     }

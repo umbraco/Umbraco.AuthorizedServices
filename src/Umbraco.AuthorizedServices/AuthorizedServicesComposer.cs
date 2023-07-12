@@ -1,12 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Manifests;
-using Umbraco.AuthorizedServices.Migrations;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
-using Umbraco.Cms.Core.Notifications;
 using Umbraco.Extensions;
 
 namespace Umbraco.AuthorizedServices;
@@ -15,22 +13,32 @@ internal class AuthorizedServicesComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
     {
+        ConfigureOptions(builder);
+        RegisterManifestFilter(builder);
+        RegisterServices(builder);
+    }
+
+    private static void ConfigureOptions(IUmbracoBuilder builder)
+    {
         builder.Services.AddOptions<AuthorizedServiceSettings>()
             .BindConfiguration("Umbraco:AuthorizedServices")
             .Configure(options =>
             {
-                // Automatically set the alias based on the key
-                foreach (var service in options.Services)
+                // Automatically set the alias based on the key.
+                foreach (KeyValuePair<string, ServiceSummary> service in options.Services)
                 {
                     service.Value.Alias = service.Key;
                 }
             });
 
         builder.Services.ConfigureOptions<ConfigureServiceDetail>();
+    }
 
-        // manifest filter
+    private static void RegisterManifestFilter(IUmbracoBuilder builder) =>
         builder.ManifestFilters().Append<AuthorizedServicesManifestFilter>();
 
+    private static void RegisterServices(IUmbracoBuilder builder)
+    {
         builder.Services.AddUnique<IAuthorizationClientFactory, AuthorizationClientFactory>();
         builder.Services.AddUnique<IAuthorizationParametersBuilder, AuthorizationParametersBuilder>();
         builder.Services.AddUnique<IAuthorizationRequestSender, AuthorizationRequestSender>();
@@ -51,7 +59,5 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
 
         builder.Services.AddSingleton<JsonSerializerFactory>();
-
-        builder.AddNotificationHandler<UmbracoApplicationStartingNotification, DatabaseMigrationHandler>();
     }
 }
