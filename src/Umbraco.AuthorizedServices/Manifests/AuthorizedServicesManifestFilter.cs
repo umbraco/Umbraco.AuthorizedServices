@@ -10,7 +10,7 @@ public class AuthorizedServicesManifestFilter : IManifestFilter
         {
             AllowPackageTelemetry = true,
             Version = Constants.InformationalVersion,
-            PackageName = "Umbraco Authorized Services",
+            PackageName = Constants.PackageName,
             BundleOptions = BundleOptions.None,
             Scripts = new[]
             {
