@@ -34,6 +34,9 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
     authorizedServiceResource.sendSampleRequest(serviceAlias, vm.sampleRequest)
       .then(function (response) {
         vm.sampleRequestResponse = "Request: " + vm.sampleRequest + "\r\nResponse: " + JSON.stringify(response.data, null, 2);
+      })
+      .catch(function (e) {
+        notificationsService.error("Authorized Services", "The sample request did not complete: " + e.data.ExceptionMessage);
       });
   };
 

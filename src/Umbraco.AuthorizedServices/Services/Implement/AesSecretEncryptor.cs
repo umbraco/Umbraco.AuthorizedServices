@@ -62,7 +62,17 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
             throw new ArgumentException("The value to be decrypted cannot be empty.", nameof(value));
         }
 
-        var combined = Convert.FromBase64String(value);
+        byte[] combined;
+        try
+        {
+            combined = Convert.FromBase64String(value);
+        }
+        catch (FormatException)
+        {
+            // Can't convert from Base64 string. Probably means we've previously stored the token unencrypted, so we should return that.
+            return value;
+        }
+
         var buffer = new byte[combined.Length];
         var hash = SHA512.Create();
         var aesKey = new byte[24];
