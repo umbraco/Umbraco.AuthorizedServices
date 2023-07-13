@@ -53,7 +53,7 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IAuthorizationPayloadCache, AuthorizationPayloadCache>();
         builder.Services.AddUnique<IAuthorizationPayloadBuilder, AuthorizationPayloadBuilder>();
 
-        builder.Services.AddUnique<ISecretEncryptor, AesSecretEncryptor>();
+        builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncryptor>();
 
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();

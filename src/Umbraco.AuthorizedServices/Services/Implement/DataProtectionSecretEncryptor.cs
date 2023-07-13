@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
@@ -15,7 +16,15 @@ internal sealed class DataProtectionSecretEncryptor : ISecretEncryptor
 
     public bool TryDecrypt(string encryptedValue, out string decryptedValue)
     {
-        decryptedValue = _protector.Unprotect(encryptedValue);
-        return true;
+        try
+        {
+            decryptedValue = _protector.Unprotect(encryptedValue);
+            return true;
+        }
+        catch (CryptographicException)
+        {
+            decryptedValue = string.Empty;
+            return false;
+        }
     }
 }

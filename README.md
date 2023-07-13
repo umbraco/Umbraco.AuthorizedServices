@@ -161,8 +161,11 @@ This value will be retrieved from the registered service app.
 This value will be retrieved from the registered service app.  As the name suggests, it should be kept secret and so is probably best not added directly to `appSettings.json` and checked into source control.
 
 ###### UseProofKeyForCodeExchange *
+
 This flag will extend the OAuth flow with an additional security layer called [PKCE - Proof Key for Code Exchange](https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow-with-proof-key-for-code-exchange-pkce).
+
 In the OAuth with PKCE flow, a random code will be generated on the client and stored under the name `code_verifier`, and then using the `SHA-256` algorithm it will be hashed under the name `code_challenge`.
+
 When the authorization URL is generated, the `code_challenge` will be sent to the OAuth Server, which will store it. The next request for access token will pass the `code_verifier` as a header key, and the OAuth Server will
 compare it with the previously sent `code_challenge`.
 
@@ -301,14 +304,14 @@ Responsible for encrypting and decrypting stored tokens (or other values).
 
 It has three implementations:
 
-- `AesSecretEncryptor` - default implementation that is using a standard `AES` cryptographic algorithm for encrypting/decrypting values based on the provided `TokenEncryptionKey`.
+- `DataProtectionSecretEncryptor` - default implementation that uses the `IDataProtectionProvider` interface for providing data protection services.
+- `AesSecretEncryptor` - additional implementation that is using a standard `AES` cryptographic algorithm for encrypting/decrypting values based on the provided `TokenEncryptionKey`.
 - `NoopSecretEncryptor` - provides no encryption saving the provided token as is.
-- `DataProtectionSecretEncryptor` - additional implementation that uses the `IDataProtectionProvider` interface for providing data protection services.
 
-Switching the encryption engine to for example `DataProtectionSecretEncryptor` can be done in code, adding these two lines:
+Switching the encryption engine to for example `AesSecretEncryptor` can be done in code, via:
 
 ```
-builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncrytor>();
+builder.Services.AddUnique<ISecretEncryptor, AesSecretEncryptor>();
 ```
 
 #### ITokenFactory
