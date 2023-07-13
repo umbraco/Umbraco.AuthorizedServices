@@ -61,7 +61,7 @@ Details of services available need to be applied to the Umbraco web application'
     },
     "AuthorizedServices": {
       "TokenEncryptionKey": "",
-      "Services": [
+      "Services": {
         {
           "<serviceAlias>": {
             "DisplayName": "",
@@ -83,7 +83,7 @@ Details of services available need to be applied to the Umbraco web application'
             "ExpiresInResponseKey": "expires_in",
             "SampleRequest": ""
         }
-      ]
+      }
     }
 ```
 
