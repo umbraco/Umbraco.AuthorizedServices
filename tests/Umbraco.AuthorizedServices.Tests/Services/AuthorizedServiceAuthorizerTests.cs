@@ -63,7 +63,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
             .Setup(x => x.SendRequest(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(httpResponseMessage);
 
-        Mock<IOptionsMonitor<AuthorizedServiceSettings>> optionsMonitorMock = CreateOptionsMonitorSettings();
+        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail();
 
         return new AuthorizedServiceAuthorizer(
             AppCaches.Disabled,
@@ -71,7 +71,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
             TokenStorageMock.Object,
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceAuthorizer>(),
-            optionsMonitorMock.Object,
+            optionsMonitorServiceDetailMock.Object,
             new AuthorizationParametersBuilder());
     }
 }

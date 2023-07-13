@@ -17,7 +17,7 @@ namespace Umbraco.AuthorizedServices.Controllers;
 [Authorize(Policy = Cms.Web.Common.Authorization.AuthorizationPolicies.SectionAccessSettings)]
 public class AuthorizedServiceController : BackOfficeNotificationsController
 {
-    private readonly AuthorizedServiceSettings _authorizedServiceSettings;
+    private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
     private readonly ITokenStorage _tokenStorage;
     private readonly IAuthorizationUrlBuilder _authorizationUrlBuilder;
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
@@ -28,14 +28,14 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// Initializes a new instance of the <see cref="AuthorizedServiceController"/> class.
     /// </summary>
     public AuthorizedServiceController(
-        IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings,
+        IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         ITokenStorage tokenStorage,
         IAuthorizationUrlBuilder authorizationUrlBuilder,
         IAuthorizedServiceCaller authorizedServiceCaller,
         IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
         IAuthorizationPayloadBuilder authorizedServiceAuthorizationPayloadBuilder)
     {
-        _authorizedServiceSettings = authorizedServiceSettings.CurrentValue;
+        _serviceDetailOptions = serviceDetailOptions;
         _tokenStorage = tokenStorage;
         _authorizationUrlBuilder = authorizationUrlBuilder;
         _authorizedServiceCaller = authorizedServiceCaller;
@@ -50,11 +50,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     [HttpGet]
     public AuthorizedServiceDisplay? GetByAlias(string alias)
     {
-        ServiceDetail? serviceDetail = _authorizedServiceSettings.Services.SingleOrDefault(x => x.Alias == alias);
-        if (serviceDetail == null)
-        {
-            return null;
-        }
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(alias);
 
         bool tokenExists = _tokenStorage.GetToken(alias) != null;
 

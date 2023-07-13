@@ -23,12 +23,12 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         ITokenStorage tokenStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceCaller> logger,
-        IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings,
+        IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IHttpClientFactory httpClientFactory,
         JsonSerializerFactory jsonSerializerFactory,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, authorizedServiceSettings.CurrentValue)
+        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
         _jsonSerializerFactory = jsonSerializerFactory;

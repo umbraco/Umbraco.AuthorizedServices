@@ -1,13 +1,9 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Manifests;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.Configuration.Models;
 using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Extensions;
 
@@ -17,13 +13,32 @@ internal class AuthorizedServicesComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
     {
-        const string ConfigurationRoot = "Umbraco:AuthorizedServices";
-        IConfigurationSection configSection = builder.Config.GetSection(ConfigurationRoot);
-        builder.Services.Configure<AuthorizedServiceSettings>(configSection);
+        ConfigureOptions(builder);
+        RegisterManifestFilter(builder);
+        RegisterServices(builder);
+    }
 
-        // manifest filter
+    private static void ConfigureOptions(IUmbracoBuilder builder)
+    {
+        builder.Services.AddOptions<AuthorizedServiceSettings>()
+            .BindConfiguration("Umbraco:AuthorizedServices")
+            .Configure(options =>
+            {
+                // Automatically set the alias based on the key.
+                foreach (KeyValuePair<string, ServiceSummary> service in options.Services)
+                {
+                    service.Value.Alias = service.Key;
+                }
+            });
+
+        builder.Services.ConfigureOptions<ConfigureServiceDetail>();
+    }
+
+    private static void RegisterManifestFilter(IUmbracoBuilder builder) =>
         builder.ManifestFilters().Append<AuthorizedServicesManifestFilter>();
 
+    private static void RegisterServices(IUmbracoBuilder builder)
+    {
         builder.Services.AddUnique<IAuthorizationClientFactory, AuthorizationClientFactory>();
         builder.Services.AddUnique<IAuthorizationParametersBuilder, AuthorizationParametersBuilder>();
         builder.Services.AddUnique<IAuthorizationRequestSender, AuthorizationRequestSender>();
@@ -38,27 +53,7 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IAuthorizationPayloadCache, AuthorizationPayloadCache>();
         builder.Services.AddUnique<IAuthorizationPayloadBuilder, AuthorizationPayloadBuilder>();
 
-        builder.Services.AddUnique<ISecretEncryptor>(factory =>
-            {
-                ILogger<AuthorizedServicesComposer> logger = factory.GetRequiredService<ILogger<AuthorizedServicesComposer>>();
-                var tokenEncryptionKey = configSection.GetValue<string>(nameof(AuthorizedServiceSettings.TokenEncryptionKey));
-
-                if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
-                {
-                    logger.LogWarning($"No encryption key was found in configuration at {ConfigurationRoot}:{nameof(AuthorizedServiceSettings.TokenEncryptionKey)}. Falling back to using the Umbraco:CMS:{nameof(GlobalSettings)}:{nameof(GlobalSettings.Id)} value.");
-
-                    IOptions<GlobalSettings> globalSettings = factory.GetRequiredService<IOptions<GlobalSettings>>();
-                    tokenEncryptionKey = globalSettings.Value.Id;
-                }
-
-                if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
-                {
-                    logger.LogWarning($"Could not fallback back to using the Umbraco:CMS:{nameof(GlobalSettings)}:{nameof(GlobalSettings.Id)} value as it has not been completed. Access tokens will not be encrypted when stored in the local database.");
-                    return new NoopSecretEncryptor();
-                }
-
-                return new AesSecretEncryptor(tokenEncryptionKey);
-            });
+        builder.Services.AddUnique<ISecretEncryptor, AesSecretEncryptor>();
 
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
         builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();

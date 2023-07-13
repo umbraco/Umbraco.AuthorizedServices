@@ -63,26 +63,26 @@ Details of services available need to be applied to the Umbraco web application'
       "TokenEncryptionKey": "",
       "Services": [
         {
-          "Alias": "",
-          "DisplayName": "",
-          "ApiHost": "",
-          "IdentityHost": "",
-          "TokenHost": "",
-          "RequestIdentityPath": "",
-          "AuthorizationUrlRequiresRedirectUrl": true|false,
-          "RequestTokenPath": "",
-          "JsonSerializer": "",
-          "RequestTokenFormat": "",
-          "AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken": true|false,
-          "ClientId": "",
-          "ClientSecret": "",
-          "UseProofKeyForCodeExchange": true|false,
-          "Scopes": "",
-          "AccessTokenResponseKey": "access_token",
-          "RefreshTokenResponseKey": "refresh_token",
-          "ExpiresInResponseKey": "expires_in",
-          "SampleRequest": ""
-        },
+          "<serviceAlias>": {
+            "DisplayName": "",
+            "ApiHost": "",
+            "IdentityHost": "",
+            "TokenHost": "",
+            "RequestIdentityPath": "",
+            "AuthorizationUrlRequiresRedirectUrl": true|false,
+            "RequestTokenPath": "",
+            "JsonSerializer": "",
+            "RequestTokenFormat": "",
+            "AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken": true|false,
+            "ClientId": "",
+            "ClientSecret": "",
+            "UseProofKeyForCodeExchange": true|false,
+            "Scopes": "",
+            "AccessTokenResponseKey": "access_token",
+            "RefreshTokenResponseKey": "refresh_token",
+            "ExpiresInResponseKey": "expires_in",
+            "SampleRequest": ""
+        }
       ]
     }
 ```
@@ -101,11 +101,11 @@ If not provided, the value stored in configuration at `Umbraco:CMS:Global:Id` wi
 
 ##### Services
 
-The collection of services available for authorization and usage.
+The collection of services available for authorization and usage structured as a dictionary.
 
-###### Alias *
+The dictionary key is the alias of the service, which must be unique across the service collection.
 
-The alias of the service, which must be unique across the service collection.
+The value contains the following elements:
 
 ###### DisplayName *
 

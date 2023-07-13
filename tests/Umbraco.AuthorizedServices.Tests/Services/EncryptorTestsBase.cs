@@ -14,9 +14,10 @@ internal abstract class EncryptorTestsBase
 
         // Act
         var encryptedMessage = sut.Encrypt(Message);
-        var decryptedMessage = sut.Decrypt(encryptedMessage);
+        var result = sut.TryDecrypt(encryptedMessage, out string decryptedMessage);
 
         // Assert
+        result.Should().BeTrue();
         decryptedMessage.Should().Be(Message);
     }
 

@@ -39,18 +39,18 @@ public class AuthorizedServiceSettings
 {
     public string TokenEncryptionKey { get; set; } = string.Empty;
 
-    public List<ServiceDetail> Services { get; set; } = new List<ServiceDetail>();
+    public IDictionary<string, ServiceSummary> Services { get; set; } = new Dictionary<string, ServiceSummary>();
 }
 
 /// <summary>
 /// Defines the strongly typed configuration for a single service.
 /// </summary>
-public class ServiceDetail
+public class ServiceSummary
 {
     /// <summary>
     /// Gets or sets the service alias.
     /// </summary>
-    public string Alias { get; set; } = string.Empty;
+    public string Alias { get; internal set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the display name for the service.
@@ -61,7 +61,11 @@ public class ServiceDetail
     /// Gets or sets the service icon.
     /// </summary>
     public string Icon { get; set; } = "icon-command";
+}
 
+/// <inheritdoc />
+public class ServiceDetail : ServiceSummary
+{
     /// <summary>
     /// Gets or sets the host name for the service's API.
     /// </summary>

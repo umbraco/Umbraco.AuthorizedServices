@@ -1,5 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.Cms.Core.Configuration.Models;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
@@ -8,18 +12,46 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
 {
     private readonly string _secretKey;
 
-    public AesSecretEncryptor(string secretKey) => _secretKey = secretKey;
+    public AesSecretEncryptor(
+        IOptions<AuthorizedServiceSettings> authorizedServiceSettings,
+        IOptions<GlobalSettings> globalSettings,
+        ILogger<AesSecretEncryptor> logger)
+        : this(GetSecretKey(authorizedServiceSettings.Value, globalSettings.Value, logger))
+    { }
+
+    private static string GetSecretKey(
+        AuthorizedServiceSettings authorizedServiceSettings,
+        GlobalSettings globalSettings,
+        ILogger<AesSecretEncryptor> logger)
+    {
+        const string ConfigurationRoot = "Umbraco:AuthorizedServices";
+        var tokenEncryptionKey = authorizedServiceSettings.TokenEncryptionKey;
+        if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
+        {
+            logger.LogWarning($"No encryption key was found in configuration at {ConfigurationRoot}:{nameof(AuthorizedServiceSettings.TokenEncryptionKey)}. Falling back to using the Umbraco:CMS:{nameof(GlobalSettings)}:{nameof(GlobalSettings.Id)} value.");
+            tokenEncryptionKey = globalSettings.Id;
+        }
+
+        if (string.IsNullOrWhiteSpace(tokenEncryptionKey))
+        {
+            logger.LogWarning($"Could not fallback back to using the Umbraco:CMS:{nameof(GlobalSettings)}:{nameof(GlobalSettings.Id)} value as it has not been completed. Access tokens will not be encrypted when stored in the local database.");
+        }
+
+        return tokenEncryptionKey;
+    }
+
+    internal AesSecretEncryptor(string secretKey) => _secretKey = secretKey;
 
     public string Encrypt(string value)
     {
-        if (string.IsNullOrEmpty(_secretKey))
-        {
-            throw new ArgumentException("No secret key has been configured.", nameof(_secretKey));
-        }
-
         if (string.IsNullOrEmpty(value))
         {
             throw new ArgumentException("The value to be encrypted cannot be empty.", nameof(value));
+        }
+
+        if (string.IsNullOrEmpty(_secretKey))
+        {
+            return value;
         }
 
         var buffer = Encoding.UTF8.GetBytes(value);
@@ -50,27 +82,29 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
         }
     }
 
-    public string Decrypt(string value)
+    public bool TryDecrypt(string encryptedValue, out string decryptedValue)
     {
-        if (string.IsNullOrEmpty(_secretKey))
+        if (string.IsNullOrEmpty(encryptedValue))
         {
-            throw new ArgumentException("No secret key has been configured.", nameof(_secretKey));
+            throw new ArgumentException("The value to be decrypted cannot be empty.", nameof(encryptedValue));
         }
 
-        if (string.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(_secretKey))
         {
-            throw new ArgumentException("The value to be decrypted cannot be empty.", nameof(value));
+            decryptedValue = encryptedValue;
+            return true;
         }
 
         byte[] combined;
         try
         {
-            combined = Convert.FromBase64String(value);
+            combined = Convert.FromBase64String(encryptedValue);
         }
         catch (FormatException)
         {
             // Can't convert from Base64 string. Probably means we've previously stored the token unencrypted, so we should return that.
-            return value;
+            decryptedValue = encryptedValue;
+            return true;
         }
 
         var buffer = new byte[combined.Length];
@@ -90,16 +124,25 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
 
             aes.IV = iv;
 
-            using (ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
-            using (var resultStream = new MemoryStream())
+            try
             {
-                using (var aesStream = new CryptoStream(resultStream, decryptor, CryptoStreamMode.Write))
-                using (var plainStream = new MemoryStream(ciphertext))
+                using (ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                using (var resultStream = new MemoryStream())
                 {
-                    plainStream.CopyTo(aesStream);
-                }
+                    using (var aesStream = new CryptoStream(resultStream, decryptor, CryptoStreamMode.Write))
+                    using (var plainStream = new MemoryStream(ciphertext))
+                    {
+                        plainStream.CopyTo(aesStream);
+                    }
 
-                return Encoding.UTF8.GetString(resultStream.ToArray());
+                    decryptedValue = Encoding.UTF8.GetString(resultStream.ToArray());
+                    return true;
+                }
+            }
+            catch (CryptographicException)
+            {
+                decryptedValue = string.Empty;
+                return false;
             }
         }
     }
