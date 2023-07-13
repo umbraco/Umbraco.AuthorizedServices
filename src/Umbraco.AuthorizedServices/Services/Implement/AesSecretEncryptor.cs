@@ -82,27 +82,29 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
         }
     }
 
-    public string Decrypt(string value)
+    public bool TryDecrypt(string encryptedValue, out string decryptedValue)
     {
-        if (string.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(encryptedValue))
         {
-            throw new ArgumentException("The value to be decrypted cannot be empty.", nameof(value));
+            throw new ArgumentException("The value to be decrypted cannot be empty.", nameof(encryptedValue));
         }
 
         if (string.IsNullOrEmpty(_secretKey))
         {
-            return value;
+            decryptedValue = encryptedValue;
+            return true;
         }
 
         byte[] combined;
         try
         {
-            combined = Convert.FromBase64String(value);
+            combined = Convert.FromBase64String(encryptedValue);
         }
         catch (FormatException)
         {
             // Can't convert from Base64 string. Probably means we've previously stored the token unencrypted, so we should return that.
-            return value;
+            decryptedValue = encryptedValue;
+            return true;
         }
 
         var buffer = new byte[combined.Length];
@@ -122,16 +124,25 @@ internal sealed class AesSecretEncryptor : ISecretEncryptor
 
             aes.IV = iv;
 
-            using (ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
-            using (var resultStream = new MemoryStream())
+            try
             {
-                using (var aesStream = new CryptoStream(resultStream, decryptor, CryptoStreamMode.Write))
-                using (var plainStream = new MemoryStream(ciphertext))
+                using (ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                using (var resultStream = new MemoryStream())
                 {
-                    plainStream.CopyTo(aesStream);
-                }
+                    using (var aesStream = new CryptoStream(resultStream, decryptor, CryptoStreamMode.Write))
+                    using (var plainStream = new MemoryStream(ciphertext))
+                    {
+                        plainStream.CopyTo(aesStream);
+                    }
 
-                return Encoding.UTF8.GetString(resultStream.ToArray());
+                    decryptedValue = Encoding.UTF8.GetString(resultStream.ToArray());
+                    return true;
+                }
+            }
+            catch (CryptographicException)
+            {
+                decryptedValue = string.Empty;
+                return false;
             }
         }
     }

@@ -8,12 +8,14 @@ internal sealed class DataProtectionSecretEncryptor : ISecretEncryptor
 
     private const string Purpose = "UmbracoAuthorizedServiceTokens";
 
-    public DataProtectionSecretEncryptor(IDataProtectionProvider dataProtectionProvider)
-    {
+    public DataProtectionSecretEncryptor(IDataProtectionProvider dataProtectionProvider) =>
         _protector = dataProtectionProvider.CreateProtector(Purpose);
-    }
 
     public string Encrypt(string value) => _protector.Protect(value);
 
-    public string Decrypt(string value) => _protector.Unprotect(value);
+    public bool TryDecrypt(string encryptedValue, out string decryptedValue)
+    {
+        decryptedValue = _protector.Unprotect(encryptedValue);
+        return true;
+    }
 }

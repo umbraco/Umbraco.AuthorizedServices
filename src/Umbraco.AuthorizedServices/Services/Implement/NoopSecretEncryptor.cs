@@ -4,5 +4,9 @@ internal sealed class NoopSecretEncryptor : ISecretEncryptor
 {
     public string Encrypt(string value) => value;
 
-    public string Decrypt(string value) => value;
+    public bool TryDecrypt(string encryptedValue, out string decryptedValue)
+    {
+        decryptedValue = encryptedValue;
+        return true;
+    }
 }
