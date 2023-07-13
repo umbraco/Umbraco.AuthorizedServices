@@ -12,7 +12,6 @@
     <RepositoryUrl>https://github.com/umbraco/Umbraco.AuthorizedServices</RepositoryUrl>
     <PackageTags>umbraco umbraco-marketplace</PackageTags>
     <StaticWebAssetBasePath>App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
-    <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>NuGetReadMe.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -32,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="" Visible="false" />
     <None Include="docs\NuGetReadMe.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
