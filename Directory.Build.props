@@ -2,18 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <Company>Umbraco HQ</Company>
-    <Authors>Umbraco</Authors>
-    <Copyright>Copyright © Umbraco $([System.DateTime]::Today.ToString('yyyy'))</Copyright>
-    <Product>Umbraco Authorized Services</Product>
-    <PackageProjectUrl>https://github.com/umbraco/Umbraco.AuthorizedServices</PackageProjectUrl>
-	  <RepositoryUrl>https://github.com/umbraco/Umbraco.AuthorizedServices</RepositoryUrl>
-    <PackageIcon>icon.png</PackageIcon>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageReadmeFile>NuGetReadMe.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -30,11 +22,6 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all" IsImplicitlyDefined="true" />
     <PackageReference Include="Umbraco.Code" Version="2.0.0" PrivateAssets="all" IsImplicitlyDefined="true" />
     <PackageReference Include="Umbraco.GitVersioning.Extensions" Version="0.2.0" PrivateAssets="all" IsImplicitlyDefined="true" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="" Visible="false" />
-    <None Include="docs\NuGetReadMe.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <PropertyGroup>
