@@ -6,6 +6,8 @@ namespace Umbraco.AuthorizedServices;
 
 public static class Constants
 {
+    internal const string PackageId = "Umbraco.AuthorizedServices";
+
     internal const string PackageName = "Umbraco Authorized Services";
 
     public const string PluginName = "UmbracoAuthorizedServices";
