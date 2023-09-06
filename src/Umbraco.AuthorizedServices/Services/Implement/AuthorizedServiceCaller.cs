@@ -75,17 +75,21 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        Token? token = GetAccessToken(serviceAlias);
-        if (token == null)
-        {
-            throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
-        }
-
-        token = await EnsureAccessToken(serviceAlias, token);
-
         HttpClient httpClient = _httpClientFactory.CreateClient();
 
-        HttpRequestMessage requestMessage = _authorizedRequestBuilder.CreateRequestMessage(serviceDetail, path, httpMethod, token, requestContent);
+        HttpRequestMessage requestMessage;
+        if (serviceDetail.AuthenticationMethod == AuthenticationMethod.ApiKey)
+        {
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessage(serviceDetail, path, httpMethod, requestContent);
+        }
+        else
+        {
+            Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
+
+            token = await EnsureAccessToken(serviceAlias, token);
+
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessage(serviceDetail, path, httpMethod, token, requestContent);
+        }
 
         HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
         if (response.IsSuccessStatusCode)

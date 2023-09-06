@@ -25,4 +25,20 @@ public interface IAuthorizedRequestBuilder
         Token token,
         TRequest? requestContent)
         where TRequest : class;
+
+    /// <summary>
+    /// Creates an request to an authorized service using API key.
+    /// </summary>
+    /// <typeparam name="TRequest">The typed request data.</typeparam>
+    /// <param name="serviceDetail">The service detail.</param>
+    /// <param name="path">The request path.</param>
+    /// <param name="httpMethod">The HTTP method.</param>
+    /// <param name="requestContent">The request data.</param>
+    /// <returns>The request instance.</returns>
+    HttpRequestMessage CreateRequestMessage<TRequest>(
+        ServiceDetail serviceDetail,
+        string path,
+        HttpMethod httpMethod,
+        TRequest? requestContent)
+        where TRequest : class;
 }

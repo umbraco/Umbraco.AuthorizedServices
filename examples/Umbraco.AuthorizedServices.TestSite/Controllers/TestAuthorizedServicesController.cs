@@ -100,5 +100,15 @@ public class TestAuthorizedServicesController : UmbracoApiController
 
         return Content(string.Join(", ", response.Select(x => x.ToString())));
     }
+
+    public async Task<IActionResult> GetVideoDetailsFromYouTube()
+    {
+        var response = await _authorizedServiceCaller.SendRequestRawAsync(
+            "youtube",
+            "/v3/videos?id=[video_id]&part=snippet,contentDetails,statistics,status",
+            HttpMethod.Get);
+
+        return Content(response);
+    }
 }
 

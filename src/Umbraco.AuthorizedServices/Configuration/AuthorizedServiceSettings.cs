@@ -33,6 +33,25 @@ public enum JsonSerializerOption
 }
 
 /// <summary>
+/// Defines the available authentication methods.
+/// </summary>
+public enum AuthenticationMethod
+{
+    OAuth1,
+    OAuth2,
+    ApiKey
+}
+
+/// <summary>
+/// Defines the available options for passing the API key with the request.
+/// </summary>
+public enum ApiKeyProvisionMethod
+{
+    HttpHeader,
+    QueryString
+}
+
+/// <summary>
 /// Defines the strongly typed configuration model.
 /// </summary>
 public class AuthorizedServiceSettings
@@ -40,6 +59,18 @@ public class AuthorizedServiceSettings
     public string TokenEncryptionKey { get; set; } = string.Empty;
 
     public IDictionary<string, ServiceSummary> Services { get; set; } = new Dictionary<string, ServiceSummary>();
+}
+
+/// <summary>
+/// Defines the provisioning options for an API key based authentication.
+/// </summary>
+public class ApiKeyProvision
+{
+    public ApiKeyProvisionMethod Method { get; set; }
+
+    public string Key { get; set; } = string.Empty;
+
+    public override string ToString() => $"{Method} / {Key}";
 }
 
 /// <summary>
@@ -66,6 +97,11 @@ public class ServiceSummary
 /// <inheritdoc />
 public class ServiceDetail : ServiceSummary
 {
+    /// <summary>
+    /// Gets or sets the authentication method for the service.
+    /// </summary>
+    public AuthenticationMethod AuthenticationMethod { get; set; } = AuthenticationMethod.OAuth2;
+
     /// <summary>
     /// Gets or sets the host name for the service's API.
     /// </summary>
@@ -99,7 +135,7 @@ public class ServiceDetail : ServiceSummary
     /// <summary>
     /// Gets or sets the format to use for encoding the request for a token.
     /// </summary>
-    public TokenRequestContentFormat RequestTokenFormat { get; set; } = TokenRequestContentFormat.Querystring;
+    public TokenRequestContentFormat? RequestTokenFormat { get; set; }
 
     /// <summary>
     /// Gets or sets the JSON serializer to use when building requests and deserializing responses.
@@ -110,6 +146,16 @@ public class ServiceDetail : ServiceSummary
     /// Gets or sets a value indicating whether the basic token should be included in the token request.
     /// </summary>
     public bool AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the API Key for the service.
+    /// </summary>
+    public string ApiKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the provisioning options for an API key based authentication.
+    /// </summary>
+    public ApiKeyProvision? ApiKeyProvision { get; set; }
 
     /// <summary>
     /// Gets or sets the client Id for the app registered with the service.
