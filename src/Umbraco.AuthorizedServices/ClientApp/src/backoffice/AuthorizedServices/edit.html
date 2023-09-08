@@ -42,6 +42,17 @@
                             label="Authorize Service" />
               </div>
             </uui-card-content-node>
+            <uui-card-content-node ng-if="vm.canManuallyProvideToken" name="Access Token" class="mt3">
+              <uui-icon slot="icon" name="settings"></uui-icon>
+              <p class="auth-srv">Manually enter service access token</p>
+              <div>
+                <uui-input id="inAccessToken" type="text" name="inAccessToken" style="width: 40%;font-size:14px;"></uui-input>
+                <umb-button action="vm.saveAccessToken()"
+                            type="button"
+                            button-style="primary"
+                            label="Save"></umb-button>
+              </div>
+            </uui-card-content-node>
           </uui-icon-registry-essential>
         </umb-box-content>
       </umb-box>

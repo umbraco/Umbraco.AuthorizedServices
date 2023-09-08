@@ -19,6 +19,12 @@ public class Token
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="Token"/> class.
+    /// </summary>
+    /// <param name="accessToken">The access token.</param>
+    public Token(string accessToken) => AccessToken = accessToken;
+
+    /// <summary>
     /// Gets or sets the access token.
     /// </summary>
     public string AccessToken { get; }

@@ -57,4 +57,11 @@ public interface IAuthorizedServiceCaller
 
     Task<string> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class;
+
+    /// <summary>
+    /// Sends a request to an authorized service to receive the unencrypted access token.
+    /// </summary>
+    /// <param name="serviceAlias"></param>
+    /// <returns></returns>
+    Task<string> GetTokenAsync(string serviceAlias);
 }

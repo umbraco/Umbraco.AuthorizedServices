@@ -104,6 +104,16 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             await response.Content.ReadAsStringAsync());
     }
 
+    public async Task<string> GetTokenAsync(string serviceAlias)
+    {
+        return await Task.Run(() =>
+        {
+            Token? token = GetAccessToken(serviceAlias)
+                ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
+            return token.AccessToken;
+        });
+    }
+
     private async Task<Token> EnsureAccessToken(string serviceAlias, Token token)
     {
         if (token.HasOrIsAboutToExpire)
