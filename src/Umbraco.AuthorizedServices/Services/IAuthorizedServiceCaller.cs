@@ -57,4 +57,11 @@ public interface IAuthorizedServiceCaller
 
     Task<string> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class;
+
+    /// <summary>
+    /// Sends a request to retrieve the API key for a service.
+    /// </summary>
+    /// <param name="serviceAlias"></param>
+    /// <returns></returns>
+    Task<string> GetApiKeyAsync(string serviceAlias);
 }

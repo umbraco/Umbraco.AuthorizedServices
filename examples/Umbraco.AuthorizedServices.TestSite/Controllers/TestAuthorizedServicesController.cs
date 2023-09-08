@@ -110,5 +110,11 @@ public class TestAuthorizedServicesController : UmbracoApiController
 
         return Content(response);
     }
+
+    public async Task<IActionResult> GetApiKey(string serviceAlias)
+    {
+        var apiKey = await _authorizedServiceCaller.GetApiKeyAsync(serviceAlias);
+        return Content(apiKey);
+    }
 }
 
