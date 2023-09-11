@@ -147,12 +147,40 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<Token>(y => y.AccessToken == "abc")), Times.Once);
     }
 
+    [Test]
+    public void GetToken_WithStoredToken_ReturnsAccessToken()
+    {
+        // Arrange
+        StoreToken();
+        AuthorizedServiceCaller sut = CreateService();
+
+        // Act
+        var result = sut.GetToken(ServiceAlias);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Should().Be("abc");
+    }
+
+    [Test]
+    public void GetToken_WithoutStoredToken_ReturnsNull()
+    {
+        // Arrange
+        AuthorizedServiceCaller sut = CreateService();
+
+        // Act
+        var result = sut.GetToken(ServiceAlias);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
     private void StoreToken(int daysUntilExpiry = 7) =>
         TokenStorageMock
             .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))
             .Returns(new Token("abc", "def", DateTime.Now.AddDays(daysUntilExpiry)));
 
-    private AuthorizedServiceCaller CreateService(HttpStatusCode statusCode, string? responseContent = null, HttpStatusCode refreshTokenStatusCode = HttpStatusCode.OK)
+    private AuthorizedServiceCaller CreateService(HttpStatusCode statusCode = HttpStatusCode.OK, string? responseContent = null, HttpStatusCode refreshTokenStatusCode = HttpStatusCode.OK)
     {
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
 

@@ -82,7 +82,7 @@ public class ServiceDetail : ServiceSummary
     public string TokenHost { get; set; } = string.Empty;
 
     /// <summary>
-    /// Get or sets a value indicating whether editor can manually add token.
+    /// Get or sets a value indicating whether an adminsitrator editor can manually provide tokens via the backoffice.
     /// </summary>
     public bool CanManuallyProvideToken { get; set; }
 

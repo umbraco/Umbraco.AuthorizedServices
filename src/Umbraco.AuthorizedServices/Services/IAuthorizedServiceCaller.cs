@@ -61,7 +61,7 @@ public interface IAuthorizedServiceCaller
     /// <summary>
     /// Sends a request to an authorized service to receive the unencrypted access token.
     /// </summary>
-    /// <param name="serviceAlias"></param>
-    /// <returns></returns>
-    Task<string> GetTokenAsync(string serviceAlias);
+    /// <param name="serviceAlias">The service alias.</param>
+    /// <returns>The access token if found, otherwise null.</returns>
+    string? GetToken(string serviceAlias);
 }

@@ -44,7 +44,8 @@
             </uui-card-content-node>
             <uui-card-content-node ng-if="vm.canManuallyProvideToken" name="Access Token" class="mt3">
               <uui-icon slot="icon" name="settings"></uui-icon>
-              <p class="auth-srv">Manually enter service access token</p>
+              <p class="auth-srv">Enter service access token</p>
+              <small>This service is configured indicating that a token can be generated via the service's developer portal. Once you have obtained one you can copy and paste it here to authorize the service.</small>
               <div>
                 <uui-input id="inAccessToken" type="text" name="inAccessToken" style="width: 40%;font-size:14px;"></uui-input>
                 <umb-button action="vm.saveAccessToken()"

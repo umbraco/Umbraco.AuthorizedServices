@@ -101,9 +101,9 @@ public class TestAuthorizedServicesController : UmbracoApiController
         return Content(string.Join(", ", response.Select(x => x.ToString())));
     }
 
-    public async Task<IActionResult> GetAccessToken(string serviceAlias)
+    public IActionResult GetAccessToken(string serviceAlias)
     {
-        var response = await _authorizedServiceCaller.GetTokenAsync(serviceAlias);
+        var response = _authorizedServiceCaller.GetToken(serviceAlias);
         if (response == null)
         {
             return Problem("Could not retrieve access token.");

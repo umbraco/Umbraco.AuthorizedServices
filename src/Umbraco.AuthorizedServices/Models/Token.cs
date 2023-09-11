@@ -9,20 +9,20 @@ public class Token
     /// Initializes a new instance of the <see cref="Token"/> class.
     /// </summary>
     /// <param name="accessToken">The access token.</param>
-    /// <param name="refreshToken">The refreh token.</param>
-    /// <param name="expiresOn">The date the access token expires.</param>
-    public Token(string accessToken, string? refreshToken, DateTime? expiresOn)
-    {
-        AccessToken = accessToken;
-        RefreshToken = refreshToken;
-        ExpiresOn = expiresOn;
-    }
+    public Token(string accessToken) => AccessToken = accessToken;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Token"/> class.
     /// </summary>
     /// <param name="accessToken">The access token.</param>
-    public Token(string accessToken) => AccessToken = accessToken;
+    /// <param name="refreshToken">The refreh token.</param>
+    /// <param name="expiresOn">The date the access token expires.</param>
+    public Token(string accessToken, string? refreshToken, DateTime? expiresOn)
+        : this(accessToken)
+    {
+        RefreshToken = refreshToken;
+        ExpiresOn = expiresOn;
+    }
 
     /// <summary>
     /// Gets or sets the access token.
