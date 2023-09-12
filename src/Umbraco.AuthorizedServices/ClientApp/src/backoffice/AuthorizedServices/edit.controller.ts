@@ -49,6 +49,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         .then(function () {
           notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service access token has been saved.");
           inAccessToken.value = "";
+          loadServiceDetails(serviceAlias);
         });
     }
   }
