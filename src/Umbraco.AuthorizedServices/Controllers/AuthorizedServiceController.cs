@@ -72,6 +72,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         {
             DisplayName = serviceDetail.DisplayName,
             IsAuthorized = isAuthorized,
+            CanManuallyProvideToken = serviceDetail.CanManuallyProvideToken,
             AuthorizationUrl = authorizationUrl,
             SampleRequest = serviceDetail.SampleRequest,
             Settings = new Dictionary<string, string>
@@ -121,6 +122,18 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     public IActionResult RevokeAccess(RevokeAccess model)
     {
         _tokenStorage.DeleteToken(model.Alias);
+        return Ok();
+    }
+
+    /// <summary>
+    /// Adds a new access token for an authorized service.
+    /// </summary>
+    /// <param name="model">Request model identifying the service.</param>
+    /// <returns></returns>
+    [HttpPost]
+    public IActionResult SaveToken(AddToken model)
+    {
+        _tokenStorage.SaveToken(model.Alias, new Token(model.Token));
         return Ok();
     }
 

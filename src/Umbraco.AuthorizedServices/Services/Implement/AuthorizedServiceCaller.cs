@@ -114,6 +114,12 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return serviceDetail?.ApiKey;
     }
 
+    public string? GetToken(string serviceAlias)
+    {
+        Token? token = GetAccessToken(serviceAlias);
+        return token?.AccessToken;
+    }
+
     private async Task<Token> EnsureAccessToken(string serviceAlias, Token token)
     {
         if (token.HasOrIsAboutToExpire)

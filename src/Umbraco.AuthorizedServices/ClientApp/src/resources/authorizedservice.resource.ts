@@ -11,9 +11,11 @@ function authorizedServiceResource($q, $http) {
     sendSampleRequest: function (alias: string, path: string) {
       return $http.get(apiRoot + "SendSampleRequest?alias=" + alias + "&path=" + path);
     },
-
     revokeAccess: function (alias: string) {
       return $http.post(apiRoot + "RevokeAccess", { alias: alias });
+    },
+    saveToken: function (alias: string, token: string) {
+      return $http.post(apiRoot + "SaveToken", { alias: alias, token: token });
     }
   };
 }

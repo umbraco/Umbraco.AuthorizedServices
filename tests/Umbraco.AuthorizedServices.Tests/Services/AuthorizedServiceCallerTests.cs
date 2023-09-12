@@ -174,6 +174,34 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Should().BeNullOrEmpty();
     }
 
+    [Test]
+    public void GetToken_WithStoredToken_ReturnsAccessToken()
+    {
+        // Arrange
+        StoreToken();
+        AuthorizedServiceCaller sut = CreateService();
+
+        // Act
+        var result = sut.GetToken(ServiceAlias);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Should().Be("abc");
+    }
+
+    [Test]
+    public void GetToken_WithoutStoredToken_ReturnsNull()
+    {
+        // Arrange
+        AuthorizedServiceCaller sut = CreateService();
+
+        // Act
+        var result = sut.GetToken(ServiceAlias);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
     private void StoreToken(int daysUntilExpiry = 7) =>
         TokenStorageMock
             .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))

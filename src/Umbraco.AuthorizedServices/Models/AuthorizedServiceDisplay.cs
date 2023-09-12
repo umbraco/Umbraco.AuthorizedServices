@@ -21,6 +21,12 @@ public class AuthorizedServiceDisplay
     public bool IsAuthorized { get; set; }
 
     /// <summary>
+    /// Get or sets a value indicating whether an adminsitrator editor can manually provide tokens via the backoffice.
+    /// </summary>
+    [DataMember(Name = "canManuallyProvideToken")]
+    public bool CanManuallyProvideToken { get; set; }
+
+    /// <summary>
     /// Gets or sets the service's authorization URL.
     /// </summary>
     [DataMember(Name = "authorizationUrl")]

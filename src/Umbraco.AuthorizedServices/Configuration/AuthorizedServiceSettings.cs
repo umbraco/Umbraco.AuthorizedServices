@@ -118,6 +118,11 @@ public class ServiceDetail : ServiceSummary
     public string TokenHost { get; set; } = string.Empty;
 
     /// <summary>
+    /// Get or sets a value indicating whether an adminsitrator editor can manually provide tokens via the backoffice.
+    /// </summary>
+    public bool CanManuallyProvideToken { get; set; }
+
+    /// <summary>
     /// Gets or sets the path for requests for authentication with the service.
     /// </summary>
     public string RequestIdentityPath { get; set; } = string.Empty;

@@ -116,5 +116,15 @@ public class TestAuthorizedServicesController : UmbracoApiController
         var apiKey = _authorizedServiceCaller.GetApiKey(serviceAlias);
         return Content(apiKey ?? string.Empty);
     }
-}
 
+    public IActionResult GetAccessToken(string serviceAlias)
+    {
+        var response = _authorizedServiceCaller.GetToken(serviceAlias);
+        if (response == null)
+        {
+            return Problem("Could not retrieve access token.");
+        }
+
+        return Content(response);
+    }
+}

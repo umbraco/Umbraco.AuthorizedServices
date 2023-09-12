@@ -59,6 +59,13 @@ public interface IAuthorizedServiceCaller
         where TRequest : class;
 
     /// <summary>
+    /// Sends a request to an authorized service to receive the unencrypted access token.
+    /// </summary>
+    /// <param name="serviceAlias">The service alias.</param>
+    /// <returns>The access token if found, otherwise null.</returns>
+    string? GetToken(string serviceAlias);
+
+    /// <summary>
     /// Retrieve's the configured API key for a service.
     /// </summary>
     /// <param name="serviceAlias"></param>
