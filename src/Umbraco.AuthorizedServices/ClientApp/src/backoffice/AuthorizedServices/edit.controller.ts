@@ -10,6 +10,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         vm.displayName = serviceData.displayName;
         vm.headerName = "Authorized Services: " + vm.displayName;
         vm.isAuthorized = serviceData.isAuthorized;
+        vm.canManuallyProvideToken = serviceData.canManuallyProvideToken;
         vm.authorizationUrl = serviceData.authorizationUrl;
         vm.sampleRequest = serviceData.sampleRequest;
         vm.sampleRequestResponse = null;
@@ -39,6 +40,19 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         notificationsService.error("Authorized Services", "The sample request did not complete: " + e.data.ExceptionMessage);
       });
   };
+
+  vm.saveAccessToken = function () {
+    let inAccessToken = <HTMLInputElement>document.getElementById("inAccessToken");
+
+    if (inAccessToken) {
+      authorizedServiceResource.saveToken(serviceAlias, inAccessToken.value)
+        .then(function () {
+          notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service access token has been saved.");
+          inAccessToken.value = "";
+          loadServiceDetails(serviceAlias);
+        });
+    }
+  }
 
   loadServiceDetails(serviceAlias);
 
