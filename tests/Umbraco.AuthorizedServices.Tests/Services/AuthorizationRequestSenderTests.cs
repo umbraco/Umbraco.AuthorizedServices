@@ -15,7 +15,8 @@ internal class AuthorizationRequestSenderTests
         var serviceDetail = new ServiceDetail
         {
             TokenHost = "https://service.url",
-            RequestTokenPath = "/login/oauth/access_token"
+            RequestTokenPath = "/login/oauth/access_token",
+            RequestTokenFormat = TokenRequestContentFormat.Querystring
         };
         var httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         httpMessageHandlerMock.Protected()

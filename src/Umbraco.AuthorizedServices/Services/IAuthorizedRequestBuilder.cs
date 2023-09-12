@@ -18,7 +18,7 @@ public interface IAuthorizedRequestBuilder
     /// <param name="token">The authorization token.</param>
     /// <param name="requestContent">The request data.</param>
     /// <returns>The request instance.</returns>
-    HttpRequestMessage CreateRequestMessage<TRequest>(
+    HttpRequestMessage CreateRequestMessageWithToken<TRequest>(
         ServiceDetail serviceDetail,
         string path,
         HttpMethod httpMethod,
@@ -35,7 +35,7 @@ public interface IAuthorizedRequestBuilder
     /// <param name="httpMethod">The HTTP method.</param>
     /// <param name="requestContent">The request data.</param>
     /// <returns>The request instance.</returns>
-    HttpRequestMessage CreateRequestMessage<TRequest>(
+    HttpRequestMessage CreateRequestMessageWithApiKey<TRequest>(
         ServiceDetail serviceDetail,
         string path,
         HttpMethod httpMethod,

@@ -63,5 +63,5 @@ public interface IAuthorizedServiceCaller
     /// </summary>
     /// <param name="serviceAlias"></param>
     /// <returns></returns>
-    Task<string> GetApiKeyAsync(string serviceAlias);
+    string? GetApiKey(string serviceAlias);
 }

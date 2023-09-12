@@ -57,9 +57,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         string? authorizationUrl = null;
         if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth2)
         {
-            bool tokenExists = _tokenStorage.GetToken(alias) != null;
-
-            if (!tokenExists)
+            if (!isAuthorized)
             {
                 AuthorizationPayload authorizationPayload = _authorizedServiceAuthorizationPayloadBuilder.BuildPayload();
 

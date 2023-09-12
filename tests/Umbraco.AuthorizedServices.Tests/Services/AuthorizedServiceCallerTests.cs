@@ -147,12 +147,43 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<Token>(y => y.AccessToken == "abc")), Times.Once);
     }
 
+    [Test]
+    public void GetApiKey_WithExistingApiKey_ReturnsApiKey()
+    {
+        // Arrange
+        AuthorizedServiceCaller sut = CreateService(includeApiKey: true);
+
+        // Act
+        var result = sut.GetApiKey(ServiceAlias);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Should().Be("test-api-key");
+    }
+
+    [Test]
+    public void GetApiKey_WithoutExistingApiKey_ReturnsEmptyString()
+    {
+        // Arrange
+        AuthorizedServiceCaller sut = CreateService();
+
+        // Act
+        var result = sut.GetApiKey(ServiceAlias);
+
+        // Assert
+        result.Should().BeNullOrEmpty();
+    }
+
     private void StoreToken(int daysUntilExpiry = 7) =>
         TokenStorageMock
             .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))
             .Returns(new Token("abc", "def", DateTime.Now.AddDays(daysUntilExpiry)));
 
-    private AuthorizedServiceCaller CreateService(HttpStatusCode statusCode, string? responseContent = null, HttpStatusCode refreshTokenStatusCode = HttpStatusCode.OK)
+    private AuthorizedServiceCaller CreateService(
+        HttpStatusCode statusCode = HttpStatusCode.OK,
+        string? responseContent = null,
+        HttpStatusCode refreshTokenStatusCode = HttpStatusCode.OK,
+        bool includeApiKey = false)
     {
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
 
@@ -166,7 +197,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             .Setup(x => x.SendRequest(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.Is<Dictionary<string, string>>(y => y["grant_type"] == "refresh_token")))
             .ReturnsAsync(httpResponseMessage);
 
-        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail();
+        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(includeApiKey);
         var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
 
         return new AuthorizedServiceCaller(

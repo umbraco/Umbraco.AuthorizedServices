@@ -14,7 +14,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 
     public AuthorizedRequestBuilder(JsonSerializerFactory jsonSerializerFactory) => _jsonSerializerFactory = jsonSerializerFactory;
 
-    public HttpRequestMessage CreateRequestMessage<TRequest>(
+    public HttpRequestMessage CreateRequestMessageWithToken<TRequest>(
         ServiceDetail serviceDetail,
         string path,
         HttpMethod httpMethod,
@@ -35,7 +35,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         return requestMessage;
     }
 
-    public HttpRequestMessage CreateRequestMessage<TRequest>(
+    public HttpRequestMessage CreateRequestMessageWithApiKey<TRequest>(
        ServiceDetail serviceDetail,
        string path,
        HttpMethod httpMethod,

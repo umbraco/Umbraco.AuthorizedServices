@@ -27,7 +27,7 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         var sut = new AuthorizedRequestBuilder(factory);
 
         // Act
-        HttpRequestMessage result = sut.CreateRequestMessage(serviceDetail, Path, HttpMethod.Post, token, data);
+        HttpRequestMessage result = sut.CreateRequestMessageWithToken(serviceDetail, Path, HttpMethod.Post, token, data);
 
         // Assert
         var expectedUri = new Uri("https://service.url/api/test");

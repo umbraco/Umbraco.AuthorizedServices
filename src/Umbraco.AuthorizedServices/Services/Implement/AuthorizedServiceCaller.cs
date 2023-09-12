@@ -80,7 +80,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         HttpRequestMessage requestMessage;
         if (serviceDetail.AuthenticationMethod == AuthenticationMethod.ApiKey)
         {
-            requestMessage = _authorizedRequestBuilder.CreateRequestMessage(serviceDetail, path, httpMethod, requestContent);
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(serviceDetail, path, httpMethod, requestContent);
         }
         else
         {
@@ -88,7 +88,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
             token = await EnsureAccessToken(serviceAlias, token);
 
-            requestMessage = _authorizedRequestBuilder.CreateRequestMessage(serviceDetail, path, httpMethod, token, requestContent);
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithToken(serviceDetail, path, httpMethod, token, requestContent);
         }
 
         HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
@@ -108,11 +108,11 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             await response.Content.ReadAsStringAsync());
     }
 
-    public async Task<string> GetApiKeyAsync(string serviceAlias) => await Task.Run(() =>
-                                                                          {
-                                                                              ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
-                                                                              return serviceDetail.ApiKey;
-                                                                          });
+    public string? GetApiKey(string serviceAlias)
+    {
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+        return serviceDetail?.ApiKey;
+    }
 
     private async Task<Token> EnsureAccessToken(string serviceAlias, Token token)
     {
