@@ -1,7 +1,10 @@
 using System.Collections.Specialized;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
+using Azure.Core;
+using Microsoft.Extensions.Hosting;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Serialization;
@@ -22,16 +25,9 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         TRequest? requestContent)
         where TRequest : class
     {
-        var requestMessage = new HttpRequestMessage
-        {
-            Method = httpMethod,
-            RequestUri = new Uri(serviceDetail.ApiHost + path),
-            Content = GetRequestContent(serviceDetail, requestContent)
-        };
-
+        var requestMessage = CreateRequestMessage(httpMethod, new Uri(serviceDetail.ApiHost + path));
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
-        requestMessage.Headers.UserAgent.Add(new ProductInfoHeaderValue("UmbracoServiceIntegration", "1.0.0"));
-        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        AddCommonHeaders(requestMessage);
         return requestMessage;
     }
 
@@ -56,25 +52,27 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.QueryString)
         {
             NameValueCollection queryStringParams = HttpUtility.ParseQueryString(requestUri.Query);
-
             requestUri = new Uri($"{requestUri}{(queryStringParams.Count > 0 ? "&" : "?")}{serviceDetail.ApiKeyProvision.Key}={serviceDetail.ApiKey}");
         }
 
-        var requestMessage = new HttpRequestMessage
-        {
-            Method = httpMethod,
-            RequestUri= requestUri,
-            Content = GetRequestContent(serviceDetail, requestContent)
-        };
+        var requestMessage = CreateRequestMessage(httpMethod, requestUri);
 
         if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.HttpHeader)
         {
             requestMessage.Headers.Add(serviceDetail.ApiKeyProvision.Key, serviceDetail.ApiKey);
         }
 
-        requestMessage.Headers.UserAgent.Add(new ProductInfoHeaderValue("UmbracoServiceIntegration", "1.0.0"));
+        AddCommonHeaders(requestMessage);
         return requestMessage;
     }
+
+    private HttpRequestMessage CreateRequestMessage(HttpMethod httpMethod, Uri requestUri) =>
+        new HttpRequestMessage
+        {
+            Method = httpMethod,
+            RequestUri = requestUri,
+            Content = GetRequestContent(serviceDetail, requestContent)
+        };
 
     private StringContent? GetRequestContent<TRequest>(ServiceDetail serviceDetail, TRequest? requestContent)
     {
@@ -86,5 +84,11 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         IJsonSerializer jsonSerializer = _jsonSerializerFactory.GetSerializer(serviceDetail.Alias);
         var serializedContent = jsonSerializer.Serialize(requestContent);
         return new StringContent(serializedContent, Encoding.UTF8, "application/json");
+    }
+
+    private static void AddCommonHeaders(HttpRequestMessage requestMessage)
+    {
+        requestMessage.Headers.UserAgent.Add(new ProductInfoHeaderValue("UmbracoServiceIntegration", "1.0.0"));
+        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 }

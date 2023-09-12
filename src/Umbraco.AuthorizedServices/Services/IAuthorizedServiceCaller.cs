@@ -59,7 +59,7 @@ public interface IAuthorizedServiceCaller
         where TRequest : class;
 
     /// <summary>
-    /// Sends a request to retrieve the API key for a service.
+    /// Retrieve's the configured API key for a service.
     /// </summary>
     /// <param name="serviceAlias"></param>
     /// <returns></returns>
