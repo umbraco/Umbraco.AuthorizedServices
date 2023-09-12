@@ -25,7 +25,10 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         TRequest? requestContent)
         where TRequest : class
     {
-        var requestMessage = CreateRequestMessage(httpMethod, new Uri(serviceDetail.ApiHost + path));
+        HttpRequestMessage requestMessage = CreateRequestMessage(
+            httpMethod,
+            new Uri(serviceDetail.ApiHost + path),
+            GetRequestContent(serviceDetail, requestContent));
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
         AddCommonHeaders(requestMessage);
         return requestMessage;
@@ -55,7 +58,10 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             requestUri = new Uri($"{requestUri}{(queryStringParams.Count > 0 ? "&" : "?")}{serviceDetail.ApiKeyProvision.Key}={serviceDetail.ApiKey}");
         }
 
-        var requestMessage = CreateRequestMessage(httpMethod, requestUri);
+        HttpRequestMessage requestMessage = CreateRequestMessage(
+            httpMethod,
+            requestUri,
+            GetRequestContent(serviceDetail, requestContent));
 
         if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.HttpHeader)
         {
@@ -66,12 +72,12 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         return requestMessage;
     }
 
-    private HttpRequestMessage CreateRequestMessage(HttpMethod httpMethod, Uri requestUri) =>
+    private HttpRequestMessage CreateRequestMessage(HttpMethod httpMethod, Uri requestUri, HttpContent? content) =>
         new HttpRequestMessage
         {
             Method = httpMethod,
             RequestUri = requestUri,
-            Content = GetRequestContent(serviceDetail, requestContent)
+            Content = content
         };
 
     private StringContent? GetRequestContent<TRequest>(ServiceDetail serviceDetail, TRequest? requestContent)
