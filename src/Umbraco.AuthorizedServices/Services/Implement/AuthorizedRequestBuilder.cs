@@ -42,8 +42,18 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
        TRequest? requestContent)
        where TRequest : class
     {
+        if (string.IsNullOrWhiteSpace(serviceDetail.ApiKey))
+        {
+            throw new InvalidOperationException("Cannot create an HTTP request message for an API key request as no API key is available in configuration.");
+        }
+
+        if (serviceDetail.ApiKeyProvision is null)
+        {
+            throw new InvalidOperationException("Cannot create an HTTP request message for an API key request as no API key provision detail has been provided in configuration.");
+        }
+
         var requestUri = new Uri(serviceDetail.ApiHost + path);
-        if (serviceDetail.ApiKeyProvision is not null && serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.QueryString)
+        if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.QueryString)
         {
             NameValueCollection queryStringParams = HttpUtility.ParseQueryString(requestUri.Query);
 
@@ -57,7 +67,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             Content = GetRequestContent(serviceDetail, requestContent)
         };
 
-        if (serviceDetail.ApiKeyProvision is not null && serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.HttpHeader)
+        if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.HttpHeader)
         {
             requestMessage.Headers.Add(serviceDetail.ApiKeyProvision.Key, serviceDetail.ApiKey);
         }
