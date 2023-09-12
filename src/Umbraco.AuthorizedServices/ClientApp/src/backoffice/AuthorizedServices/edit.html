@@ -24,7 +24,8 @@
                             action="vm.sendSampleRequest()"
                             type="button"
                             label="Verify Sample Request"></umb-button>
-                <umb-button action="vm.revokeAccess()"
+                <umb-button ng-if="vm.authorizationUrl.length > 0"
+                            action="vm.revokeAccess()"
                             type="button"
                             button-style="danger"
                             label="Revoke Access"></umb-button>

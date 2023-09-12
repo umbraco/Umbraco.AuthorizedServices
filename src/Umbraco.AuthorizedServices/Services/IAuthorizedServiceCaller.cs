@@ -64,4 +64,11 @@ public interface IAuthorizedServiceCaller
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>The access token if found, otherwise null.</returns>
     string? GetToken(string serviceAlias);
+
+    /// <summary>
+    /// Retrieve's the configured API key for a service.
+    /// </summary>
+    /// <param name="serviceAlias"></param>
+    /// <returns></returns>
+    string? GetApiKey(string serviceAlias);
 }

@@ -75,17 +75,21 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        Token? token = GetAccessToken(serviceAlias);
-        if (token == null)
-        {
-            throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
-        }
-
-        token = await EnsureAccessToken(serviceAlias, token);
-
         HttpClient httpClient = _httpClientFactory.CreateClient();
 
-        HttpRequestMessage requestMessage = _authorizedRequestBuilder.CreateRequestMessage(serviceDetail, path, httpMethod, token, requestContent);
+        HttpRequestMessage requestMessage;
+        if (serviceDetail.AuthenticationMethod == AuthenticationMethod.ApiKey)
+        {
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(serviceDetail, path, httpMethod, requestContent);
+        }
+        else
+        {
+            Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
+
+            token = await EnsureAccessToken(serviceAlias, token);
+
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithToken(serviceDetail, path, httpMethod, token, requestContent);
+        }
 
         HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
         if (response.IsSuccessStatusCode)
@@ -102,6 +106,12 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             response.StatusCode,
             response.ReasonPhrase,
             await response.Content.ReadAsStringAsync());
+    }
+
+    public string? GetApiKey(string serviceAlias)
+    {
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+        return serviceDetail?.ApiKey;
     }
 
     public string? GetToken(string serviceAlias)

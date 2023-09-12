@@ -52,23 +52,26 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(alias);
 
-        bool tokenExists = _tokenStorage.GetToken(alias) != null;
+        bool isAuthorized = CheckAuthorizationStatus(serviceDetail);
 
         string? authorizationUrl = null;
-        if (!tokenExists)
+        if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth2)
         {
-            AuthorizationPayload authorizationPayload = _authorizedServiceAuthorizationPayloadBuilder.BuildPayload();
+            if (!isAuthorized)
+            {
+                AuthorizationPayload authorizationPayload = _authorizedServiceAuthorizationPayloadBuilder.BuildPayload();
 
-            _authorizedServiceAuthorizationPayloadCache.Add(alias, authorizationPayload);
+                _authorizedServiceAuthorizationPayloadCache.Add(alias, authorizationPayload);
 
-            authorizationUrl = _authorizationUrlBuilder
-                .BuildUrl(serviceDetail, HttpContext, authorizationPayload.State, authorizationPayload.CodeChallenge);
+                authorizationUrl = _authorizationUrlBuilder
+                    .BuildUrl(serviceDetail, HttpContext, authorizationPayload.State, authorizationPayload.CodeChallenge);
+            }
         }
 
         return new AuthorizedServiceDisplay
         {
             DisplayName = serviceDetail.DisplayName,
-            IsAuthorized = tokenExists,
+            IsAuthorized = isAuthorized,
             CanManuallyProvideToken = serviceDetail.CanManuallyProvideToken,
             AuthorizationUrl = authorizationUrl,
             SampleRequest = serviceDetail.SampleRequest,
@@ -77,11 +80,14 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
                 { nameof(ServiceDetail.Alias), serviceDetail.Alias },
                 { nameof(ServiceDetail.DisplayName), serviceDetail.DisplayName },
                 { nameof(ServiceDetail.ApiHost), serviceDetail.ApiHost },
+                { nameof(ServiceDetail.AuthenticationMethod), serviceDetail.AuthenticationMethod.ToString() },
                 { nameof(ServiceDetail.IdentityHost), serviceDetail.IdentityHost },
                 { nameof(ServiceDetail.TokenHost), serviceDetail.TokenHost },
                 { nameof(ServiceDetail.RequestIdentityPath), serviceDetail.RequestIdentityPath },
                 { nameof(ServiceDetail.RequestTokenPath), serviceDetail.RequestTokenPath },
-                { nameof(ServiceDetail.RequestTokenFormat), serviceDetail.RequestTokenFormat.ToString() },
+                { nameof(ServiceDetail.RequestTokenFormat), serviceDetail.RequestTokenFormat is not null ? serviceDetail.RequestTokenFormat.Value.ToString() : string.Empty },
+                { nameof(ServiceDetail.ApiKey), serviceDetail.ApiKey },
+                { nameof(ServiceDetail.ApiKeyProvision), serviceDetail.ApiKeyProvision is not null ? serviceDetail.ApiKeyProvision.ToString() : string.Empty },
                 { nameof(ServiceDetail.ClientId), serviceDetail.ClientId },
                 { nameof(ServiceDetail.ClientSecret), new string('*', serviceDetail.ClientSecret.Length) },
                 { nameof(ServiceDetail.Scopes), serviceDetail.Scopes },
@@ -130,4 +136,12 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         _tokenStorage.SaveToken(model.Alias, new Token(model.Token));
         return Ok();
     }
+
+    private bool CheckAuthorizationStatus(ServiceDetail serviceDetail) => serviceDetail.AuthenticationMethod switch
+    {
+        AuthenticationMethod.OAuth1 => false,
+        AuthenticationMethod.OAuth2 => _tokenStorage.GetToken(serviceDetail.Alias) != null,
+        AuthenticationMethod.ApiKey => !string.IsNullOrEmpty(serviceDetail.ApiKey),
+        _ => false
+    };
 }

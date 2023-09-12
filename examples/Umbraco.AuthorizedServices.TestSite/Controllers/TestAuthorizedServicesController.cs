@@ -101,6 +101,22 @@ public class TestAuthorizedServicesController : UmbracoApiController
         return Content(string.Join(", ", response.Select(x => x.ToString())));
     }
 
+    public async Task<IActionResult> GetVideoDetailsFromYouTube()
+    {
+        var response = await _authorizedServiceCaller.SendRequestRawAsync(
+            "youtube",
+            "/v3/videos?id=[video_id]&part=snippet,contentDetails,statistics,status",
+            HttpMethod.Get);
+
+        return Content(response);
+    }
+
+    public IActionResult GetApiKey(string serviceAlias)
+    {
+        var apiKey = _authorizedServiceCaller.GetApiKey(serviceAlias);
+        return Content(apiKey ?? string.Empty);
+    }
+
     public IActionResult GetAccessToken(string serviceAlias)
     {
         var response = _authorizedServiceCaller.GetToken(serviceAlias);
@@ -112,4 +128,3 @@ public class TestAuthorizedServicesController : UmbracoApiController
         return Content(response);
     }
 }
-
