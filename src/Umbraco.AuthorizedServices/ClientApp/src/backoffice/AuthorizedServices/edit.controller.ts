@@ -10,6 +10,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         vm.displayName = serviceData.displayName;
         vm.headerName = "Authorized Services: " + vm.displayName;
         vm.isAuthorized = serviceData.isAuthorized;
+        vm.authenticationMethod = serviceData.authenticationMethod;
         vm.canManuallyProvideToken = serviceData.canManuallyProvideToken;
         vm.authorizationUrl = serviceData.authorizationUrl;
         vm.sampleRequest = serviceData.sampleRequest;
