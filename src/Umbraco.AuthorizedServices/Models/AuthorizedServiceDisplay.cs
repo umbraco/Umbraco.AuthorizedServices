@@ -1,4 +1,5 @@
 using System.Runtime.Serialization;
+using Umbraco.AuthorizedServices.Configuration;
 
 namespace Umbraco.AuthorizedServices.Models;
 
@@ -31,6 +32,12 @@ public class AuthorizedServiceDisplay
     /// </summary>
     [DataMember(Name = "authorizationUrl")]
     public string? AuthorizationUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the service's authentication method.
+    /// </summary>
+    [DataMember(Name = "authenticationMethod")]
+    public string AuthenticationMethod { get; set; } = Configuration.AuthenticationMethod.OAuth2.ToString();
 
     /// <summary>
     /// Gets or sets a sample GET request for the service, used for verification.

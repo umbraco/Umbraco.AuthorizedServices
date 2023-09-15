@@ -74,6 +74,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
             IsAuthorized = isAuthorized,
             CanManuallyProvideToken = serviceDetail.CanManuallyProvideToken,
             AuthorizationUrl = authorizationUrl,
+            AuthenticationMethod = serviceDetail.AuthenticationMethod.ToString(),
             SampleRequest = serviceDetail.SampleRequest,
             Settings = new Dictionary<string, string>
             {
