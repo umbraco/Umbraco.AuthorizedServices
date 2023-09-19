@@ -1,3 +1,5 @@
+import { AuthenticationMethod } from "./authorizedservice.constants";
+
 function AuthorizedServiceEditController(this: any, $routeParams, $location, authorizedServiceResource, notificationsService) {
 
   const vm = this;
@@ -20,7 +22,16 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
   }
 
   vm.authorizeAccess = function () {
-    location.href = vm.authorizationUrl;
+    if (vm.authenticationMethod.toString() === AuthenticationMethod.OAuth2ClientCredentials.toString()) {
+      authorizedServiceResource.generateToken(serviceAlias)
+        .then(function () {
+          notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service has been authorized.");
+          loadServiceDetails(serviceAlias);
+        });
+    }
+    else {
+      location.href = vm.authorizationUrl;
+    }
   };
 
   vm.revokeAccess = function () {

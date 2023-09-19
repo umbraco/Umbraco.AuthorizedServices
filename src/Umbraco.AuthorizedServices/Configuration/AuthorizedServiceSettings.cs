@@ -39,6 +39,7 @@ public enum AuthenticationMethod
 {
     OAuth1,
     OAuth2,
+    OAuth2ClientCredentials,
     ApiKey
 }
 
@@ -49,6 +50,15 @@ public enum ApiKeyProvisionMethod
 {
     HttpHeader,
     QueryString
+}
+
+/// <summary>
+/// Defines the available provisioning methods for an OAuth2 Client Credentials flow.
+/// </summary>
+public enum ClientCredentialsProvision
+{
+    AuthHeader,
+    RequestBody
 }
 
 /// <summary>
@@ -101,6 +111,11 @@ public class ServiceDetail : ServiceSummary
     /// Gets or sets the authentication method for the service.
     /// </summary>
     public AuthenticationMethod AuthenticationMethod { get; set; } = AuthenticationMethod.OAuth2;
+
+    /// <summary>
+    /// Gets or sets the provisioning type for an OAuth2 Client Credentials flow.
+    /// </summary>
+    public ClientCredentialsProvision ClientCredentialsProvision { get; set; }
 
     /// <summary>
     /// Gets or sets the host name for the service's API.
@@ -176,6 +191,11 @@ public class ServiceDetail : ServiceSummary
     /// Gets or sets the scopes required for working with the service.
     /// </summary>
     public string Scopes { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets whether the scopes should be included in the authorization request body.
+    /// </summary>
+    public bool IncludeScopesInAuthorizationRequest { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the OAuth flow should use Proof of Key Code Exchange (PKCE).
