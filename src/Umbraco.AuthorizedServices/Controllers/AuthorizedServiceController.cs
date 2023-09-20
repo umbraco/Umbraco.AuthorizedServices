@@ -166,9 +166,11 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     private bool CheckAuthorizationStatus(ServiceDetail serviceDetail) => serviceDetail.AuthenticationMethod switch
     {
         AuthenticationMethod.OAuth1 => false,
-        AuthenticationMethod.OAuth2AuthorizationCode => _tokenStorage.GetToken(serviceDetail.Alias) != null,
-        AuthenticationMethod.OAuth2ClientCredentials => _tokenStorage.GetToken(serviceDetail.Alias) != null,
+        AuthenticationMethod.OAuth2AuthorizationCode => StoredTokenExists(serviceDetail),
+        AuthenticationMethod.OAuth2ClientCredentials => StoredTokenExists(serviceDetail),
         AuthenticationMethod.ApiKey => !string.IsNullOrEmpty(serviceDetail.ApiKey),
         _ => false
     };
+
+    private bool StoredTokenExists(ServiceDetail serviceDetail) => _tokenStorage.GetToken(serviceDetail.Alias) != null;
 }
