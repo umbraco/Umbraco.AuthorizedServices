@@ -18,6 +18,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         vm.sampleRequest = serviceData.sampleRequest;
         vm.sampleRequestResponse = null;
         vm.settings = serviceData.settings;
+        vm.isApiKeyBasedAuthenticationMethod = serviceData.authenticationMethod === AuthenticationMethod.ApiKey;
       });
   }
 
