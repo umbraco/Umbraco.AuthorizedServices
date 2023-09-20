@@ -5,110 +5,114 @@ namespace Umbraco.AuthorizedServices.Tests.Services;
 
 internal class AuthorizationParametersBuilderTests
 {
-    private readonly ServiceDetail _serviceDetail = new ServiceDetail();
-
-    [SetUp]
-    public void Setup()
-    {
-        _serviceDetail.ClientId = "TestClientId";
-        _serviceDetail.ClientSecret = "TestClientSecret";
-    }
-
+    private const string TestAuthorizationCode = "1234";
+    private const string TestRedirectUrl = "https://test.url";
+    private const string TestCodeVerifier = "TestCodeVerifier";
 
     [Test]
-    public void BuildParameters_ForOAuth2AuthorizationCode_ReturnsExpectedResult()
+    public void BuildParametersForOAuth2AuthorizationCode_ReturnsExpectedResult()
     {
         // Arrange
-        const string AuthorizationCode = "1234";
-        const string RedirectUrl = "https://test.url";
-        const string CodeVerifier = "TestCodeVerifier";
+        ServiceDetail serviceDetail = CreateServiceDetail();
+
         var sut = new AuthorizationParametersBuilder();
 
         // Act
-        Dictionary<string, string> result = sut.BuildParametersForOAuth2AuthorizationCode(_serviceDetail, AuthorizationCode, RedirectUrl, CodeVerifier);
+        Dictionary<string, string> result = sut.BuildParametersForOAuth2AuthorizationCode(serviceDetail, TestAuthorizationCode, TestRedirectUrl, string.Empty);
 
         // Assert
         result.Count.Should().Be(5);
-        result["grant_type"].Should().Be("authorization_code");
-        result["client_id"].Should().Be("TestClientId");
-        result["client_secret"].Should().Be("TestClientSecret");
-        result["code"].Should().Be(AuthorizationCode);
-        result["redirect_uri"].Should().Be(RedirectUrl);
+        AssertOAuth2AuthorizationCodeParameters(result);
     }
 
     [Test]
-    public void BuildParameters_ForOAuth2AuthorizationCode_WithCodeVerifier_ReturnsExpectedResult()
+    public void BuildParametersForOAuth2AuthorizationCode_WithCodeVerifier_ReturnsExpectedResult()
     {
         // Arrange
-        _serviceDetail.UseProofKeyForCodeExchange = true;
+        ServiceDetail serviceDetail = CreateServiceDetail();
+        serviceDetail.UseProofKeyForCodeExchange = true;
 
-        const string AuthorizationCode = "1234";
-        const string RedirectUrl = "https://test.url";
-        const string CodeVerifier = "TestCodeVerifier";
         var sut = new AuthorizationParametersBuilder();
 
         // Act
-        Dictionary<string, string> result = sut.BuildParametersForOAuth2AuthorizationCode(_serviceDetail, AuthorizationCode, RedirectUrl, CodeVerifier);
+        Dictionary<string, string> result = sut.BuildParametersForOAuth2AuthorizationCode(serviceDetail, TestAuthorizationCode, TestRedirectUrl, TestCodeVerifier);
 
         // Assert
         result.Count.Should().Be(6);
-        result["grant_type"].Should().Be("authorization_code");
-        result["client_id"].Should().Be("TestClientId");
-        result["client_secret"].Should().Be("TestClientSecret");
-        result["code"].Should().Be(AuthorizationCode);
-        result["redirect_uri"].Should().Be(RedirectUrl);
-        result["code_verifier"].Should().Be(CodeVerifier);
+        AssertOAuth2AuthorizationCodeParameters(result);
+        result["code_verifier"].Should().Be(TestCodeVerifier);
     }
 
     [Test]
-    public void BuildParameters_ForOAuth2ClientCredentials_WithScopes_ReturnsExpectedResult()
+    public void BuildParametersForOAuth2ClientCredentials_ReturnsExpectedResult()
     {
         // Arrange
-        _serviceDetail.IncludeScopesInAuthorizationRequest = true;
-        _serviceDetail.Scopes = "./default";
+        ServiceDetail serviceDetail = CreateServiceDetail();
+        var sut = new AuthorizationParametersBuilder();
+
+        // Act
+        Dictionary<string, string> result = sut.BuildParametersForOAuth2ClientCredentials(serviceDetail);
+
+        // Assert
+        result.Count.Should().Be(3);
+        AssertOAuth2ClientCredentialsParameters(result);
+    }
+
+    [Test]
+    public void BuildParametersForOAuth2ClientCredentials_WithScopes_ReturnsExpectedResult()
+    {
+        // Arrange
+        ServiceDetail serviceDetail = CreateServiceDetail();
+        serviceDetail.IncludeScopesInAuthorizationRequest = true;
+        serviceDetail.Scopes = "./default";
 
         var sut = new AuthorizationParametersBuilder();
 
         // Act
-        Dictionary<string, string> result = sut.BuildParametersForOAuth2ClientCredentials(_serviceDetail);
+        Dictionary<string, string> result = sut.BuildParametersForOAuth2ClientCredentials(serviceDetail);
 
         // Assert
         result.Count.Should().Be(4);
-        result["grant_type"].Should().Be("client_credentials");
+        AssertOAuth2ClientCredentialsParameters(result);
         result["scope"].Should().Be("./default");
     }
 
     [Test]
-    public void BuildParameters_ForOAuth2ClientCredentials_ReturnsExpectedResult()
+    public void BuildParametersForOAuth2ClientCredentials_WithClientCredentialsProvisionInAuthHeader_ReturnsExpectedResult()
     {
         // Arrange
-        var sut = new AuthorizationParametersBuilder();
-
-        // Act
-        Dictionary<string, string> result = sut.BuildParametersForOAuth2ClientCredentials(_serviceDetail);
-
-        // Assert
-        result.Count.Should().Be(3);
-        result["grant_type"].Should().Be("client_credentials");
-        result["client_id"].Should().Be("TestClientId");
-        result["client_secret"].Should().Be("TestClientSecret");
-    }
-
-    [Test]
-    public void BuildParameters_ForOAuth2ClientCredentials_WithClientCredentialsProvisionInAuthHeader_ReturnsExpectedResult()
-    {
-        // Arrange
-        _serviceDetail.ClientCredentialsProvision = ClientCredentialsProvision.AuthHeader;
+        ServiceDetail serviceDetail = CreateServiceDetail();
+        serviceDetail.ClientCredentialsProvision = ClientCredentialsProvision.AuthHeader;
 
         var sut = new AuthorizationParametersBuilder();
 
         // Act
-        Dictionary<string, string> result = sut.BuildParametersForOAuth2ClientCredentials(_serviceDetail);
+        Dictionary<string, string> result = sut.BuildParametersForOAuth2ClientCredentials(serviceDetail);
 
         // Assert
         result.Count.Should().Be(1);
         result["grant_type"].Should().Be("client_credentials");
     }
 
+    private static ServiceDetail CreateServiceDetail() => new()
+    {
+        ClientId = "TestClientId",
+        ClientSecret = "TestClientSecret",
+    };
 
+    private static void AssertOAuth2AuthorizationCodeParameters(Dictionary<string, string> result)
+    {
+        result["grant_type"].Should().Be("authorization_code");
+        result["client_id"].Should().Be("TestClientId");
+        result["client_secret"].Should().Be("TestClientSecret");
+        result["code"].Should().Be(TestAuthorizationCode);
+        result["redirect_uri"].Should().Be(TestRedirectUrl);
+    }
+
+    private static void AssertOAuth2ClientCredentialsParameters(Dictionary<string, string> result)
+    {
+        result["grant_type"].Should().Be("client_credentials");
+        result["client_id"].Should().Be("TestClientId");
+        result["client_secret"].Should().Be("TestClientSecret");
+    }
 }
