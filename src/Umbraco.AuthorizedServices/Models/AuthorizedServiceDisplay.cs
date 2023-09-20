@@ -37,7 +37,7 @@ public class AuthorizedServiceDisplay
     /// Gets or sets the service's authentication method.
     /// </summary>
     [DataMember(Name = "authenticationMethod")]
-    public string AuthenticationMethod { get; set; } = Configuration.AuthenticationMethod.OAuth2.ToString();
+    public string AuthenticationMethod { get; set; } = Configuration.AuthenticationMethod.OAuth2AuthorizationCode.ToString();
 
     /// <summary>
     /// Gets or sets a sample GET request for the service, used for verification.

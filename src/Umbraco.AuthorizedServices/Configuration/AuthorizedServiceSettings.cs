@@ -38,7 +38,7 @@ public enum JsonSerializerOption
 public enum AuthenticationMethod
 {
     OAuth1,
-    OAuth2,
+    OAuth2AuthorizationCode,
     OAuth2ClientCredentials,
     ApiKey
 }
@@ -110,12 +110,12 @@ public class ServiceDetail : ServiceSummary
     /// <summary>
     /// Gets or sets the authentication method for the service.
     /// </summary>
-    public AuthenticationMethod AuthenticationMethod { get; set; } = AuthenticationMethod.OAuth2;
+    public AuthenticationMethod AuthenticationMethod { get; set; } = AuthenticationMethod.OAuth2AuthorizationCode;
 
     /// <summary>
     /// Gets or sets the provisioning type for an OAuth2 Client Credentials flow.
     /// </summary>
-    public ClientCredentialsProvision ClientCredentialsProvision { get; set; }
+    public ClientCredentialsProvision ClientCredentialsProvision { get; set; } = ClientCredentialsProvision.RequestBody;
 
     /// <summary>
     /// Gets or sets the host name for the service's API.
