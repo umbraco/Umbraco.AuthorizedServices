@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Models.Request;
 using Umbraco.AuthorizedServices.Services;
@@ -23,6 +24,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
     private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
     private readonly IAuthorizationPayloadBuilder _authorizedServiceAuthorizationPayloadBuilder;
+    private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceController"/> class.
@@ -33,7 +35,8 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         IAuthorizationUrlBuilder authorizationUrlBuilder,
         IAuthorizedServiceCaller authorizedServiceCaller,
         IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
-        IAuthorizationPayloadBuilder authorizedServiceAuthorizationPayloadBuilder)
+        IAuthorizationPayloadBuilder authorizedServiceAuthorizationPayloadBuilder,
+        IAuthorizedServiceAuthorizer serviceAuthorizer)
     {
         _serviceDetailOptions = serviceDetailOptions;
         _tokenStorage = tokenStorage;
@@ -41,6 +44,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         _authorizedServiceCaller = authorizedServiceCaller;
         _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
         _authorizedServiceAuthorizationPayloadBuilder = authorizedServiceAuthorizationPayloadBuilder;
+        _serviceAuthorizer = serviceAuthorizer;
     }
 
     /// <summary>
@@ -55,7 +59,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         bool isAuthorized = CheckAuthorizationStatus(serviceDetail);
 
         string? authorizationUrl = null;
-        if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth2)
+        if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth2AuthorizationCode)
         {
             if (!isAuthorized)
             {
@@ -138,11 +142,35 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         return Ok();
     }
 
+    /// <summary>
+    /// Generates access token for an authorized service.
+    /// </summary>
+    /// <param name="model">Request model identifying the service.</param>
+    /// <returns></returns>
+    [HttpPost]
+    public async Task<IActionResult> GenerateToken(GenerateToken model)
+    {
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
+
+        Models.AuthorizationResult result = await _serviceAuthorizer
+            .AuthorizeOAuth2ClientCredentialsServiceAsync(serviceDetail.Alias);
+
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        throw new AuthorizedServiceException("Failed to obtain access token");
+    }
+
     private bool CheckAuthorizationStatus(ServiceDetail serviceDetail) => serviceDetail.AuthenticationMethod switch
     {
         AuthenticationMethod.OAuth1 => false,
-        AuthenticationMethod.OAuth2 => _tokenStorage.GetToken(serviceDetail.Alias) != null,
+        AuthenticationMethod.OAuth2AuthorizationCode => StoredTokenExists(serviceDetail),
+        AuthenticationMethod.OAuth2ClientCredentials => StoredTokenExists(serviceDetail),
         AuthenticationMethod.ApiKey => !string.IsNullOrEmpty(serviceDetail.ApiKey),
         _ => false
     };
+
+    private bool StoredTokenExists(ServiceDetail serviceDetail) => _tokenStorage.GetToken(serviceDetail.Alias) != null;
 }

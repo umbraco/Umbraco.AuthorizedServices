@@ -24,7 +24,7 @@
                             action="vm.sendSampleRequest()"
                             type="button"
                             label="Verify Sample Request"></umb-button>
-                <umb-button ng-if="vm.authenticationMethod !== 'ApiKey'"
+                <umb-button ng-if="!vm.isApiKeyBasedAuthenticationMethod"
                             action="vm.revokeAccess()"
                             type="button"
                             button-style="danger"

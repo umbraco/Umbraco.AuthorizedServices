@@ -24,28 +24,43 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         _authorizationParametersBuilder = authorizationParametersBuilder;
     }
 
-    public async Task<AuthorizationResult> AuthorizeServiceAsync(string serviceAlias, string authorizationCode, string redirectUri, string codeVerifier)
+    public async Task<AuthorizationResult> AuthorizeOAuth2AuthorizationCodeServiceAsync(string serviceAlias, string authorizationCode, string redirectUri, string codeVerifier)
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParameters(serviceDetail, authorizationCode, redirectUri, codeVerifier);
+        Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParametersForOAuth2AuthorizationCode(serviceDetail, authorizationCode, redirectUri, codeVerifier);
 
+        return await SendRequest(serviceDetail, parameters);
+    }
+
+    public async Task<AuthorizationResult> AuthorizeOAuth2ClientCredentialsServiceAsync(string serviceAlias)
+    {
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+
+        Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParametersForOAuth2ClientCredentials(serviceDetail);
+
+        return await SendRequest(serviceDetail, parameters);
+    }
+
+    private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    {
         HttpResponseMessage response = await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
         if (response.IsSuccessStatusCode)
         {
             Token token = await CreateTokenFromResponse(serviceDetail, response);
 
-            StoreToken(serviceAlias, token);
+            StoreToken(serviceDetail.Alias, token);
 
             return AuthorizationResult.AsSuccess();
         }
         else
         {
             throw new AuthorizedServiceHttpException(
-                $"Error response from token request to '{serviceAlias}'.",
+                $"Error response from token request to '{serviceDetail.Alias}'.",
                 response.StatusCode,
                 response.ReasonPhrase,
                 await response.Content.ReadAsStringAsync());
         }
     }
+
 }

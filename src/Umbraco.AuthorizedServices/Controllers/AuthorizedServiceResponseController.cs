@@ -50,7 +50,7 @@ public class AuthorizedServiceResponseController : UmbracoApiController
         var redirectUri = HttpContext.GetAuthorizedServiceRedirectUri();
         var codeVerifier = cachedAuthorizationPayload.CodeVerifier;
         _authorizedServiceAuthorizationPayloadCache.Remove(stateParts[0]);
-        AuthorizationResult result = await _serviceAuthorizer.AuthorizeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
+        AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth2AuthorizationCodeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
 
         if (result.Success)
         {
