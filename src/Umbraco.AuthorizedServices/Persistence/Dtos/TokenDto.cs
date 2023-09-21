@@ -4,7 +4,7 @@ using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
 namespace Umbraco.AuthorizedServices.Persistence.Dtos;
 
-[TableName(Constants.Migrations.TableName)]
+[TableName(Constants.Migrations.UmbracoAuthorizedServiceTokenTableName)]
 [PrimaryKey("serviceAlias", AutoIncrement = false)]
 [ExplicitColumns]
 public class TokenDto

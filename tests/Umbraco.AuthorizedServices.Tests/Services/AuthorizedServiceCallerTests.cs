@@ -232,6 +232,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             AppCaches.Disabled,
             new TokenFactory(new DateTimeProvider()),
             TokenStorageMock.Object,
+            KeyStorageMock.Object,
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceCaller>(),
             optionsMonitorServiceDetailMock.Object,

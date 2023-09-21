@@ -69,6 +69,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
             AppCaches.Disabled,
             new TokenFactory(new DateTimeProvider()),
             TokenStorageMock.Object,
+            KeyStorageMock.Object,
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceAuthorizer>(),
             optionsMonitorServiceDetailMock.Object,

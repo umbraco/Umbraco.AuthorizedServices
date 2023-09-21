@@ -10,6 +10,8 @@ internal abstract class AuthorizedServiceTestsBase
 
     protected Mock<ITokenStorage> TokenStorageMock { get; set; } = null!;
 
+    protected Mock<IKeyStorage> KeyStorageMock { get; set; } = null!;
+
     protected static Mock<IOptionsMonitor<ServiceDetail>> CreateOptionsMonitorServiceDetail(bool includeApiKey = false)
     {
         var optionsMonitorServiceDetailMock = new Mock<IOptionsMonitor<ServiceDetail>>();

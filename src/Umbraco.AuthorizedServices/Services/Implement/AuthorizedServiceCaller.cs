@@ -21,6 +21,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         AppCaches appCaches,
         ITokenFactory tokenFactory,
         ITokenStorage tokenStorage,
+        IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceCaller> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
@@ -28,7 +29,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         JsonSerializerFactory jsonSerializerFactory,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, serviceDetailOptions)
+        : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
         _jsonSerializerFactory = jsonSerializerFactory;
@@ -80,7 +81,14 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         HttpRequestMessage requestMessage;
         if (serviceDetail.AuthenticationMethod == AuthenticationMethod.ApiKey)
         {
-            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(serviceDetail, path, httpMethod, requestContent);
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(
+                serviceDetail,
+                path,
+                httpMethod,
+                string.IsNullOrEmpty(serviceDetail.ApiKey)
+                    ? KeyStorage.GetKey(serviceAlias) ?? string.Empty
+                    : serviceDetail.ApiKey,
+                requestContent);
         }
         else
         {

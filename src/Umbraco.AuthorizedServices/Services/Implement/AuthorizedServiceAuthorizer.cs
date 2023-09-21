@@ -15,11 +15,12 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         AppCaches appCaches,
         ITokenFactory tokenFactory,
         ITokenStorage tokenStorage,
+        IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceAuthorizer> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IAuthorizationParametersBuilder authorizationParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, serviceDetailOptions)
+        : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _authorizationParametersBuilder = authorizationParametersBuilder;
     }

@@ -20,6 +20,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
 {
     private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
     private readonly ITokenStorage _tokenStorage;
+    private readonly IKeyStorage _keyStorage;
     private readonly IAuthorizationUrlBuilder _authorizationUrlBuilder;
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
     private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
@@ -32,6 +33,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     public AuthorizedServiceController(
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         ITokenStorage tokenStorage,
+        IKeyStorage keyStorage,
         IAuthorizationUrlBuilder authorizationUrlBuilder,
         IAuthorizedServiceCaller authorizedServiceCaller,
         IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
@@ -40,6 +42,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     {
         _serviceDetailOptions = serviceDetailOptions;
         _tokenStorage = tokenStorage;
+        _keyStorage = keyStorage;
         _authorizationUrlBuilder = authorizationUrlBuilder;
         _authorizedServiceCaller = authorizedServiceCaller;
         _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
@@ -77,6 +80,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
             DisplayName = serviceDetail.DisplayName,
             IsAuthorized = isAuthorized,
             CanManuallyProvideToken = serviceDetail.CanManuallyProvideToken,
+            CanManuallyProvideApiKey = serviceDetail.CanManuallyProvideApiKey,
             AuthorizationUrl = authorizationUrl,
             AuthenticationMethod = serviceDetail.AuthenticationMethod.ToString(),
             SampleRequest = serviceDetail.SampleRequest,
@@ -120,13 +124,14 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     }
 
     /// <summary>
-    /// Revokes access by removing the access token for an authorized service.
+    /// Revokes access by removing the access token or API key for an authorized service.
     /// </summary>
     /// <param name="model">Request model identifying the service.</param>
     [HttpPost]
     public IActionResult RevokeAccess(RevokeAccess model)
     {
         _tokenStorage.DeleteToken(model.Alias);
+        _keyStorage.DeleteKey(model.Alias);
         return Ok();
     }
 
@@ -139,6 +144,18 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     public IActionResult SaveToken(AddToken model)
     {
         _tokenStorage.SaveToken(model.Alias, new Token(model.Token));
+        return Ok();
+    }
+
+    /// <summary>
+    /// Adds a new API key for an authorized service.
+    /// </summary>
+    /// <param name="model">Request model identifying the service.</param>
+    /// <returns></returns>
+    [HttpPost]
+    public IActionResult SaveApiKey(AddApiKey model)
+    {
+        _keyStorage.SaveKey(model.Alias, model.ApiKey);
         return Ok();
     }
 
@@ -168,7 +185,8 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         AuthenticationMethod.OAuth1 => false,
         AuthenticationMethod.OAuth2AuthorizationCode => StoredTokenExists(serviceDetail),
         AuthenticationMethod.OAuth2ClientCredentials => StoredTokenExists(serviceDetail),
-        AuthenticationMethod.ApiKey => !string.IsNullOrEmpty(serviceDetail.ApiKey),
+        AuthenticationMethod.ApiKey => !string.IsNullOrEmpty(serviceDetail.ApiKey)
+                                        || _keyStorage.GetKey(serviceDetail.Alias) is not null,
         _ => false
     };
 
