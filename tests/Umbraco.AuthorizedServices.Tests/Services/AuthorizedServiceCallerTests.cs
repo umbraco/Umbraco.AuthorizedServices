@@ -18,6 +18,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public void SetUp()
     {
         TokenStorageMock = new Mock<ITokenStorage>();
+        KeyStorageMock = new Mock<IKeyStorage>();
     }
 
     [Test]
@@ -38,6 +39,23 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
 
         TokenStorageMock
             .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<Token>()), Times.Never);
+    }
+
+    [Test]
+    public async Task SendRequestAsync_WithoutData_WithApiKeyFromStorage_WithSuccessReponse_ReturnsExpectedResponse()
+    {
+        // Arrange
+        StoreApiKey();
+
+        var path = "/api/test/";
+        AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, authenticationMethod: AuthenticationMethod.ApiKey);
+
+        // Act
+        TestResponseData? result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+
+        // Assert
+        KeyStorageMock
+            .Verify(x => x.SaveKey(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -151,7 +169,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public void GetApiKey_WithExistingApiKey_ReturnsApiKey()
     {
         // Arrange
-        AuthorizedServiceCaller sut = CreateService(includeApiKey: true);
+        AuthorizedServiceCaller sut = CreateService(authenticationMethod: AuthenticationMethod.ApiKey);
 
         // Act
         var result = sut.GetApiKey(ServiceAlias);
@@ -159,6 +177,21 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         // Assert
         result.Should().NotBeNull();
         result!.Should().Be("test-api-key");
+    }
+
+    [Test]
+    public void GetApiKey_WithStoredApiKey_ReturnsStoredApiKey()
+    {
+        // Arrange
+        StoreApiKey();
+        AuthorizedServiceCaller sut = CreateService(authenticationMethod: AuthenticationMethod.ApiKey);
+
+        // Act
+        var result = sut.GetApiKey(ServiceAlias);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Should().Be("stored-test-api-key");
     }
 
     [Test]
@@ -207,11 +240,17 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))
             .Returns(new Token("abc", "def", DateTime.Now.AddDays(daysUntilExpiry)));
 
+    private void StoreApiKey() =>
+        KeyStorageMock
+            .Setup(x => x.GetKey(It.Is<string>(y => y == ServiceAlias)))
+            .Returns("stored-test-api-key");
+
+
     private AuthorizedServiceCaller CreateService(
         HttpStatusCode statusCode = HttpStatusCode.OK,
         string? responseContent = null,
         HttpStatusCode refreshTokenStatusCode = HttpStatusCode.OK,
-        bool includeApiKey = false)
+        AuthenticationMethod authenticationMethod = AuthenticationMethod.OAuth2AuthorizationCode)
     {
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
 
@@ -225,7 +264,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             .Setup(x => x.SendRequest(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.Is<Dictionary<string, string>>(y => y["grant_type"] == "refresh_token")))
             .ReturnsAsync(httpResponseMessage);
 
-        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(includeApiKey);
+        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod);
         var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
 
         return new AuthorizedServiceCaller(

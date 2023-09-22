@@ -81,13 +81,12 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         HttpRequestMessage requestMessage;
         if (serviceDetail.AuthenticationMethod == AuthenticationMethod.ApiKey)
         {
+            string? key = KeyStorage.GetKey(serviceAlias);
             requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(
                 serviceDetail,
                 path,
                 httpMethod,
-                string.IsNullOrEmpty(serviceDetail.ApiKey)
-                    ? KeyStorage.GetKey(serviceAlias) ?? string.Empty
-                    : serviceDetail.ApiKey,
+                key is not null ? key : (!string.IsNullOrEmpty(serviceDetail.ApiKey) ? serviceDetail.ApiKey : string.Empty),
                 requestContent);
         }
         else
@@ -119,7 +118,10 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     public string? GetApiKey(string serviceAlias)
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
-        return serviceDetail?.ApiKey;
+        string? key = KeyStorage.GetKey(serviceAlias);
+        return key is not null
+            ? key
+            : serviceDetail?.ApiKey;
     }
 
     public string? GetToken(string serviceAlias)

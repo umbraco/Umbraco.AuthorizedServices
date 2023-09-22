@@ -8,19 +8,23 @@ internal abstract class AuthorizedServiceTestsBase
 {
     protected const string ServiceAlias = "testService";
 
-    protected Mock<ITokenStorage> TokenStorageMock { get; set; } = null!;
+    protected static Mock<ITokenStorage> TokenStorageMock { get; set; } = null!;
 
-    protected Mock<IKeyStorage> KeyStorageMock { get; set; } = null!;
+    protected static Mock<IKeyStorage> KeyStorageMock { get; set; } = null!;
 
-    protected static Mock<IOptionsMonitor<ServiceDetail>> CreateOptionsMonitorServiceDetail(bool includeApiKey = false)
+    protected static Mock<IOptionsMonitor<ServiceDetail>> CreateOptionsMonitorServiceDetail(
+        AuthenticationMethod authenticationMethod = AuthenticationMethod.OAuth2AuthorizationCode)
     {
         var optionsMonitorServiceDetailMock = new Mock<IOptionsMonitor<ServiceDetail>>();
         optionsMonitorServiceDetailMock.Setup(o => o.Get(ServiceAlias)).Returns(new ServiceDetail()
         {
             Alias = ServiceAlias,
             ApiHost = "https://service.url",
+            AuthenticationMethod = authenticationMethod,
             JsonSerializer = JsonSerializerOption.JsonNet,
-            ApiKey = includeApiKey ? "test-api-key" : string.Empty
+            ApiKey = authenticationMethod == AuthenticationMethod.ApiKey ? "test-api-key" : string.Empty,
+            ApiKeyProvision = authenticationMethod == AuthenticationMethod.ApiKey
+                ? new ApiKeyProvision { Method = ApiKeyProvisionMethod.QueryString, Key = "key"} : null
         });
 
         return optionsMonitorServiceDetailMock;
