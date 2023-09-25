@@ -138,7 +138,7 @@ public class ServiceDetail : ServiceSummary
     public bool CanManuallyProvideToken { get; set; }
 
     /// <summary>
-    /// Get or sets a value indicating whether an administrator editor can manually provide API keys via the backoffice.
+    /// Get or sets a value indicating whether an administrator can manually provide API keys via the backoffice.
     /// </summary>
     public bool CanManuallyProvideApiKey { get; set; }
 
