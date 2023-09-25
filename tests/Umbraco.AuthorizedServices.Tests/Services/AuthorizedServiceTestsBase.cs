@@ -8,9 +8,9 @@ internal abstract class AuthorizedServiceTestsBase
 {
     protected const string ServiceAlias = "testService";
 
-    protected static Mock<ITokenStorage> TokenStorageMock { get; set; } = null!;
+    protected Mock<ITokenStorage> TokenStorageMock { get; set; } = null!;
 
-    protected static Mock<IKeyStorage> KeyStorageMock { get; set; } = null!;
+    protected Mock<IKeyStorage> KeyStorageMock { get; set; } = null!;
 
     protected static Mock<IOptionsMonitor<ServiceDetail>> CreateOptionsMonitorServiceDetail(
         AuthenticationMethod authenticationMethod = AuthenticationMethod.OAuth2AuthorizationCode)

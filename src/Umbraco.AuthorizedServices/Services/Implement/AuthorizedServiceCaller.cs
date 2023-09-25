@@ -82,11 +82,19 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         if (serviceDetail.AuthenticationMethod == AuthenticationMethod.ApiKey)
         {
             string? key = KeyStorage.GetKey(serviceAlias);
+
+            if (key is null && string.IsNullOrEmpty(serviceDetail.ApiKey))
+            {
+                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
+            }
+
             requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(
                 serviceDetail,
                 path,
                 httpMethod,
-                key is not null ? key : (!string.IsNullOrEmpty(serviceDetail.ApiKey) ? serviceDetail.ApiKey : string.Empty),
+                !string.IsNullOrEmpty(serviceDetail.ApiKey)
+                    ? serviceDetail.ApiKey
+                    : (key ?? string.Empty),
                 requestContent);
         }
         else
@@ -119,9 +127,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
         string? key = KeyStorage.GetKey(serviceAlias);
-        return key is not null
-            ? key
-            : serviceDetail?.ApiKey;
+        return !string.IsNullOrEmpty(serviceDetail.ApiKey)
+            ? serviceDetail.ApiKey
+            : key;
     }
 
     public string? GetToken(string serviceAlias)

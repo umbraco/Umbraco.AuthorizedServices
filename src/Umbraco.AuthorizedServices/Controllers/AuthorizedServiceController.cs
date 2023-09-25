@@ -130,8 +130,15 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     [HttpPost]
     public IActionResult RevokeAccess(RevokeAccess model)
     {
-        _tokenStorage.DeleteToken(model.Alias);
-        _keyStorage.DeleteKey(model.Alias);
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
+        if (serviceDetail.AuthenticationMethod != AuthenticationMethod.ApiKey)
+        {
+            _tokenStorage.DeleteToken(model.Alias);
+        }
+        else
+        {
+            _keyStorage.DeleteKey(model.Alias);
+        }
         return Ok();
     }
 
