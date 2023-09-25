@@ -23,4 +23,11 @@ public interface IAuthorizedServiceAuthorizer
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>A <see cref="Task{AuthorizationResult}"/> representing the result of the asynchronous operation.</returns>
     Task<AuthorizationResult> AuthorizeOAuth2ClientCredentialsServiceAsync(string serviceAlias);
+
+    /// <summary>
+    /// Exchanges the access token with a long lived one.
+    /// </summary>
+    /// <param name="serviceAlias">The service alias.</param>
+    /// <returns>A <see cref="Task{AuthorizationResult}"/> representing the result of the asynchronous operation.</returns>
+    Task<AuthorizationResult> ExchangeOAuth2AccessTokenAsync(string serviceAlias);
 }

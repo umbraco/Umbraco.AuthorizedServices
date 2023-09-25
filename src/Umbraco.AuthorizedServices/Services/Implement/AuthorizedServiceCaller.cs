@@ -147,9 +147,13 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        Dictionary<string, string> parameters = _refreshTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken);
+        Dictionary<string, string> parameters = serviceDetail.CanExchangeToken
+            ? _refreshTokenParametersBuilder.BuildParametesForOAuth2AccessTokenExchange(serviceDetail, refreshToken)
+            : _refreshTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken);
 
-        HttpResponseMessage response = await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
+        HttpResponseMessage response = serviceDetail.CanExchangeToken
+            ? await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters)
+            : await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
         if (response.IsSuccessStatusCode)
         {
             Token token = await CreateTokenFromResponse(serviceDetail, response);

@@ -84,6 +84,22 @@ public class ApiKeyProvision
 }
 
 /// <summary>
+/// Defines the provisioning options for an API exchanging short lived tokens with long lived ones.
+/// </summary>
+public class ExchangeTokenProvision
+{
+    public string TokenHost { get; set;} = string.Empty;
+
+    public string RequestTokenPath { get; set;} = string.Empty;
+
+    public string TokenGrantType { get; set; } = string.Empty;
+
+    public string RequestRefreshTokenPath { get; set; } = string.Empty;
+
+    public string RefreshTokenGrantType { get; set; } = string.Empty;
+}
+
+/// <summary>
 /// Defines the strongly typed configuration for a single service.
 /// </summary>
 public class ServiceSummary
@@ -201,6 +217,16 @@ public class ServiceDetail : ServiceSummary
     /// Gets or sets a value indicating whether the OAuth flow should use Proof of Key Code Exchange (PKCE).
     /// </summary>
     public bool UseProofKeyForCodeExchange { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the OAuth flow should exchange the access token.
+    /// </summary>
+    public bool CanExchangeToken { get; set; }
+
+    /// <summary>
+    /// Gets or sets the provisioning options for exchanging token flow.
+    /// </summary>
+    public ExchangeTokenProvision? ExchangeTokenProvision { get; set; }
 
     /// <summary>
     /// Gets or sets the key expected in the token response that identifies the access token.

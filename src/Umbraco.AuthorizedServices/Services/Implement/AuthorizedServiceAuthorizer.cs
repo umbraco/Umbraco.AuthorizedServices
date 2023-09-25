@@ -42,9 +42,22 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         return await SendRequest(serviceDetail, parameters);
     }
 
-    private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    public async Task<AuthorizationResult> ExchangeOAuth2AccessTokenAsync(string serviceAlias)
     {
-        HttpResponseMessage response = await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+
+        Token? token = GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
+
+        Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParametesForOAuth2AccessTokenExchange(serviceDetail, token.AccessToken);
+
+        return await SendRequest(serviceDetail, parameters, true);
+    }
+
+    private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters, bool isExchangeTokenRequest = false)
+    {
+        HttpResponseMessage response = isExchangeTokenRequest
+            ? await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters)
+            : await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
         if (response.IsSuccessStatusCode)
         {
             Token token = await CreateTokenFromResponse(serviceDetail, response);
