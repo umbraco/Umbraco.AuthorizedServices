@@ -28,7 +28,7 @@ public class AuthorizedServiceDisplay
     public bool CanManuallyProvideToken { get; set; }
 
     /// <summary>
-    /// Get or sets a value indicating whether an administrator editor can manually provide API keys via the backoffice.
+    /// Get or sets a value indicating whether an administrator can manually provide API keys via the backoffice.
     /// </summary>
     [DataMember(Name = "canManuallyProvideApiKey")]
     public bool CanManuallyProvideApiKey { get; set; }
