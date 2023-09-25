@@ -22,7 +22,7 @@ public class AuthorizedServiceDisplay
     public bool IsAuthorized { get; set; }
 
     /// <summary>
-    /// Get or sets a value indicating whether an administrator editor can manually provide tokens via the backoffice.
+    /// Get or sets a value indicating whether an administrator an manually provide tokens via the backoffice.
     /// </summary>
     [DataMember(Name = "canManuallyProvideToken")]
     public bool CanManuallyProvideToken { get; set; }
