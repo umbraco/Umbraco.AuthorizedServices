@@ -86,7 +86,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         {
             Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
 
-            token = await EnsureAccessToken(serviceAlias, token);
+            token = serviceDetail.CanExchangeToken
+                ? await EnsureExchangeAccessToken(serviceAlias, token)
+                : await EnsureAccessToken(serviceAlias, token);
 
             requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithToken(serviceDetail, path, httpMethod, token, requestContent);
         }
@@ -130,12 +132,19 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
                 throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and no refresh token is available to use. The expired token has been deleted.");
             }
 
-            Token? refreshedToken = await RefreshAccessToken(serviceAlias, token.RefreshToken);
+            Token? refreshedToken = await RefreshAccessToken(serviceAlias, token.RefreshToken) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
 
-            if (refreshedToken == null)
-            {
-                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
-            }
+            return refreshedToken;
+        }
+
+        return token;
+    }
+
+    private async Task<Token> EnsureExchangeAccessToken(string serviceAlias, Token token)
+    {
+        if (token.ExchangeTokenHasOrIsAboutToExpire)
+        {
+            Token? refreshedToken = await RefreshAccessToken(serviceAlias, string.Empty) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
 
             return refreshedToken;
         }

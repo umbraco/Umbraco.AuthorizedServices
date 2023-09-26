@@ -43,20 +43,4 @@ internal sealed class AuthorizationParametersBuilder : IAuthorizationParametersB
 
         return parametersDictionary;
     }
-
-    public Dictionary<string, string> BuildParametesForOAuth2AccessTokenExchange(ServiceDetail serviceDetail, string? accessToken)
-    {
-        var parametersDictionary = new Dictionary<string, string>()
-        {
-            { "grant_type", serviceDetail.ExchangeTokenProvision is not null ? serviceDetail.ExchangeTokenProvision.TokenGrantType : string.Empty },
-            { "client_secret", serviceDetail.ClientSecret }
-        };
-
-        if (accessToken is not null)
-        {
-            parametersDictionary.Add("access_token", accessToken);
-        }
-
-        return parametersDictionary;
-    }
 }

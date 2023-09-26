@@ -44,7 +44,14 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
         var url = serviceDetail.ExchangeTokenProvision is not null
-            ? serviceDetail.ExchangeTokenProvision.TokenHost + serviceDetail.ExchangeTokenProvision.RequestTokenPath
+            ? string.Format(
+                "{0}{1}",
+                string.IsNullOrWhiteSpace(serviceDetail.ExchangeTokenProvision.TokenHost)
+                    ? serviceDetail.GetTokenHost()
+                    : serviceDetail.ExchangeTokenProvision.TokenHost,
+                string.IsNullOrWhiteSpace(serviceDetail.ExchangeTokenProvision.RequestTokenPath)
+                    ? serviceDetail.RequestTokenPath
+                    : serviceDetail.ExchangeTokenProvision.RequestTokenPath)
             : serviceDetail.GetTokenHost() + serviceDetail.RequestTokenPath;
 
         if (serviceDetail.ExchangeTokenProvision is null)

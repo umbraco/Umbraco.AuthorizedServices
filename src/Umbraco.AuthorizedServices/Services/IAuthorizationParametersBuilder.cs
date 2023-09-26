@@ -23,12 +23,4 @@ public interface IAuthorizationParametersBuilder
     /// <param name="serviceDetail">The service detail.</param>
     /// <returns>A dictionary containing the authorization parameters.</returns>
     Dictionary<string, string> BuildParametersForOAuth2ClientCredentials(ServiceDetail serviceDetail);
-
-    /// <summary>
-    /// Builds the parameter dictionary used in the exchange token flow.
-    /// </summary>
-    /// <param name="serviceDetail">The service detail.</param>
-    /// <param name="accessToken">The short lived access token.</param>
-    /// <returns>A dictionary containing the authorization parameters.</returns>
-    Dictionary<string, string> BuildParametesForOAuth2AccessTokenExchange(ServiceDetail serviceDetail, string? accessToken);
 }

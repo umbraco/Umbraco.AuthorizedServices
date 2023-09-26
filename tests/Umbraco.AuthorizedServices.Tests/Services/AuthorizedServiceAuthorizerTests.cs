@@ -72,6 +72,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceAuthorizer>(),
             optionsMonitorServiceDetailMock.Object,
-            new AuthorizationParametersBuilder());
+            new AuthorizationParametersBuilder(),
+            new ExchangeTokenParametersBuilder());
     }
 }

@@ -43,4 +43,9 @@ public class Token
     /// Checks to see if the token either has or is about to expire (in the next 30 seconds).
     /// </summary>
     public bool HasOrIsAboutToExpire => ExpiresOn.HasValue && DateTime.UtcNow.AddSeconds(30) > ExpiresOn;
+
+    /// <summary>
+    /// Checks to see if the exchange token either has or is about to expire (in the next 30 days).
+    /// </summary>
+    public bool ExchangeTokenHasOrIsAboutToExpire => ExpiresOn.HasValue && DateTime.UtcNow.AddDays(30) > ExpiresOn;
 }

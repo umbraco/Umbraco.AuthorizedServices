@@ -41,6 +41,7 @@ internal class AuthorizedServicesComposer : IComposer
     {
         builder.Services.AddUnique<IAuthorizationClientFactory, AuthorizationClientFactory>();
         builder.Services.AddUnique<IAuthorizationParametersBuilder, AuthorizationParametersBuilder>();
+        builder.Services.AddUnique<IExchangeTokenParametersBuilder, ExchangeTokenParametersBuilder>();
         builder.Services.AddUnique<IAuthorizationRequestSender, AuthorizationRequestSender>();
         builder.Services.AddUnique<IAuthorizedServiceAuthorizer, AuthorizedServiceAuthorizer>();
         builder.Services.AddUnique<IAuthorizationUrlBuilder, AuthorizationUrlBuilder>();

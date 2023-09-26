@@ -10,6 +10,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuthorizedServiceAuthorizer
 {
     private readonly IAuthorizationParametersBuilder _authorizationParametersBuilder;
+    private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
 
     public AuthorizedServiceAuthorizer(
         AppCaches appCaches,
@@ -18,10 +19,12 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceAuthorizer> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
-        IAuthorizationParametersBuilder authorizationParametersBuilder)
+        IAuthorizationParametersBuilder authorizationParametersBuilder,
+        IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
         : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _authorizationParametersBuilder = authorizationParametersBuilder;
+        _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
     }
 
     public async Task<AuthorizationResult> AuthorizeOAuth2AuthorizationCodeServiceAsync(string serviceAlias, string authorizationCode, string redirectUri, string codeVerifier)
@@ -48,7 +51,7 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
 
         Token? token = GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
 
-        Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParametesForOAuth2AccessTokenExchange(serviceDetail, token.AccessToken);
+        Dictionary<string, string> parameters = _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, token.AccessToken);
 
         return await SendRequest(serviceDetail, parameters, true);
     }
