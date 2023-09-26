@@ -149,10 +149,11 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             if (string.IsNullOrEmpty(token.RefreshToken))
             {
                 ClearAccessToken(serviceAlias);
-                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and no refresh token is available to use. The expired token has been deleted.");
+                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expire and no refresh token is available to use. The expired token has been deleted.");
             }
 
-            return await RefreshAccessToken(serviceAlias, token.RefreshToken) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
+            return await RefreshAccessToken(serviceAlias, token.RefreshToken)
+                ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expired and the refresh token could not be used to obtain a new access token.");
         }
 
         return token;
@@ -185,7 +186,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     {
         if (token.WillBeExpiredAfter(TimeSpan.FromDays(30)))
         {
-            return await RefreshExchangeAccessToken(serviceAlias, token.AccessToken) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
+            return await RefreshExchangeAccessToken(serviceAlias, token.AccessToken)
+                ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token will expire and it's not been possible to exchange it for a new access token.");
         }
 
         return token;
