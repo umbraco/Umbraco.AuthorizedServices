@@ -1,3 +1,5 @@
+using System;
+
 namespace Umbraco.AuthorizedServices.Models;
 
 /// <summary>
@@ -40,12 +42,7 @@ public class Token
     public DateTime? ExpiresOn { get; }
 
     /// <summary>
-    /// Checks to see if the token either has or is about to expire (in the next 30 seconds).
+    /// Checks to see if the token will be expired after the provided period.
     /// </summary>
-    public bool HasOrIsAboutToExpire => ExpiresOn.HasValue && DateTime.UtcNow.AddSeconds(30) > ExpiresOn;
-
-    /// <summary>
-    /// Checks to see if the exchange token either has or is about to expire (in the next 30 days).
-    /// </summary>
-    public bool ExchangeTokenHasOrIsAboutToExpire => ExpiresOn.HasValue && DateTime.UtcNow.AddDays(30) > ExpiresOn;
+    public bool WillBeExpiredAfter(TimeSpan period) => ExpiresOn.HasValue && DateTime.UtcNow.Add(period) > ExpiresOn;
 }

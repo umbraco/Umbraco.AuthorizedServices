@@ -144,7 +144,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
     private async Task<Token> EnsureAccessToken(string serviceAlias, Token token)
     {
-        if (token.HasOrIsAboutToExpire)
+        if (token.WillBeExpiredAfter(TimeSpan.FromSeconds(30)))
         {
             if (string.IsNullOrEmpty(token.RefreshToken))
             {
@@ -152,21 +152,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
                 throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and no refresh token is available to use. The expired token has been deleted.");
             }
 
-            Token? refreshedToken = await RefreshAccessToken(serviceAlias, token.RefreshToken) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
-
-            return refreshedToken;
-        }
-
-        return token;
-    }
-
-    private async Task<Token> EnsureExchangeAccessToken(string serviceAlias, Token token)
-    {
-        if (token.ExchangeTokenHasOrIsAboutToExpire)
-        {
-            Token? refreshedToken = await RefreshAccessToken(serviceAlias, string.Empty) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
-
-            return refreshedToken;
+            return await RefreshAccessToken(serviceAlias, token.RefreshToken) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
         }
 
         return token;
@@ -176,25 +162,52 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        Dictionary<string, string> parameters = serviceDetail.CanExchangeToken
-            ? _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken)
-            : _refreshTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken);
+        Dictionary<string, string> parameters = _refreshTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken);
 
-        HttpResponseMessage response = serviceDetail.CanExchangeToken
-            ? await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters)
-            : await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
+        HttpResponseMessage response = await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
         if (response.IsSuccessStatusCode)
         {
             Token token = await CreateTokenFromResponse(serviceDetail, response);
-
             StoreToken(serviceAlias, token);
-
             return token;
         }
         else
         {
             throw new AuthorizedServiceHttpException(
                 $"Error response from refresh token request to '{serviceAlias}'.",
+                response.StatusCode,
+                response.ReasonPhrase,
+                await response.Content.ReadAsStringAsync());
+        }
+    }
+
+    private async Task<Token> EnsureExchangeAccessToken(string serviceAlias, Token token)
+    {
+        if (token.WillBeExpiredAfter(TimeSpan.FromDays(30)))
+        {
+            return await RefreshExchangeAccessToken(serviceAlias, token.AccessToken) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
+        }
+
+        return token;
+    }
+
+    private async Task<Token?> RefreshExchangeAccessToken(string serviceAlias, string accessToken)
+    {
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+
+        Dictionary<string, string> parameters = _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, accessToken);
+
+        HttpResponseMessage response = await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters);
+        if (response.IsSuccessStatusCode)
+        {
+            Token token = await CreateTokenFromResponse(serviceDetail, response);
+            StoreToken(serviceAlias, token);
+            return token;
+        }
+        else
+        {
+            throw new AuthorizedServiceHttpException(
+                $"Error response from exchange access token request to '{serviceAlias}'.",
                 response.StatusCode,
                 response.ReasonPhrase,
                 await response.Content.ReadAsStringAsync());
