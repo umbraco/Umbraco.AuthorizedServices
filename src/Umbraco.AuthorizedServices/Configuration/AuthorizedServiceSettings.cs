@@ -253,6 +253,16 @@ public class ServiceDetail : ServiceSummary
     /// </summary>
     public string? SampleRequest { get; set; }
 
+    /// <summary>
+    /// Gets or sets the time interval for expiration of access tokens.
+    /// </summary>
+    public TimeSpan AccessTokenExpirationInterval { get; set; } = TimeSpan.FromSeconds(30);
+
+    /// <summary>
+    /// Gets or sets the time interval for expiration of exchange tokens.
+    /// </summary>
+    public TimeSpan ExchangeTokenExpirationInterval { get; set; } = TimeSpan.FromDays(30);
+
     internal string GetTokenHost() => string.IsNullOrWhiteSpace(TokenHost)
         ? IdentityHost
         : TokenHost;

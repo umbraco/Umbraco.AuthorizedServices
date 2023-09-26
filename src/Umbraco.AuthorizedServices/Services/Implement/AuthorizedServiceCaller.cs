@@ -144,7 +144,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
     private async Task<Token> EnsureAccessToken(string serviceAlias, Token token)
     {
-        if (token.WillBeExpiredAfter(TimeSpan.FromSeconds(30)))
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+        if (token.WillBeExpiredAfter(serviceDetail.AccessTokenExpirationInterval))
         {
             if (string.IsNullOrEmpty(token.RefreshToken))
             {
@@ -184,7 +185,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
     private async Task<Token> EnsureExchangeAccessToken(string serviceAlias, Token token)
     {
-        if (token.WillBeExpiredAfter(TimeSpan.FromDays(30)))
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+        if (token.WillBeExpiredAfter(serviceDetail.ExchangeTokenExpirationInterval))
         {
             return await RefreshExchangeAccessToken(serviceAlias, token.AccessToken)
                 ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token will expire and it's not been possible to exchange it for a new access token.");
