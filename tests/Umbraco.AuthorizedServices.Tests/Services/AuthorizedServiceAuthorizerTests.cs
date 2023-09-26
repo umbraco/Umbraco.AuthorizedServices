@@ -15,6 +15,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
     public void SetUp()
     {
         TokenStorageMock = new Mock<ITokenStorage>();
+        KeyStorageMock = new Mock<IKeyStorage>();
     }
 
     [Test]
@@ -69,6 +70,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
             AppCaches.Disabled,
             new TokenFactory(new DateTimeProvider()),
             TokenStorageMock.Object,
+            KeyStorageMock.Object,
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceAuthorizer>(),
             optionsMonitorServiceDetailMock.Object,

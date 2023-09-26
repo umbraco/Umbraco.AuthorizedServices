@@ -17,6 +17,9 @@ function authorizedServiceResource($q, $http) {
     saveToken: function (alias: string, token: string) {
       return $http.post(apiRoot + "SaveToken", { alias: alias, token: token });
     },
+    saveApiKey: function (alias: string, apiKey: string) {
+      return $http.post(apiRoot + "SaveApiKey", { alias: alias, apiKey: apiKey });
+    },
     generateToken: function (alias: string) {
       return $http.post(apiRoot + "GenerateToken", { alias: alias });
     }

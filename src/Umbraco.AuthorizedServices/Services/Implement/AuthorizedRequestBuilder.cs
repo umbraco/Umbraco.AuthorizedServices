@@ -1,10 +1,7 @@
 using System.Collections.Specialized;
-using System.IO;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
-using Azure.Core;
-using Microsoft.Extensions.Hosting;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Serialization;
@@ -38,10 +35,11 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
        ServiceDetail serviceDetail,
        string path,
        HttpMethod httpMethod,
+       string apiKey,
        TRequest? requestContent)
        where TRequest : class
     {
-        if (string.IsNullOrWhiteSpace(serviceDetail.ApiKey))
+        if (string.IsNullOrWhiteSpace(apiKey))
         {
             throw new InvalidOperationException("Cannot create an HTTP request message for an API key request as no API key is available in configuration.");
         }
@@ -55,7 +53,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.QueryString)
         {
             NameValueCollection queryStringParams = HttpUtility.ParseQueryString(requestUri.Query);
-            requestUri = new Uri($"{requestUri}{(queryStringParams.Count > 0 ? "&" : "?")}{serviceDetail.ApiKeyProvision.Key}={serviceDetail.ApiKey}");
+            requestUri = new Uri($"{requestUri}{(queryStringParams.Count > 0 ? "&" : "?")}{serviceDetail.ApiKeyProvision.Key}={apiKey}");
         }
 
         HttpRequestMessage requestMessage = CreateRequestMessage(
@@ -65,7 +63,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 
         if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.HttpHeader)
         {
-            requestMessage.Headers.Add(serviceDetail.ApiKeyProvision.Key, serviceDetail.ApiKey);
+            requestMessage.Headers.Add(serviceDetail.ApiKeyProvision.Key, apiKey);
         }
 
         AddCommonHeaders(requestMessage);

@@ -44,10 +44,14 @@ public static class Constants
 
     public static class Migrations
     {
-        public const string TableName = "umbracoAuthorizedServiceToken";
+        public const string UmbracoAuthorizedServiceTokenTableName = "umbracoAuthorizedServiceToken";
+
+        public const string UmbracoAuthorizedServiceKeyTableName = "umbracoAuthorizedServiceKey";
 
         public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
 
-        public const string TargetState = "authorizedServices-db";
+        public const string UmbracoAuthorizedServiceTokenTargetState = "authorizedServices-token-db";
+
+        public const string UmbracoAuthorizedServiceKeyTargetState = "authorizedServices-key-db";
     }
 }
