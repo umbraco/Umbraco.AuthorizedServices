@@ -5,12 +5,6 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal class DatabaseAuthorizationParameterStorageBase
 {
-    protected IScopeProvider ScopeProvider { get; }
-
-    protected ISecretEncryptor Encryptor { get; }
-
-    protected ILogger<DatabaseAuthorizationParameterStorageBase> Logger { get; }
-
     public DatabaseAuthorizationParameterStorageBase(
         IScopeProvider scopeProvider,
         ISecretEncryptor encryptor,
@@ -20,4 +14,10 @@ internal class DatabaseAuthorizationParameterStorageBase
         Encryptor = encryptor;
         Logger = logger;
     }
+
+    protected IScopeProvider ScopeProvider { get; }
+
+    protected ISecretEncryptor Encryptor { get; }
+
+    protected ILogger<DatabaseAuthorizationParameterStorageBase> Logger { get; }
 }

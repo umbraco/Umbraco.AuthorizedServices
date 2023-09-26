@@ -22,7 +22,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public async Task SendRequestAsync_WithoutData_WithValidAccessToken_WithSuccessReponse_ReturnsExpectedResponse()
+    public async Task SendRequestAsync_WithoutData_WithValidAccessToken_WithSuccessResponse_ReturnsExpectedResponse()
     {
         // Arrange
         StoreToken();
@@ -42,7 +42,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public async Task SendRequestAsync_WithoutData_WithApiKeyFromStorage_WithSuccessReponse_ReturnsExpectedResponse()
+    public async Task SendRequestAsync_WithoutData_WithApiKeyFromStorage_WithSuccessResponse_ReturnsExpectedResponse()
     {
         // Arrange
         StoreApiKey();
@@ -59,7 +59,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public async Task SendRequestAsync_WithoutData_WithValidAccessToken_WithFaileReponse_ThrowsExpectedException()
+    public async Task SendRequestAsync_WithoutData_WithValidAccessToken_WithFailedResponse_ThrowsExpectedException()
     {
         // Arrange
         StoreToken();
@@ -75,7 +75,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public async Task SendRequestRawAsync_WithoutData_WithValidAccessToken_WithSuccessReponse_ReturnsExpectedResponse()
+    public async Task SendRequestRawAsync_WithoutData_WithValidAccessToken_WithSuccessResponse_ReturnsExpectedResponse()
     {
         // Arrange
         StoreToken();
@@ -169,7 +169,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public void GetApiKey_WithExistingApiKey_ReturnsApiKey()
     {
         // Arrange
-        AuthorizedServiceCaller sut = CreateService(authenticationMethod: AuthenticationMethod.ApiKey);
+        AuthorizedServiceCaller sut = CreateService(authenticationMethod: AuthenticationMethod.ApiKey, withConfiguredApiKey: true);
 
         // Act
         var result = sut.GetApiKey(ServiceAlias);
@@ -184,7 +184,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     {
         // Arrange
         StoreApiKey();
-        AuthorizedServiceCaller sut = CreateService(authenticationMethod: AuthenticationMethod.ApiKey);
+        AuthorizedServiceCaller sut = CreateService(authenticationMethod: AuthenticationMethod.ApiKey, withConfiguredApiKey: false);
 
         // Act
         var result = sut.GetApiKey(ServiceAlias);
@@ -250,7 +250,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         HttpStatusCode statusCode = HttpStatusCode.OK,
         string? responseContent = null,
         HttpStatusCode refreshTokenStatusCode = HttpStatusCode.OK,
-        AuthenticationMethod authenticationMethod = AuthenticationMethod.OAuth2AuthorizationCode)
+        AuthenticationMethod authenticationMethod = AuthenticationMethod.OAuth2AuthorizationCode,
+        bool withConfiguredApiKey = false)
     {
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
 
@@ -264,7 +265,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             .Setup(x => x.SendRequest(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.Is<Dictionary<string, string>>(y => y["grant_type"] == "refresh_token")))
             .ReturnsAsync(httpResponseMessage);
 
-        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod);
+        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod, withConfiguredApiKey);
         var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
 
         return new AuthorizedServiceCaller(
