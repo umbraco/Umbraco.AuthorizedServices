@@ -12,13 +12,4 @@ internal sealed class RefreshTokenParametersBuilder : IRefreshTokenParametersBui
                 { "client_secret", serviceDetail.ClientSecret },
                 { "refresh_token", refreshToken }
             };
-
-    public Dictionary<string, string> BuildParametesForOAuth2AccessTokenExchange(ServiceDetail serviceDetail, string accessToken) =>
-        new Dictionary<string, string>
-        {
-            {
-                "grant_type", serviceDetail.ExchangeTokenProvision is not null ? serviceDetail.ExchangeTokenProvision.RefreshTokenGrantType : string.Empty
-            },
-            { "access_token", accessToken }
-        };
 }

@@ -16,6 +16,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     private readonly JsonSerializerFactory _jsonSerializerFactory;
     private readonly IAuthorizedRequestBuilder _authorizedRequestBuilder;
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
+    private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
 
     public AuthorizedServiceCaller(
         AppCaches appCaches,
@@ -28,13 +29,15 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         IHttpClientFactory httpClientFactory,
         JsonSerializerFactory jsonSerializerFactory,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
-        IRefreshTokenParametersBuilder refreshTokenParametersBuilder)
+        IRefreshTokenParametersBuilder refreshTokenParametersBuilder,
+        IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
         : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
         _jsonSerializerFactory = jsonSerializerFactory;
         _authorizedRequestBuilder = authorizedRequestBuilder;
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
+        _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
     }
 
     public async Task SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
@@ -174,7 +177,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
         Dictionary<string, string> parameters = serviceDetail.CanExchangeToken
-            ? _refreshTokenParametersBuilder.BuildParametesForOAuth2AccessTokenExchange(serviceDetail, refreshToken)
+            ? _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken)
             : _refreshTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken);
 
         HttpResponseMessage response = serviceDetail.CanExchangeToken

@@ -14,12 +14,4 @@ public interface IRefreshTokenParametersBuilder
     /// <param name="refreshToken">The refresh token.</param>
     /// <returns>A dictionary containing the refresh token parameters.</returns>
     Dictionary<string, string> BuildParameters(ServiceDetail serviceDetail, string refreshToken);
-
-    /// <summary>
-    /// Builds the parameter dictionary used in long lived token refresh requests.
-    /// </summary>
-    /// <param name="serviceDetail">The service detail.</param>
-    /// <param name="accessToken">The acccess token.</param>
-    /// <returns>A dictionary containing the refresh token parameters.</returns>
-    Dictionary<string, string> BuildParametesForOAuth2AccessTokenExchange(ServiceDetail serviceDetail, string accessToken);
 }
