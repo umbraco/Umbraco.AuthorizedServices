@@ -21,6 +21,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         AppCaches appCaches,
         ITokenFactory tokenFactory,
         ITokenStorage tokenStorage,
+        IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceCaller> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
@@ -28,7 +29,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         JsonSerializerFactory jsonSerializerFactory,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, authorizationRequestSender, logger, serviceDetailOptions)
+        : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
         _jsonSerializerFactory = jsonSerializerFactory;
@@ -80,11 +81,25 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         HttpRequestMessage requestMessage;
         if (serviceDetail.AuthenticationMethod == AuthenticationMethod.ApiKey)
         {
-            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(serviceDetail, path, httpMethod, requestContent);
+            var apiKey = !string.IsNullOrEmpty(serviceDetail.ApiKey)
+                ? serviceDetail.ApiKey
+                : KeyStorage.GetKey(serviceAlias);
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+            {
+                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no API key is configured or stored).");
+            }
+
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(
+                serviceDetail,
+                path,
+                httpMethod,
+                apiKey,
+                requestContent);
         }
         else
         {
-            Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
+            Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no access token is available).");
 
             token = serviceDetail.CanExchangeToken
                 ? await EnsureExchangeAccessToken(serviceAlias, token)
@@ -113,7 +128,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     public string? GetApiKey(string serviceAlias)
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
-        return serviceDetail?.ApiKey;
+        return !string.IsNullOrEmpty(serviceDetail.ApiKey)
+            ? serviceDetail.ApiKey
+            : KeyStorage.GetKey(serviceAlias);
     }
 
     public string? GetToken(string serviceAlias)

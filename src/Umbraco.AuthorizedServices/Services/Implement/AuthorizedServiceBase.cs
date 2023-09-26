@@ -16,6 +16,7 @@ internal abstract class AuthorizedServiceBase
         AppCaches appCaches,
         ITokenFactory tokenFactory,
         ITokenStorage tokenStorage,
+        IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions)
@@ -23,6 +24,7 @@ internal abstract class AuthorizedServiceBase
         AppCaches = appCaches;
         _tokenFactory = tokenFactory;
         TokenStorage = tokenStorage;
+        KeyStorage = keyStorage;
         AuthorizationRequestSender = authorizationRequestSender;
         Logger = logger;
         _serviceDetailOptions = serviceDetailOptions;
@@ -31,6 +33,8 @@ internal abstract class AuthorizedServiceBase
     protected AppCaches AppCaches { get; }
 
     protected ITokenStorage TokenStorage { get; }
+
+    protected IKeyStorage KeyStorage { get; }
 
     protected IAuthorizationRequestSender AuthorizationRequestSender { get; }
 

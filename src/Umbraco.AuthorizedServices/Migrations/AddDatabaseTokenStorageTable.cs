@@ -14,9 +14,9 @@ public class AddDatabaseTokenStorageTable : MigrationBase
     {
         Logger.LogDebug($"Running migration {nameof(AddDatabaseTokenStorageTable)}");
 
-        if (TableExists(Constants.Migrations.TableName))
+        if (TableExists(Constants.Migrations.UmbracoAuthorizedServiceTokenTableName))
         {
-            Logger.LogDebug($"The database table {Constants.Migrations.TableName} already exists, skipping.");
+            Logger.LogDebug($"The database table {Constants.Migrations.UmbracoAuthorizedServiceTokenTableName} already exists, skipping.");
         }
         else
         {

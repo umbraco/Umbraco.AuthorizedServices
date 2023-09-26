@@ -56,7 +56,7 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         AuthorizedRequestBuilder sut = CreateSut();
 
         // Act
-        HttpRequestMessage result = sut.CreateRequestMessageWithApiKey(serviceDetail, Path, HttpMethod.Post, data);
+        HttpRequestMessage result = sut.CreateRequestMessageWithApiKey(serviceDetail, Path, HttpMethod.Post, "abc", data);
 
         // Assert
         var expectedUri = new Uri("https://service.url/api/test?x-api-key=abc");
@@ -86,7 +86,7 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         AuthorizedRequestBuilder sut = CreateSut();
 
         // Act
-        HttpRequestMessage result = sut.CreateRequestMessageWithApiKey(serviceDetail, Path, HttpMethod.Post, data);
+        HttpRequestMessage result = sut.CreateRequestMessageWithApiKey(serviceDetail, Path, HttpMethod.Post, "abc", data);
 
         // Assert
         var expectedUri = new Uri("https://service.url/api/test");

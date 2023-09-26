@@ -33,12 +33,14 @@ public interface IAuthorizedRequestBuilder
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="path">The request path.</param>
     /// <param name="httpMethod">The HTTP method.</param>
+    /// <param name="apiKey">The authorization API key.</param>
     /// <param name="requestContent">The request data.</param>
     /// <returns>The request instance.</returns>
     HttpRequestMessage CreateRequestMessageWithApiKey<TRequest>(
         ServiceDetail serviceDetail,
         string path,
         HttpMethod httpMethod,
+        string apiKey,
         TRequest? requestContent)
         where TRequest : class;
 }

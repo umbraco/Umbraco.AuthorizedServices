@@ -14,11 +14,12 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         vm.isAuthorized = serviceData.isAuthorized;
         vm.authenticationMethod = serviceData.authenticationMethod;
         vm.canManuallyProvideToken = serviceData.canManuallyProvideToken;
+        vm.canManuallyProvideApiKey = serviceData.canManuallyProvideApiKey;
         vm.authorizationUrl = serviceData.authorizationUrl;
         vm.sampleRequest = serviceData.sampleRequest;
         vm.sampleRequestResponse = null;
         vm.settings = serviceData.settings;
-        vm.isApiKeyBasedAuthenticationMethod = serviceData.authenticationMethod === AuthenticationMethod.ApiKey;
+        vm.isOAuthBasedAuthenticationMethod = serviceData.authenticationMethod !== AuthenticationMethod.ApiKey;
       });
   }
 
@@ -62,6 +63,19 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         .then(function () {
           notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service access token has been saved.");
           inAccessToken.value = "";
+          loadServiceDetails(serviceAlias);
+        });
+    }
+  }
+
+  vm.saveApiKey = function () {
+    let inApiKey = <HTMLInputElement>document.getElementById("inApiKey");
+
+    if (inApiKey) {
+      authorizedServiceResource.saveApiKey(serviceAlias, inApiKey.value)
+        .then(function () {
+          notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service API key has been saved.");
+          inApiKey.value = "";
           loadServiceDetails(serviceAlias);
         });
     }
