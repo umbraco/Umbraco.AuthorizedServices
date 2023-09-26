@@ -81,25 +81,25 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         HttpRequestMessage requestMessage;
         if (serviceDetail.AuthenticationMethod == AuthenticationMethod.ApiKey)
         {
-            string? key = KeyStorage.GetKey(serviceAlias);
+            var apiKey = !string.IsNullOrEmpty(serviceDetail.ApiKey)
+                ? serviceDetail.ApiKey
+                : KeyStorage.GetKey(serviceAlias);
 
-            if (key is null && string.IsNullOrEmpty(serviceDetail.ApiKey))
+            if (string.IsNullOrWhiteSpace(apiKey))
             {
-                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
+                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no API key is configured or stored).");
             }
 
             requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(
                 serviceDetail,
                 path,
                 httpMethod,
-                !string.IsNullOrEmpty(serviceDetail.ApiKey)
-                    ? serviceDetail.ApiKey
-                    : (key ?? string.Empty),
+                apiKey,
                 requestContent);
         }
         else
         {
-            Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized.");
+            Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no access token is available).");
 
             token = await EnsureAccessToken(serviceAlias, token);
 
@@ -126,10 +126,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     public string? GetApiKey(string serviceAlias)
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
-        string? key = KeyStorage.GetKey(serviceAlias);
         return !string.IsNullOrEmpty(serviceDetail.ApiKey)
             ? serviceDetail.ApiKey
-            : key;
+            : KeyStorage.GetKey(serviceAlias);
     }
 
     public string? GetToken(string serviceAlias)
