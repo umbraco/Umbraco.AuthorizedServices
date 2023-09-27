@@ -10,6 +10,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuthorizedServiceAuthorizer
 {
     private readonly IAuthorizationParametersBuilder _authorizationParametersBuilder;
+    private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
 
     public AuthorizedServiceAuthorizer(
         AppCaches appCaches,
@@ -19,10 +20,12 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceAuthorizer> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
-        IAuthorizationParametersBuilder authorizationParametersBuilder)
+        IAuthorizationParametersBuilder authorizationParametersBuilder,
+        IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
         : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _authorizationParametersBuilder = authorizationParametersBuilder;
+        _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
     }
 
     public async Task<AuthorizationResult> AuthorizeOAuth2AuthorizationCodeServiceAsync(string serviceAlias, string authorizationCode, string redirectUri, string codeVerifier)
@@ -43,9 +46,22 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         return await SendRequest(serviceDetail, parameters);
     }
 
-    private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    public async Task<AuthorizationResult> ExchangeOAuth2AccessTokenAsync(string serviceAlias)
     {
-        HttpResponseMessage response = await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+
+        Token? token = GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
+
+        Dictionary<string, string> parameters = _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, token.AccessToken);
+
+        return await SendRequest(serviceDetail, parameters, true);
+    }
+
+    private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters, bool isExchangeTokenRequest = false)
+    {
+        HttpResponseMessage response = isExchangeTokenRequest
+            ? await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters)
+            : await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
         if (response.IsSuccessStatusCode)
         {
             Token token = await CreateTokenFromResponse(serviceDetail, response);

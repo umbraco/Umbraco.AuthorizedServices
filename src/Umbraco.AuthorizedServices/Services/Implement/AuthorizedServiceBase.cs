@@ -48,6 +48,8 @@ internal abstract class AuthorizedServiceBase
         return _tokenFactory.CreateFromResponseContent(responseContent, serviceDetail);
     }
 
+    protected Token? GetStoredToken(string serviceAlias) => TokenStorage.GetToken(serviceAlias);
+
     protected void StoreToken(string serviceAlias, Token token)
     {
         // Add the access token details to the cache.

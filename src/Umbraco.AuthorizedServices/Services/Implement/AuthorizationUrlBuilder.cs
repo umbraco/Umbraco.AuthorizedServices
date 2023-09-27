@@ -1,4 +1,3 @@
-using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Umbraco.AuthorizedServices.Configuration;

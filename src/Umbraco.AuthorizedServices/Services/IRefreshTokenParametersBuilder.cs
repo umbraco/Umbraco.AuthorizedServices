@@ -8,7 +8,7 @@ namespace Umbraco.AuthorizedServices.Services;
 public interface IRefreshTokenParametersBuilder
 {
     /// <summary>
-    /// Builds the the parameter dictionary used in token refresh requests.
+    /// Builds the parameter dictionary used in token refresh requests.
     /// </summary>
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="refreshToken">The refresh token.</param>

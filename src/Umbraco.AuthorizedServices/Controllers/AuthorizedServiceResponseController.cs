@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Extensions;
 using Umbraco.AuthorizedServices.Models;
@@ -14,16 +16,19 @@ public class AuthorizedServiceResponseController : UmbracoApiController
 {
     private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
     private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
+    private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceResponseController"/> class.
     /// </summary>
     public AuthorizedServiceResponseController(
         IAuthorizedServiceAuthorizer serviceAuthorizer,
-        IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache)
+        IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
+        IOptionsMonitor<ServiceDetail> serviceDetailOptions)
     {
         _serviceAuthorizer = serviceAuthorizer;
         _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
+        _serviceDetailOptions = serviceDetailOptions;
     }
 
     /// <summary>
@@ -52,11 +57,39 @@ public class AuthorizedServiceResponseController : UmbracoApiController
         _authorizedServiceAuthorizationPayloadCache.Remove(stateParts[0]);
         AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth2AuthorizationCodeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
 
+        // handle exchange
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(serviceAlias);
+        if (serviceDetail.CanExchangeToken)
+        {
+            return await HandleTokenExchange(serviceDetail);
+        }
+
         if (result.Success)
         {
             return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");
         }
 
         throw new AuthorizedServiceException("Failed to obtain access token");
+    }
+
+    /// <summary>
+    /// Handles the token exchange flow.
+    /// </summary>
+    /// <param name="serviceDetail">The service detail.</param>
+    private async Task<IActionResult> HandleTokenExchange(ServiceDetail serviceDetail)
+    {
+        if (serviceDetail.ExchangeTokenProvision is null)
+        {
+            throw new AuthorizedServiceException("Failed to retrieve exchange token provisioning.");
+        }
+
+        AuthorizationResult exchangeResult = await _serviceAuthorizer.ExchangeOAuth2AccessTokenAsync(serviceDetail.Alias);
+
+        if (exchangeResult.Success)
+        {
+            return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceDetail.Alias}");
+        }
+
+        throw new AuthorizedServiceException("Failed to exchange the access token.");
     }
 }

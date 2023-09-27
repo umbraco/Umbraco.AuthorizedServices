@@ -84,6 +84,27 @@ public class ApiKeyProvision
 }
 
 /// <summary>
+/// Defines the provisioning options for an API exchanging short lived tokens with long lived ones.
+/// </summary>
+public class ExchangeTokenProvision
+{
+    public string TokenHost { get; set;} = string.Empty;
+
+    public string RequestTokenPath { get; set;} = string.Empty;
+
+    public string TokenGrantType { get; set; } = string.Empty;
+
+    public string RequestRefreshTokenPath { get; set; } = string.Empty;
+
+    public string RefreshTokenGrantType { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the time interval for expiration of exchange tokens.
+    /// </summary>
+    public TimeSpan ExchangeTokenWhenExpiresWithin { get; set; } = TimeSpan.FromDays(30);
+}
+
+/// <summary>
 /// Defines the strongly typed configuration for a single service.
 /// </summary>
 public class ServiceSummary
@@ -208,6 +229,16 @@ public class ServiceDetail : ServiceSummary
     public bool UseProofKeyForCodeExchange { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether the OAuth flow should exchange the access token.
+    /// </summary>
+    public bool CanExchangeToken { get; set; }
+
+    /// <summary>
+    /// Gets or sets the provisioning options for exchanging token flow.
+    /// </summary>
+    public ExchangeTokenProvision? ExchangeTokenProvision { get; set; }
+
+    /// <summary>
     /// Gets or sets the key expected in the token response that identifies the access token.
     /// </summary>
     public string AccessTokenResponseKey { get; set; } = "access_token";
@@ -226,6 +257,11 @@ public class ServiceDetail : ServiceSummary
     /// Gets or sets the path to a GET request used as a sample for verifying the service in the backoffice.
     /// </summary>
     public string? SampleRequest { get; set; }
+
+    /// <summary>
+    /// Gets or sets the time interval for expiration of access tokens.
+    /// </summary>
+    public TimeSpan RefreshAccessTokenWhenExpiresWithin { get; set; } = TimeSpan.FromSeconds(30);
 
     internal string GetTokenHost() => string.IsNullOrWhiteSpace(TokenHost)
         ? IdentityHost

@@ -39,6 +39,31 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         return await httpClient.PostAsync(url, content);
     }
 
+    public async Task<HttpResponseMessage> SendExchangeRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    {
+        HttpClient httpClient = _authorizationClientFactory.CreateClient();
+
+        var url = serviceDetail.ExchangeTokenProvision is not null
+            ? string.Format(
+                "{0}{1}",
+                string.IsNullOrWhiteSpace(serviceDetail.ExchangeTokenProvision.TokenHost)
+                    ? serviceDetail.GetTokenHost()
+                    : serviceDetail.ExchangeTokenProvision.TokenHost,
+                string.IsNullOrWhiteSpace(serviceDetail.ExchangeTokenProvision.RequestTokenPath)
+                    ? serviceDetail.RequestTokenPath
+                    : serviceDetail.ExchangeTokenProvision.RequestTokenPath)
+            : serviceDetail.GetTokenHost() + serviceDetail.RequestTokenPath;
+
+        if (serviceDetail.ExchangeTokenProvision is null)
+        {
+            throw new ArgumentNullException(nameof(serviceDetail.ExchangeTokenProvision));
+        }
+
+        url += BuildAuthorizationQuerystring(parameters);
+
+        return await httpClient.GetAsync(url);
+    }
+
     private static string BuildAuthorizationQuerystring(Dictionary<string, string> parameters)
     {
         var qs = new StringBuilder();

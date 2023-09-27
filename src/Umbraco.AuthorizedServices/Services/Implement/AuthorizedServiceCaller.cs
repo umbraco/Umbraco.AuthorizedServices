@@ -16,6 +16,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     private readonly JsonSerializerFactory _jsonSerializerFactory;
     private readonly IAuthorizedRequestBuilder _authorizedRequestBuilder;
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
+    private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
 
     public AuthorizedServiceCaller(
         AppCaches appCaches,
@@ -28,13 +29,15 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         IHttpClientFactory httpClientFactory,
         JsonSerializerFactory jsonSerializerFactory,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
-        IRefreshTokenParametersBuilder refreshTokenParametersBuilder)
+        IRefreshTokenParametersBuilder refreshTokenParametersBuilder,
+        IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
         : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
         _jsonSerializerFactory = jsonSerializerFactory;
         _authorizedRequestBuilder = authorizedRequestBuilder;
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
+        _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
     }
 
     public async Task SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
@@ -101,7 +104,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         {
             Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no access token is available).");
 
-            token = await EnsureAccessToken(serviceAlias, token);
+            token = serviceDetail.CanExchangeToken
+                ? await EnsureExchangeAccessToken(serviceAlias, token)
+                : await EnsureAccessToken(serviceAlias, token);
 
             requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithToken(serviceDetail, path, httpMethod, token, requestContent);
         }
@@ -139,22 +144,17 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
     private async Task<Token> EnsureAccessToken(string serviceAlias, Token token)
     {
-        if (token.HasOrIsAboutToExpire)
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+        if (token.WillBeExpiredAfter(serviceDetail.RefreshAccessTokenWhenExpiresWithin))
         {
             if (string.IsNullOrEmpty(token.RefreshToken))
             {
                 ClearAccessToken(serviceAlias);
-                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and no refresh token is available to use. The expired token has been deleted.");
+                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expire and no refresh token is available to use. The expired token has been deleted.");
             }
 
-            Token? refreshedToken = await RefreshAccessToken(serviceAlias, token.RefreshToken);
-
-            if (refreshedToken == null)
-            {
-                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has expired and the refresh token could not be used to obtain a new access token.");
-            }
-
-            return refreshedToken;
+            return await RefreshAccessToken(serviceAlias, token.RefreshToken)
+                ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expired and the refresh token could not be used to obtain a new access token.");
         }
 
         return token;
@@ -170,15 +170,49 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         if (response.IsSuccessStatusCode)
         {
             Token token = await CreateTokenFromResponse(serviceDetail, response);
-
             StoreToken(serviceAlias, token);
-
             return token;
         }
         else
         {
             throw new AuthorizedServiceHttpException(
                 $"Error response from refresh token request to '{serviceAlias}'.",
+                response.StatusCode,
+                response.ReasonPhrase,
+                await response.Content.ReadAsStringAsync());
+        }
+    }
+
+    private async Task<Token> EnsureExchangeAccessToken(string serviceAlias, Token token)
+    {
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+        if (serviceDetail.ExchangeTokenProvision is not null
+            && token.WillBeExpiredAfter(serviceDetail.ExchangeTokenProvision.ExchangeTokenWhenExpiresWithin))
+        {
+            return await RefreshExchangeAccessToken(serviceAlias, token.AccessToken)
+                ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token will expire and it's not been possible to exchange it for a new access token.");
+        }
+
+        return token;
+    }
+
+    private async Task<Token?> RefreshExchangeAccessToken(string serviceAlias, string accessToken)
+    {
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+
+        Dictionary<string, string> parameters = _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, accessToken);
+
+        HttpResponseMessage response = await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters);
+        if (response.IsSuccessStatusCode)
+        {
+            Token token = await CreateTokenFromResponse(serviceDetail, response);
+            StoreToken(serviceAlias, token);
+            return token;
+        }
+        else
+        {
+            throw new AuthorizedServiceHttpException(
+                $"Error response from exchange access token request to '{serviceAlias}'.",
                 response.StatusCode,
                 response.ReasonPhrase,
                 await response.Content.ReadAsStringAsync());

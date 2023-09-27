@@ -279,7 +279,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             new TestHttpClientFactory(statusCode, responseContent),
             factory,
             new AuthorizedRequestBuilder(factory),
-            new RefreshTokenParametersBuilder());
+            new RefreshTokenParametersBuilder(),
+            new ExchangeTokenParametersBuilder());
     }
 
     private class TestHttpClientFactory : IHttpClientFactory
