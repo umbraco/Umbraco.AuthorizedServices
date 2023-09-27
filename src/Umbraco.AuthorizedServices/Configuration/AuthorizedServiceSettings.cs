@@ -97,6 +97,11 @@ public class ExchangeTokenProvision
     public string RequestRefreshTokenPath { get; set; } = string.Empty;
 
     public string RefreshTokenGrantType { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the time interval for expiration of exchange tokens.
+    /// </summary>
+    public TimeSpan ExchangeTokenWhenExpiresWithin { get; set; } = TimeSpan.FromDays(30);
 }
 
 /// <summary>
@@ -256,12 +261,7 @@ public class ServiceDetail : ServiceSummary
     /// <summary>
     /// Gets or sets the time interval for expiration of access tokens.
     /// </summary>
-    public TimeSpan AccessTokenExpirationInterval { get; set; } = TimeSpan.FromSeconds(30);
-
-    /// <summary>
-    /// Gets or sets the time interval for expiration of exchange tokens.
-    /// </summary>
-    public TimeSpan ExchangeTokenExpirationInterval { get; set; } = TimeSpan.FromDays(30);
+    public TimeSpan RefreshAccessTokenWhenExpiresWithin { get; set; } = TimeSpan.FromSeconds(30);
 
     internal string GetTokenHost() => string.IsNullOrWhiteSpace(TokenHost)
         ? IdentityHost
