@@ -15,14 +15,15 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     public AuthorizedServiceAuthorizer(
         AppCaches appCaches,
         ITokenFactory tokenFactory,
-        ITokenStorage tokenStorage,
+        ITokenStorage<Token> tokenStorage,
+        ITokenStorage<OAuth1aToken> oauth1aTokenStorage,
         IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceAuthorizer> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IAuthorizationParametersBuilder authorizationParametersBuilder,
         IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
+        : base(appCaches, tokenFactory, tokenStorage, oauth1aTokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _authorizationParametersBuilder = authorizationParametersBuilder;
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
@@ -57,16 +58,36 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         return await SendRequest(serviceDetail, parameters, true);
     }
 
+    public async Task<AuthorizationResult> AuthorizeOAuth1ServiceAsync(string serviceAlias, string oauthToken, string oauthVerifier)
+    {
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+
+        return await SendRequest(serviceDetail, new Dictionary<string, string>
+        {
+            { "oauth_token", oauthToken },
+            { "oauth_verifier", oauthVerifier }
+        });
+    }
+
     private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters, bool isExchangeTokenRequest = false)
     {
-        HttpResponseMessage response = isExchangeTokenRequest
-            ? await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters)
-            : await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
+        HttpResponseMessage response = serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1
+            ? await AuthorizationRequestSender.SendOAuth1aRequest(serviceDetail, parameters)
+            : (isExchangeTokenRequest
+                    ? await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters)
+                    : await AuthorizationRequestSender.SendRequest(serviceDetail, parameters));
         if (response.IsSuccessStatusCode)
         {
-            Token token = await CreateTokenFromResponse(serviceDetail, response);
-
-            StoreToken(serviceDetail.Alias, token);
+            if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
+            {
+                OAuth1aToken token = await CreateOAuth1aTokenFromResponse(serviceDetail, response);
+                StoreOAuth1aToken(serviceDetail.Alias, token);
+            }
+            else
+            {
+                Token token = await CreateTokenFromResponse(serviceDetail, response);
+                StoreToken(serviceDetail.Alias, token);
+            }
 
             return AuthorizationResult.AsSuccess();
         }

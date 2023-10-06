@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 
 namespace Umbraco.AuthorizedServices.Tests.Services;
@@ -8,7 +9,8 @@ internal abstract class AuthorizedServiceTestsBase
 {
     protected const string ServiceAlias = "testService";
 
-    protected Mock<ITokenStorage> TokenStorageMock { get; set; } = null!;
+    protected Mock<ITokenStorage<Token>> TokenStorageMock { get; set; } = null!;
+    protected Mock<ITokenStorage<OAuth1aToken>> OAuth1aTokenStorageMock { get; set; } = null!;
 
     protected Mock<IKeyStorage> KeyStorageMock { get; set; } = null!;
 

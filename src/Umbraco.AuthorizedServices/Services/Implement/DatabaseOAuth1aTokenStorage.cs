@@ -8,44 +8,40 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 /// <summary>
 /// Implements <see cref="ITokenStorage{T}"/> for token storage using a database table.
 /// </summary>
-internal sealed class DatabaseTokenStorage : DatabaseAuthorizationParameterStorageBase, ITokenStorage<Token>
+internal sealed class DatabaseOAuth1aTokenStorage : DatabaseAuthorizationParameterStorageBase, ITokenStorage<OAuth1aToken>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DatabaseTokenStorage"/> class.
     /// </summary>
-    public DatabaseTokenStorage(IScopeProvider scopeProvider, ISecretEncryptor encryptor, ILogger<DatabaseTokenStorage> logger)
+    public DatabaseOAuth1aTokenStorage(IScopeProvider scopeProvider, ISecretEncryptor encryptor, ILogger<DatabaseTokenStorage> logger)
         : base(scopeProvider, encryptor, logger)
     {
     }
 
     /// <inheritdoc/>
-    public Token? GetToken(string serviceAlias)
+    public OAuth1aToken? GetToken(string serviceAlias)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        TokenDto entity = scope.Database.FirstOrDefault<TokenDto>("where serviceAlias = @0", serviceAlias);
+        OAuth1aTokenDto entity = scope.Database.FirstOrDefault<OAuth1aTokenDto>("where serviceAlias = @0", serviceAlias);
         if (entity == null)
         {
             return null;
         }
 
-        if (!Encryptor.TryDecrypt(entity.AccessToken, out string accessToken))
+        if (!Encryptor.TryDecrypt(entity.OAuthToken, out string oauthToken))
         {
             RemoveCorruptToken(serviceAlias, "access");
             return null;
         }
 
-        var refreshToken = string.Empty;
-        if (!string.IsNullOrEmpty(entity.RefreshToken))
+        if (!Encryptor.TryDecrypt(entity.OAuthTokenSecret, out string oauthTokenSecret))
         {
-            if (!Encryptor.TryDecrypt(entity.RefreshToken, out refreshToken))
-            {
-                RemoveCorruptToken(serviceAlias, "refresh");
-                return null;
-            }
+            RemoveCorruptToken(serviceAlias, "secret");
+            return null;
         }
 
-        return new Token(accessToken, refreshToken, entity.ExpiresOn);
+        return new OAuth1aToken(oauthToken, oauthTokenSecret);
     }
 
     private void RemoveCorruptToken(string serviceAlias, string tokenType)
@@ -55,20 +51,17 @@ internal sealed class DatabaseTokenStorage : DatabaseAuthorizationParameterStora
     }
 
     /// <inheritdoc/>
-    public void SaveToken(string serviceAlias, Token token)
+    public void SaveToken(string serviceAlias, OAuth1aToken token)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        TokenDto entity = scope.Database.SingleOrDefault<TokenDto>("where serviceAlias = @0", serviceAlias);
+        OAuth1aTokenDto entity = scope.Database.SingleOrDefault<OAuth1aTokenDto>("where serviceAlias = @0", serviceAlias);
 
         bool insert = entity == null;
-        entity ??= new TokenDto { ServiceAlias = serviceAlias };
+        entity ??= new OAuth1aTokenDto { ServiceAlias = serviceAlias };
 
-        entity.AccessToken = Encryptor.Encrypt(token.AccessToken);
-        entity.RefreshToken = !string.IsNullOrEmpty(token.RefreshToken)
-            ? Encryptor.Encrypt(token.RefreshToken)
-            : string.Empty;
-        entity.ExpiresOn = token.ExpiresOn;
+        entity.OAuthToken = Encryptor.Encrypt(token.OAuthToken);
+        entity.OAuthTokenSecret = Encryptor.Encrypt(token.OAuthTokenSecret);
 
         if (insert)
         {
@@ -87,7 +80,7 @@ internal sealed class DatabaseTokenStorage : DatabaseAuthorizationParameterStora
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        TokenDto entity = scope.Database.Single<TokenDto>("where serviceAlias = @0", serviceAlias);
+        OAuth1aTokenDto entity = scope.Database.Single<OAuth1aTokenDto>("where serviceAlias = @0", serviceAlias);
 
         scope.Database.Delete(entity);
 

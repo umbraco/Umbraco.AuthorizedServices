@@ -5,7 +5,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 /// <summary>
 /// Implements <see cref="ITokenStorage"/> for token storage using in memory storage.
 /// </summary>
-internal sealed class InMemoryTokenStorage : ITokenStorage
+internal sealed class InMemoryTokenStorage : ITokenStorage<Token>
 {
     private static readonly Dictionary<string, Token> _tokens = new Dictionary<string, Token>();
 

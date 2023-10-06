@@ -20,6 +20,8 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         vm.sampleRequestResponse = null;
         vm.settings = serviceData.settings;
         vm.isOAuthBasedAuthenticationMethod = serviceData.authenticationMethod !== AuthenticationMethod.ApiKey;
+      }, function (ex) {
+        notificationsService.error("Authorized Services", ex.data.ExceptionMessage);
       });
   }
 

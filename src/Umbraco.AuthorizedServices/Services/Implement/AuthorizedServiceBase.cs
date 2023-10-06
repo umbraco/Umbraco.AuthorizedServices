@@ -15,7 +15,8 @@ internal abstract class AuthorizedServiceBase
     public AuthorizedServiceBase(
         AppCaches appCaches,
         ITokenFactory tokenFactory,
-        ITokenStorage tokenStorage,
+        ITokenStorage<Token> tokenStorage,
+        ITokenStorage<OAuth1aToken> oauth1aTokenStorage,
         IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger logger,
@@ -24,6 +25,7 @@ internal abstract class AuthorizedServiceBase
         AppCaches = appCaches;
         _tokenFactory = tokenFactory;
         TokenStorage = tokenStorage;
+        OAuth1aTokenStorage = oauth1aTokenStorage;
         KeyStorage = keyStorage;
         AuthorizationRequestSender = authorizationRequestSender;
         Logger = logger;
@@ -32,7 +34,9 @@ internal abstract class AuthorizedServiceBase
 
     protected AppCaches AppCaches { get; }
 
-    protected ITokenStorage TokenStorage { get; }
+    protected ITokenStorage<Token> TokenStorage { get; }
+
+    protected ITokenStorage<OAuth1aToken> OAuth1aTokenStorage { get; }
 
     protected IKeyStorage KeyStorage { get; }
 
@@ -48,6 +52,12 @@ internal abstract class AuthorizedServiceBase
         return _tokenFactory.CreateFromResponseContent(responseContent, serviceDetail);
     }
 
+    protected async Task<OAuth1aToken> CreateOAuth1aTokenFromResponse(ServiceDetail serviceDetail, HttpResponseMessage response)
+    {
+        var responseContent = await response.Content.ReadAsStringAsync();
+        return _tokenFactory.CreateFromOAuth1aResponseContent(responseContent, serviceDetail);
+    }
+
     protected Token? GetStoredToken(string serviceAlias) => TokenStorage.GetToken(serviceAlias);
 
     protected void StoreToken(string serviceAlias, Token token)
@@ -58,6 +68,12 @@ internal abstract class AuthorizedServiceBase
 
         // Save the refresh token into the storage.
         TokenStorage.SaveToken(serviceAlias, token);
+    }
+
+    protected void StoreOAuth1aToken(string serviceAlias, OAuth1aToken token)
+    {
+        // Save the token information into the storage.
+        OAuth1aTokenStorage.SaveToken(serviceAlias, token);
     }
 
     private static string GetTokenCacheKey(string serviceAlias) => $"Umbraco_AuthorizedServiceToken_{serviceAlias}";

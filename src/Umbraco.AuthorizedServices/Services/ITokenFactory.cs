@@ -15,4 +15,12 @@ public interface ITokenFactory
     /// <param name="serviceDetail">The service detail.</param>
     /// <returns>The <see cref="Token"/> instance.</returns>
     Token CreateFromResponseContent(string responseContent, ServiceDetail serviceDetail);
+
+    /// <summary>
+    /// Creates a <see cref="OAuth1aToken"/> instance from an authorization response.
+    /// </summary>
+    /// <param name="responseContent">The response content.</param>
+    /// <param name="serviceDetail">The service detail.</param>
+    /// <returns>The <see cref="OAuth1aToken"/> instance.</returns>
+    OAuth1aToken CreateFromOAuth1aResponseContent(string responseContent, ServiceDetail serviceDetail);
 }

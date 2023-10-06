@@ -43,4 +43,38 @@ public interface IAuthorizedRequestBuilder
         string apiKey,
         TRequest? requestContent)
         where TRequest : class;
+
+    /// <summary>
+    /// Creates a request to an authorized service for a request token in an OAuth1a flow.
+    /// </summary>
+    /// <typeparam name="TRequest">The typed request data.</typeparam>
+    /// <param name="serviceDetail">The service detail.</param>
+    /// <param name="url">The request path.</param>
+    /// <param name="httpMethod">The HTTP method.</param>
+    /// <param name="requestContent">The request data.</param>
+    /// <returns>The request instance.</returns>
+    HttpRequestMessage CreateIdentityRequestMessage<TRequest>(
+        ServiceDetail serviceDetail,
+        string url,
+        HttpMethod httpMethod,
+        TRequest? requestContent)
+        where TRequest : class;
+
+    /// <summary>
+    /// Creates an request to an authorized service using OAuth1a flow.
+    /// </summary>
+    /// <typeparam name="TRequest">The typed request data.</typeparam>
+    /// <param name="serviceDetail">The service detail.</param>
+    /// <param name="path">The request path.</param>
+    /// <param name="httpMethod">The HTTP method.</param>
+    /// <param name="oAuth1aToken">The authorization token.</param>
+    /// <param name="requestContent">The request data.</param>
+    /// <returns>The request instance.</returns>
+    HttpRequestMessage CreateRequestMessageWithOAuth1aToken<TRequest>(
+        ServiceDetail serviceDetail,
+        string path,
+        HttpMethod httpMethod,
+        OAuth1aToken oAuth1aToken,
+        TRequest? requestContent)
+        where TRequest : class;
 }

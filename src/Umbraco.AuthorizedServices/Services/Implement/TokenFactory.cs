@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Linq;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
@@ -31,5 +32,15 @@ internal sealed class TokenFactory : ITokenFactory
         }
 
         return new Token(accessToken, refreshToken, expiresOn);
+    }
+
+    public OAuth1aToken CreateFromOAuth1aResponseContent(string responseContent, ServiceDetail serviceDetail)
+    {
+        if (!responseContent.TryParseOAuth1aResponse(out var oauthToken, out var oauthTokenSecret))
+        {
+            throw new InvalidOperationException($"Invalid response content: {responseContent}");
+        }
+
+        return new OAuth1aToken(oauthToken, oauthTokenSecret);
     }
 }

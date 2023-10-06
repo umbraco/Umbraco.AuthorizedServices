@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Manifests;
+using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Composing;
@@ -45,6 +46,7 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IAuthorizationRequestSender, AuthorizationRequestSender>();
         builder.Services.AddUnique<IAuthorizedServiceAuthorizer, AuthorizedServiceAuthorizer>();
         builder.Services.AddUnique<IAuthorizationUrlBuilder, AuthorizationUrlBuilder>();
+        builder.Services.AddUnique<IOAuth1aAuthorizationUrlBuilder, OAuth1aAuthorizationUrlBuilder>();
         builder.Services.AddUnique<IAuthorizedRequestBuilder, AuthorizedRequestBuilder>();
 
         builder.Services.AddUnique<IAuthorizedServiceCaller, AuthorizedServiceCaller>();
@@ -57,9 +59,13 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncryptor>();
 
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
-        builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
+        builder.Services.AddUnique<ITokenStorage<Token>, DatabaseTokenStorage>();
+        builder.Services.AddUnique<ITokenStorage<OAuth1aToken>, DatabaseOAuth1aTokenStorage>();
         builder.Services.AddUnique<IKeyStorage, DatabaseKeyStorage>();
+        builder.Services.AddUnique<ITokenCache, TokenCache>();
 
         builder.Services.AddSingleton<JsonSerializerFactory>();
+
+        builder.Services.AddHttpContextAccessor();
     }
 }

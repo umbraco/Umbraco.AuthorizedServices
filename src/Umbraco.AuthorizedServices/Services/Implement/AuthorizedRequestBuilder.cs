@@ -1,8 +1,10 @@
 using System.Collections.Specialized;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Serialization;
 
@@ -94,5 +96,57 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
     {
         requestMessage.Headers.UserAgent.Add(new ProductInfoHeaderValue("UmbracoServiceIntegration", "1.0.0"));
         requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    }
+
+    public HttpRequestMessage CreateIdentityRequestMessage<TRequest>(ServiceDetail serviceDetail, string url, HttpMethod httpMethod, TRequest? requestContent) where TRequest : class
+    {
+        HttpRequestMessage requestMessage = CreateRequestMessage(
+            httpMethod,
+            new Uri(url),
+            GetRequestContent(serviceDetail, requestContent));
+        AddCommonHeaders(requestMessage);
+
+        return requestMessage;
+    }
+
+    public HttpRequestMessage CreateRequestMessageWithOAuth1aToken<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, OAuth1aToken oauth1aToken, TRequest? requestContent) where TRequest : class
+    {
+        var url = serviceDetail.ApiHost + path;
+
+        var nonce = OAuth1aHelper.GetNonce();
+        var timestamp = OAuth1aHelper.GetTimestamp();
+
+        var authorizationParams =
+            new Dictionary<string, string>
+            {
+                { "oauth_consumer_key", serviceDetail.ClientId },
+                { "oauth_nonce", nonce },
+                { "oauth_signature_method", "HMAC-SHA1" },
+                { "oauth_timestamp", timestamp },
+                { "oauth_token", oauth1aToken.OAuthToken },
+                { "oauth_version", "1.0" }
+            };
+
+        var signature = OAuth1aHelper.GetAuthorizedSignature(
+            httpMethod.Method.ToUpper(),
+            url,
+            serviceDetail.ClientSecret,
+            oauth1aToken,
+            authorizationParams);
+
+        url += "?oauth_consumer_key=" + serviceDetail.ClientId
+            + "&oauth_nonce" + nonce
+            + "&oauth_signature=" + Uri.EscapeDataString(signature)
+            + "&oauth_signature_method=HMAC-SHA1"
+            + "&oauth_timestamp" + timestamp
+            + "&oauth_token" + oauth1aToken.OAuthToken
+            + "&oauth_version=1.0";
+
+        HttpRequestMessage requestMessage = CreateRequestMessage(
+            httpMethod,
+            new Uri(url),
+            GetRequestContent(serviceDetail, requestContent));
+        AddCommonHeaders(requestMessage);
+        return requestMessage;
     }
 }

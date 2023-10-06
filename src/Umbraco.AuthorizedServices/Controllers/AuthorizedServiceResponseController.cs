@@ -17,6 +17,7 @@ public class AuthorizedServiceResponseController : UmbracoApiController
     private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
     private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
     private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
+    private readonly ITokenCache _tokenCache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceResponseController"/> class.
@@ -24,11 +25,13 @@ public class AuthorizedServiceResponseController : UmbracoApiController
     public AuthorizedServiceResponseController(
         IAuthorizedServiceAuthorizer serviceAuthorizer,
         IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
-        IOptionsMonitor<ServiceDetail> serviceDetailOptions)
+        IOptionsMonitor<ServiceDetail> serviceDetailOptions,
+        ITokenCache tokenCache)
     {
         _serviceAuthorizer = serviceAuthorizer;
         _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
         _serviceDetailOptions = serviceDetailOptions;
+        _tokenCache = tokenCache;
     }
 
     /// <summary>
@@ -64,6 +67,27 @@ public class AuthorizedServiceResponseController : UmbracoApiController
             return await HandleTokenExchange(serviceDetail);
         }
 
+        if (result.Success)
+        {
+            return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");
+        }
+
+        throw new AuthorizedServiceException("Failed to obtain access token");
+    }
+
+    /// <summary>
+    /// Handles the retuning message for OAuth1a authorization flow with an external service.
+    /// </summary>
+    /// <param name="oauth_token">The oauth_token.</param>
+    /// <param name="oauth_verifier">The oauth_verifier.</param>
+    /// <returns></returns>
+    /// <exception cref="AuthorizedServiceException"></exception>
+    public async Task<IActionResult> HandleOAuth1IdentityResponse(string oauth_token, string oauth_verifier)
+    {
+        var serviceAlias = _tokenCache.GetByValue(oauth_token)
+            ?? throw new AuthorizedServiceException("No cached service with the specified token was found.");
+
+        AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth1ServiceAsync(serviceAlias, oauth_token, oauth_verifier);
         if (result.Success)
         {
             return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");

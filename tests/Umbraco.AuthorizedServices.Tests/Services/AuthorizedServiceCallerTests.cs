@@ -17,7 +17,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     [SetUp]
     public void SetUp()
     {
-        TokenStorageMock = new Mock<ITokenStorage>();
+        TokenStorageMock = new Mock<ITokenStorage<Token>>();
         KeyStorageMock = new Mock<IKeyStorage>();
     }
 
@@ -253,6 +253,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthenticationMethod authenticationMethod = AuthenticationMethod.OAuth2AuthorizationCode,
         bool withConfiguredApiKey = false)
     {
+        var oauth1aAuthorizationUrlBuilder = new Mock<IOAuth1aAuthorizationUrlBuilder>();
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
 
         // Setup refresh token response.
@@ -272,12 +273,14 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             AppCaches.Disabled,
             new TokenFactory(new DateTimeProvider()),
             TokenStorageMock.Object,
+            OAuth1aTokenStorageMock.Object,
             KeyStorageMock.Object,
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceCaller>(),
             optionsMonitorServiceDetailMock.Object,
             new TestHttpClientFactory(statusCode, responseContent),
             factory,
+            oauth1aAuthorizationUrlBuilder.Object,
             new AuthorizedRequestBuilder(factory),
             new RefreshTokenParametersBuilder(),
             new ExchangeTokenParametersBuilder());

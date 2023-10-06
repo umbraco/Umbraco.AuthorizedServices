@@ -64,6 +64,17 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         return await httpClient.GetAsync(url);
     }
 
+    public async Task<HttpResponseMessage> SendOAuth1aRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    {
+        HttpClient httpClient = _authorizationClientFactory.CreateClient();
+
+        var url = serviceDetail.IdentityHost + serviceDetail.RequestTokenPath
+            + "?oauth_token=" + parameters[Constants.OAuth1a.OAuthToken]
+            + "&oauth_verifier=" + parameters[Constants.OAuth1a.OAuthVerifier];
+
+        return await httpClient.PostAsync(url, null);
+    }
+
     private static string BuildAuthorizationQuerystring(Dictionary<string, string> parameters)
     {
         var qs = new StringBuilder();

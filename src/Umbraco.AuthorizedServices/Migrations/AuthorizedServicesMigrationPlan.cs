@@ -22,5 +22,6 @@ public class AuthorizedServicesMigrationPlan : PackageMigrationPlan
     {
         To<AddDatabaseTokenStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceTokenTargetState);
         To<AddDatabaseKeyStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceKeyTargetState);
+        To<AddDatabaseOAuth1aTokenStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceOAuth1aTargetState);
     }
 }

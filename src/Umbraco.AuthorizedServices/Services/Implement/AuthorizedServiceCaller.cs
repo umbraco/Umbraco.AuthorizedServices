@@ -14,6 +14,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly JsonSerializerFactory _jsonSerializerFactory;
+    private readonly IOAuth1aAuthorizationUrlBuilder _oauth1aAuthorizationUrlBuilder;
     private readonly IAuthorizedRequestBuilder _authorizedRequestBuilder;
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
     private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
@@ -21,20 +22,23 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     public AuthorizedServiceCaller(
         AppCaches appCaches,
         ITokenFactory tokenFactory,
-        ITokenStorage tokenStorage,
+        ITokenStorage<Token> tokenStorage,
+        ITokenStorage<OAuth1aToken> oauth1aTokenStorage,
         IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceCaller> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IHttpClientFactory httpClientFactory,
         JsonSerializerFactory jsonSerializerFactory,
+        IOAuth1aAuthorizationUrlBuilder oauth1aAuthorizationUrlBuilder,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder,
         IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
+        : base(appCaches, tokenFactory, tokenStorage, oauth1aTokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
         _jsonSerializerFactory = jsonSerializerFactory;
+        _oauth1aAuthorizationUrlBuilder = oauth1aAuthorizationUrlBuilder;
         _authorizedRequestBuilder = authorizedRequestBuilder;
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
@@ -99,6 +103,20 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
                 httpMethod,
                 apiKey,
                 requestContent);
+        }
+        else if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
+        {
+            OAuth1aToken? token = GetOAuth1aToken(serviceAlias);
+            if (token is null)
+            {
+                // No token exists, query the service for a request_token.
+                var url = _oauth1aAuthorizationUrlBuilder.BuildRequestTokenUrl(serviceDetail, httpMethod);
+                requestMessage = _authorizedRequestBuilder.CreateIdentityRequestMessage(serviceDetail, url, httpMethod, requestContent);
+            }
+            else
+            {
+                requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithOAuth1aToken(serviceDetail, path, httpMethod, token, requestContent);
+            }
         }
         else
         {
@@ -239,6 +257,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
         return null;
     }
+
+    private OAuth1aToken? GetOAuth1aToken(string serviceAlias) => OAuth1aTokenStorage.GetToken(serviceAlias);
 
     private void ClearAccessToken(string serviceAlias)
     {

@@ -22,4 +22,6 @@ public interface IAuthorizationRequestSender
     /// <param name="parameters">The authorization parameters.</param>
     /// <returns>A <see cref="Task{HttpResponseMessage}"/> representing the result of the asynchronous operation.</returns>
     Task<HttpResponseMessage> SendExchangeRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
+
+    Task<HttpResponseMessage> SendOAuth1aRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
 }
