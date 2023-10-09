@@ -64,8 +64,8 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
 
         return await SendRequest(serviceDetail, new Dictionary<string, string>
         {
-            { "oauth_token", oauthToken },
-            { "oauth_verifier", oauthVerifier }
+            { Constants.OAuth1a.OAuthToken , oauthToken },
+            { Constants.OAuth1a.OAuthVerifier, oauthVerifier }
         });
     }
 

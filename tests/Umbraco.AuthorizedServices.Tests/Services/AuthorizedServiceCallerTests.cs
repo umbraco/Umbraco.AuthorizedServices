@@ -18,6 +18,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public void SetUp()
     {
         TokenStorageMock = new Mock<ITokenStorage<Token>>();
+        OAuth1aTokenStorageMock = new Mock<ITokenStorage<OAuth1aToken>>();
         KeyStorageMock = new Mock<IKeyStorage>();
     }
 

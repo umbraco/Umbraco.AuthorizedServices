@@ -92,7 +92,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         {
             var response = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.RequestAuthorizationPath, HttpMethod.Post);
 
-            if (response is not null && response.TryParseOAuth1aResponse(out var oauthToken, out var oauthTokenSecret))
+            if (response is not null && response.TryParseOAuth1aResponse(out var oauthToken, out _))
             {
                 _tokenCache.Save(serviceDetail.Alias, oauthToken);
 

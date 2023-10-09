@@ -16,7 +16,13 @@ public class OAuth1aToken
         OAuthTokenSecret = oauthTokenSecret;
     }
 
+    /// <summary>
+    /// Gets or sets the OAuth token.
+    /// </summary>
     public string OAuthToken { get; set; }
 
+    /// <summary>
+    /// Gets or sets the OAuth token secret.
+    /// </summary>
     public string OAuthTokenSecret { get; set; }
 }

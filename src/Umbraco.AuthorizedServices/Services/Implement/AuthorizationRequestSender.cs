@@ -69,8 +69,8 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
         var url = serviceDetail.IdentityHost + serviceDetail.RequestTokenPath
-            + "?oauth_token=" + parameters[Constants.OAuth1a.OAuthToken]
-            + "&oauth_verifier=" + parameters[Constants.OAuth1a.OAuthVerifier];
+            + $"?{Constants.OAuth1a.OAuthToken}=" + parameters[Constants.OAuth1a.OAuthToken]
+            + $"&{Constants.OAuth1a.OAuthVerifier}=" + parameters[Constants.OAuth1a.OAuthVerifier];
 
         return await httpClient.PostAsync(url, null);
     }
