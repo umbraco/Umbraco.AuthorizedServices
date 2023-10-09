@@ -65,15 +65,34 @@ Details of services available need to be applied to the Umbraco web application'
         {
           "<serviceAlias>": {
             "DisplayName": "",
+            "AuthenticationMethod": "",
+            "ClientCredentialsProvision": "",
             "ApiHost": "",
             "IdentityHost": "",
             "TokenHost": "",
             "RequestIdentityPath": "",
+            "CanManuallyProvideToken": true|false,
+            "CanManuallyProvideApiKey": true|false,
+            "CanExchangeToken": true|false,
+            "ExchangeTokenProvision": {
+              "TokenHost": "",
+              "RequestTokenPath": "",
+              "TokenGrantType": "",
+              "RequestRefreshTokenPath": "",
+              "RefreshTokenGrantType": "",
+              "ExchangeTokenWhenExpiresWithin": ""
+            },
             "AuthorizationUrlRequiresRedirectUrl": true|false,
             "RequestTokenPath": "",
+            "RequestAuthorizationPath": "",
             "JsonSerializer": "",
             "RequestTokenFormat": "",
             "AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken": true|false,
+            "ApiKey": "",
+            "ApiKeyProvision": {
+              "Method": "",
+              "Key": ""
+            },
             "ClientId": "",
             "ClientSecret": "",
             "UseProofKeyForCodeExchange": true|false,
@@ -81,7 +100,8 @@ Details of services available need to be applied to the Umbraco web application'
             "AccessTokenResponseKey": "access_token",
             "RefreshTokenResponseKey": "refresh_token",
             "ExpiresInResponseKey": "expires_in",
-            "SampleRequest": ""
+            "SampleRequest": "",
+            "RefreshAccessTokenWhenExpiresWithin": ""
         }
       }
     }
@@ -111,6 +131,16 @@ The value contains the following elements:
 
 Provides a friendly name for the service used for identification in the user interface.
 
+###### AuthenticationMethod
+
+Specifies the type of authentication the service will use, from one of the following available options: `OAuth1`, `OAuth2AuthorizationCode`, `OAuth2ClientCredentials` or `ApiKey`.
+
+If none provided, it will default to `OAuth2AuthorizationCode`.
+
+###### ClientCredentialsProvision
+
+Specifies the available options for providing credentials in an `OAuth2` flow: `AuthHeader` or `RequestBody`.
+
 ###### ApiHost *
 
 The host name for the service API that will be called to deliver business functionality.  E.g. for Github this is `https://api.github.com`.
@@ -127,6 +157,29 @@ Some providers make available a separately hosted service for handling requests 
 
 Used, along with `IdentityHost` to construct a URL that the user is redirected to when initiating the authorization of the service via the backoffice. For GitHub, the required value is `/login/oauth/authorize`.
 
+###### CanManuallyProvideToken
+
+Specifies whether an administrator can manually add tokens.
+
+###### CanManuallyProvideApiKey
+
+Specifies whether an administrator can manually add API keys.
+
+###### CanExchangeToken
+
+Specifies whether the access token can be exchanged with a long lived one.
+
+###### ExchangeTokenProvision
+
+Provides a strongly typed configuration for a setup that allows exchanging an access token. 
+In this case the configuration includes:
+- `TokenHost`
+- `RequestTokenPath`
+- `TokenGrantType`
+- `RequestRefreshTokenPath`
+- `RefreshTokenGrantType`
+- `ExchangeTokenWhenExpiresWithin` 
+
 ###### AuthorizationUrlRequiresRedirectUrl
 
 Some providers require a redirect URL to be provided with the authentication request. For others, instead it's necessary to configure this as part of the registered app. The default value if not provided via configuration is `false`, which is sufficient for the GitHub example.
@@ -138,6 +191,10 @@ Used, along with `TokenHost` to construct a URL used for retrieving access token
 ###### RequestTokenFormat
 
 An enum value that controls how the request to retrieve an access token is formatted. Options are `Querystring` and `FormUrlEncoded`. `Querystring` is the default value and is used for GitHub.
+
+###### RequestAuthorizationPath
+
+Required in `OAuth1a` flows for building the service authorization URL.
 
 ###### JsonSerializer
 
@@ -151,6 +208,14 @@ An enum value that defines the JSON serializer to use when creating requests and
 
 This flag indicates whether the basic token should be included in the request for access token. If true, a base64 encoding of <clientId>:<clientSecret> will be added to 
 the authorization header.
+
+###### API Key
+
+Specifies the key a service with `AuthenticationMethod=ApiKey` will use for making authorized requests to the API.
+
+###### ApiKeyProvision
+
+For `ApiKey` authentication methods, options for passing the API key need to be set, by specifying a method: `HttpHeader` or `QueryString` and the name for the key holding the value.
 
 ###### ClientId *
 
@@ -188,6 +253,10 @@ The expected key for retrieving the datetime of token expiry from a response. If
 ###### SampleRequest
 
 An optional sample request can be provided, which can be used to check that an authorized service is functioning as expected from the backoffice.  For example, to retrieve the set of contributors to the Umbraco repository hosted at GitHub, this request can be used: `/repos/Umbraco/Umbraco-CMS/contributors`.
+
+###### RefreshAccessTokenWhenExpiresWithin
+
+Specifies a time interval for expiration of access tokens.
 
 ### Authorizing a Service
 
