@@ -20,8 +20,8 @@ public class AuthorizedServicesMigrationPlan : PackageMigrationPlan
     /// <inheritdoc />
     protected override void DefinePlan()
     {
-        To<AddDatabaseTokenStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceTokenTargetState);
+        To<AddDatabaseOAuth2TokenStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceOAuth2TokenTargetState);
         To<AddDatabaseKeyStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceKeyTargetState);
-        To<AddDatabaseOAuth1aTokenStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceOAuth1aTargetState);
+        To<AddDatabaseOAuth1TokenStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceOAuth1TargetState);
     }
 }

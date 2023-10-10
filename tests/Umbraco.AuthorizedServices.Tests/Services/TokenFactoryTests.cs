@@ -23,7 +23,7 @@ internal class TokenFactoryTests
         var sut = new TokenFactory(dateTimeProvider.Object);
 
         // Act
-        Models.Token result = sut.CreateFromResponseContent(ResponseContent, serviceDetail);
+        Models.OAuth2Token result = sut.CreateFromOAuth2ResponseContent(ResponseContent, serviceDetail);
 
         // Assert
         result.Should().NotBeNull();

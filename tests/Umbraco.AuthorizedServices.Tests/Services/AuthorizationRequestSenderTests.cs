@@ -36,7 +36,7 @@ internal class AuthorizationRequestSenderTests
         var sut = new AuthorizationRequestSender(clientFactoryMock.Object);
 
         // Act
-        await sut.SendRequest(serviceDetail, parameters);
+        await sut.SendOAuth2Request(serviceDetail, parameters);
 
         // Assert
         const string ExpectedUrl = "https://service.url/login/oauth/access_token?foo=bar&baz=buzz";
@@ -75,7 +75,7 @@ internal class AuthorizationRequestSenderTests
         var sut = new AuthorizationRequestSender(clientFactoryMock.Object);
 
         // Act
-        await sut.SendRequest(serviceDetail, parameters);
+        await sut.SendOAuth2Request(serviceDetail, parameters);
 
         // Assert
         const string ExpectedUrl = "https://service.url/login/oauth/access_token";
@@ -117,7 +117,7 @@ internal class AuthorizationRequestSenderTests
         var sut = new AuthorizationRequestSender(clientFactoryMock.Object);
 
         // Act
-        await sut.SendRequest(serviceDetail, parameters);
+        await sut.SendOAuth2Request(serviceDetail, parameters);
 
         // Assert
         AuthenticationHeaderValue expectedAuthenticationHeader = BuildBasicAuthenticationHeader(serviceDetail);
@@ -154,5 +154,4 @@ internal class AuthorizationRequestSenderTests
 
         return new AuthenticationHeaderValue("Basic", base64String);
     }
-
 }

@@ -15,15 +15,15 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     public AuthorizedServiceAuthorizer(
         AppCaches appCaches,
         ITokenFactory tokenFactory,
-        ITokenStorage<Token> tokenStorage,
-        ITokenStorage<OAuth1aToken> oauth1aTokenStorage,
+        IOAuth2TokenStorage oauth2TokenStorage,
+        IOAuth1TokenStorage oauth1TokenStorage,
         IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceAuthorizer> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IAuthorizationParametersBuilder authorizationParametersBuilder,
         IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, oauth1aTokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
+        : base(appCaches, tokenFactory, oauth2TokenStorage, oauth1TokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _authorizationParametersBuilder = authorizationParametersBuilder;
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
@@ -51,7 +51,7 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        Token? token = GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
+        OAuth2Token? token = GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
 
         Dictionary<string, string> parameters = _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, token.AccessToken);
 
@@ -64,29 +64,29 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
 
         return await SendRequest(serviceDetail, new Dictionary<string, string>
         {
-            { Constants.OAuth1a.OAuthToken , oauthToken },
-            { Constants.OAuth1a.OAuthVerifier, oauthVerifier }
+            { Constants.OAuth1.OAuthToken , oauthToken },
+            { Constants.OAuth1.OAuthVerifier, oauthVerifier }
         });
     }
 
     private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters, bool isExchangeTokenRequest = false)
     {
         HttpResponseMessage response = serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1
-            ? await AuthorizationRequestSender.SendOAuth1aRequest(serviceDetail, parameters)
+            ? await AuthorizationRequestSender.SendOAuth1Request(serviceDetail, parameters)
             : (isExchangeTokenRequest
-                    ? await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters)
-                    : await AuthorizationRequestSender.SendRequest(serviceDetail, parameters));
+                    ? await AuthorizationRequestSender.SendOAuth2ExchangeRequest(serviceDetail, parameters)
+                    : await AuthorizationRequestSender.SendOAuth2Request(serviceDetail, parameters));
         if (response.IsSuccessStatusCode)
         {
             if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
             {
-                OAuth1aToken token = await CreateOAuth1aTokenFromResponse(serviceDetail, response);
-                StoreOAuth1aToken(serviceDetail.Alias, token);
+                OAuth1Token token = await CreateOAuth1TokenFromResponse(response);
+                StoreOAuth1Token(serviceDetail.Alias, token);
             }
             else
             {
-                Token token = await CreateTokenFromResponse(serviceDetail, response);
-                StoreToken(serviceDetail.Alias, token);
+                OAuth2Token token = await CreateOAuth2TokenFromResponse(serviceDetail, response);
+                StoreOAuth2Token(serviceDetail.Alias, token);
             }
 
             return AuthorizationResult.AsSuccess();

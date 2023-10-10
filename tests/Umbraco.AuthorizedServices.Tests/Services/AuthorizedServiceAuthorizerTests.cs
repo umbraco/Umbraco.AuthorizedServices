@@ -14,8 +14,8 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
     [SetUp]
     public void SetUp()
     {
-        TokenStorageMock = new Mock<ITokenStorage<Token>>();
-        OAuth1aTokenStorageMock = new Mock<ITokenStorage<OAuth1aToken>>();
+        OAuth2TokenStorageMock = new Mock<IOAuth2TokenStorage>();
+        OAuth1TokenStorageMock = new Mock<IOAuth1TokenStorage>();
         KeyStorageMock = new Mock<IKeyStorage>();
     }
 
@@ -31,8 +31,8 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
         // Assert
         result.Success.Should().BeTrue();
 
-        TokenStorageMock
-            .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<Token>(y => y.AccessToken == "abc")), Times.Once);
+        OAuth2TokenStorageMock
+            .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth2Token>(y => y.AccessToken == "abc")), Times.Once);
     }
 
     [Test]
@@ -62,7 +62,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
                 StatusCode = System.Net.HttpStatusCode.BadRequest,
             };
         authorizationRequestSenderMock
-            .Setup(x => x.SendRequest(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.IsAny<Dictionary<string, string>>()))
+            .Setup(x => x.SendOAuth2Request(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(httpResponseMessage);
 
         Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail();
@@ -70,8 +70,8 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
         return new AuthorizedServiceAuthorizer(
             AppCaches.Disabled,
             new TokenFactory(new DateTimeProvider()),
-            TokenStorageMock.Object,
-            OAuth1aTokenStorageMock.Object,
+            OAuth2TokenStorageMock.Object,
+            OAuth1TokenStorageMock.Object,
             KeyStorageMock.Object,
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceAuthorizer>(),

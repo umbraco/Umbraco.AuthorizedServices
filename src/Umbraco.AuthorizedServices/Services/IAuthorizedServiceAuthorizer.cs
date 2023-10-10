@@ -32,7 +32,7 @@ public interface IAuthorizedServiceAuthorizer
     Task<AuthorizationResult> ExchangeOAuth2AccessTokenAsync(string serviceAlias);
 
     /// <summary>
-    /// Authorizes access to an external service using OAuth1a authentication flow.
+    /// Authorizes access to an external service using OAuth1 authentication flow.
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
     /// <param name="oauthToken">The returned OAuth token.</param>

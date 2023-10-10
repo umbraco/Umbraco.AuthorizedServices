@@ -3,10 +3,10 @@ using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
 namespace Umbraco.AuthorizedServices.Persistence.Dtos;
 
-[TableName(Constants.Migrations.UmbracoAuthorizedServiceOAuth1aTokenTableName)]
+[TableName(Constants.Migrations.UmbracoAuthorizedServiceOAuth1TokenTableName)]
 [PrimaryKey("serviceAlias", AutoIncrement = false)]
 [ExplicitColumns]
-public class OAuth1aTokenDto
+public class OAuth1TokenDto
 {
     [Column("serviceAlias")]
     [PrimaryKeyColumn(Name = "PK_serviceAlias", AutoIncrement = false)]

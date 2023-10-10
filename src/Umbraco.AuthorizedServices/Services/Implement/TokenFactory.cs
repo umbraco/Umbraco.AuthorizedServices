@@ -11,7 +11,7 @@ internal sealed class TokenFactory : ITokenFactory
 
     public TokenFactory(IDateTimeProvider dateTimeProvider) => _dateTimeProvider = dateTimeProvider;
 
-    public Token CreateFromResponseContent(string responseContent, ServiceDetail serviceDetail)
+    public OAuth2Token CreateFromOAuth2ResponseContent(string responseContent, ServiceDetail serviceDetail)
     {
         var tokenResponse = JObject.Parse(responseContent);
 
@@ -31,16 +31,16 @@ internal sealed class TokenFactory : ITokenFactory
             expiresOn = _dateTimeProvider.UtcNow().AddSeconds(expiresInSeconds);
         }
 
-        return new Token(accessToken, refreshToken, expiresOn);
+        return new OAuth2Token(accessToken, refreshToken, expiresOn);
     }
 
-    public OAuth1aToken CreateFromOAuth1aResponseContent(string responseContent, ServiceDetail serviceDetail)
+    public OAuth1Token CreateFromOAuth1ResponseContent(string responseContent)
     {
-        if (!responseContent.TryParseOAuth1aResponse(out var oauthToken, out var oauthTokenSecret))
+        if (!responseContent.TryParseOAuth1Response(out var oauthToken, out var oauthTokenSecret))
         {
             throw new InvalidOperationException($"Invalid response content: {responseContent}");
         }
 
-        return new OAuth1aToken(oauthToken, oauthTokenSecret);
+        return new OAuth1Token(oauthToken, oauthTokenSecret);
     }
 }

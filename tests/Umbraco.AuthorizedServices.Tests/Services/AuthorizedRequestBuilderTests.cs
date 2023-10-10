@@ -20,12 +20,12 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         };
         const string Path = "/api/test";
         const string AccessToken = "1234";
-        var token = new Token(AccessToken, null, DateTime.Now.AddDays(7));
+        var token = new OAuth2Token(AccessToken, null, DateTime.Now.AddDays(7));
         var data = new TestRequestData("bar");
         AuthorizedRequestBuilder sut = CreateSut();
 
         // Act
-        HttpRequestMessage result = sut.CreateRequestMessageWithToken(serviceDetail, Path, HttpMethod.Post, token, data);
+        HttpRequestMessage result = sut.CreateRequestMessageWithOAuth2Token(serviceDetail, Path, HttpMethod.Post, token, data);
 
         // Assert
         var expectedUri = new Uri("https://service.url/api/test");

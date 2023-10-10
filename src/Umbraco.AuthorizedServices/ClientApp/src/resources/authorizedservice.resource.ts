@@ -14,8 +14,11 @@ function authorizedServiceResource($q, $http) {
     revokeAccess: function (alias: string) {
       return $http.post(apiRoot + "RevokeAccess", { alias: alias });
     },
-    saveToken: function (alias: string, token: string) {
-      return $http.post(apiRoot + "SaveToken", { alias: alias, token: token });
+    saveOAuth2Token: function (alias: string, token: string) {
+      return $http.post(apiRoot + "SaveOAuth2Token", { alias: alias, token: token });
+    },
+    saveOAuth1Token: function (alias: string, token: string, tokenSecret: string) {
+      return $http.post(apiRoot + "SaveOAuth1Token", { alias: alias, token: token, tokenSecret: tokenSecret });
     },
     saveApiKey: function (alias: string, apiKey: string) {
       return $http.post(apiRoot + "SaveApiKey", { alias: alias, apiKey: apiKey });

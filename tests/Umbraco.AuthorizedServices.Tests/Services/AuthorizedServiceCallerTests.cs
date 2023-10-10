@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq.Protected;
@@ -17,8 +18,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     [SetUp]
     public void SetUp()
     {
-        TokenStorageMock = new Mock<ITokenStorage<Token>>();
-        OAuth1aTokenStorageMock = new Mock<ITokenStorage<OAuth1aToken>>();
+        OAuth2TokenStorageMock = new Mock<IOAuth2TokenStorage>();
+        OAuth1TokenStorageMock = new Mock<IOAuth1TokenStorage>();
         KeyStorageMock = new Mock<IKeyStorage>();
     }
 
@@ -38,8 +39,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Should().NotBeNull();
         result!.Foo.Should().Be("bar");
 
-        TokenStorageMock
-            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<Token>()), Times.Never);
+        OAuth2TokenStorageMock
+            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
     }
 
     [Test]
@@ -91,8 +92,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Should().NotBeNull();
         result.Should().Be("{ \"foo\": \"bar\" }");
 
-        TokenStorageMock
-            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<Token>()), Times.Never);
+        OAuth2TokenStorageMock
+            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
     }
 
     [Test]
@@ -112,8 +113,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Should().NotBeNull();
         result!.Foo.Should().Be("bar");
 
-        TokenStorageMock
-            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<Token>()), Times.Never);
+        OAuth2TokenStorageMock
+            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
     }
 
     [Test]
@@ -162,8 +163,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Should().NotBeNull();
         result!.Foo.Should().Be("bar");
 
-        TokenStorageMock
-            .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<Token>(y => y.AccessToken == "abc")), Times.Once);
+        OAuth2TokenStorageMock
+            .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth2Token>(y => y.AccessToken == "abc")), Times.Once);
     }
 
     [Test]
@@ -237,9 +238,9 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     private void StoreToken(int daysUntilExpiry = 7) =>
-        TokenStorageMock
+        OAuth2TokenStorageMock
             .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))
-            .Returns(new Token("abc", "def", DateTime.Now.AddDays(daysUntilExpiry)));
+            .Returns(new OAuth2Token("abc", "def", DateTime.Now.AddDays(daysUntilExpiry)));
 
     private void StoreApiKey() =>
         KeyStorageMock
@@ -254,8 +255,9 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthenticationMethod authenticationMethod = AuthenticationMethod.OAuth2AuthorizationCode,
         bool withConfiguredApiKey = false)
     {
-        var oauth1aAuthorizationUrlBuilder = new Mock<IOAuth1aAuthorizationUrlBuilder>();
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
+        var authorizationUrlBuilderMock = new Mock<IAuthorizationUrlBuilder>();
+        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
         // Setup refresh token response.
         var httpResponseMessage = new HttpResponseMessage
@@ -264,7 +266,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             Content = new StringContent("{\"refresh_token\": \"def\",\"access_token\": \"abc\",\"expires_in\": 1800}")
         };
         authorizationRequestSenderMock
-            .Setup(x => x.SendRequest(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.Is<Dictionary<string, string>>(y => y["grant_type"] == "refresh_token")))
+            .Setup(x => x.SendOAuth2Request(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.Is<Dictionary<string, string>>(y => y["grant_type"] == "refresh_token")))
             .ReturnsAsync(httpResponseMessage);
 
         Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod, withConfiguredApiKey);
@@ -273,18 +275,19 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         return new AuthorizedServiceCaller(
             AppCaches.Disabled,
             new TokenFactory(new DateTimeProvider()),
-            TokenStorageMock.Object,
-            OAuth1aTokenStorageMock.Object,
+            OAuth2TokenStorageMock.Object,
+            OAuth1TokenStorageMock.Object,
             KeyStorageMock.Object,
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceCaller>(),
             optionsMonitorServiceDetailMock.Object,
             new TestHttpClientFactory(statusCode, responseContent),
             factory,
-            oauth1aAuthorizationUrlBuilder.Object,
+            authorizationUrlBuilderMock.Object,
             new AuthorizedRequestBuilder(factory),
             new RefreshTokenParametersBuilder(),
-            new ExchangeTokenParametersBuilder());
+            new ExchangeTokenParametersBuilder(),
+            httpContextAccessorMock.Object);
     }
 
     private class TestHttpClientFactory : IHttpClientFactory

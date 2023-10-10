@@ -13,7 +13,7 @@ public interface IAuthorizationRequestSender
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="parameters">The authorization parameters.</param>
     /// <returns>A <see cref="Task{HttpResponseMessage}"/> representing the result of the asynchronous operation.</returns>
-    Task<HttpResponseMessage> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
+    Task<HttpResponseMessage> SendOAuth2Request(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
 
     /// <summary>
     /// Sends an authorization request to a service.
@@ -21,7 +21,7 @@ public interface IAuthorizationRequestSender
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="parameters">The authorization parameters.</param>
     /// <returns>A <see cref="Task{HttpResponseMessage}"/> representing the result of the asynchronous operation.</returns>
-    Task<HttpResponseMessage> SendExchangeRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
+    Task<HttpResponseMessage> SendOAuth2ExchangeRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
 
     /// <summary>
     /// Sends an authorization request to a service.
@@ -29,5 +29,5 @@ public interface IAuthorizationRequestSender
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="parameters">The authorization parameters (OAuth token and verifier code).</param>
     /// <returns></returns>
-    Task<HttpResponseMessage> SendOAuth1aRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
+    Task<HttpResponseMessage> SendOAuth1Request(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
 }

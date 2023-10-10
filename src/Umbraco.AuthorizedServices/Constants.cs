@@ -42,7 +42,7 @@ public static class Constants
         public const string AuthorizedServices = nameof(AuthorizedServices);
     }
 
-    public static class OAuth1a
+    public static class OAuth1
     {
         public const string OAuthToken = "oauth_token";
 
@@ -53,18 +53,18 @@ public static class Constants
 
     public static class Migrations
     {
-        public const string UmbracoAuthorizedServiceTokenTableName = "umbracoAuthorizedServiceToken";
+        public const string UmbracoAuthorizedServiceOAuth2TokenTableName = "umbracoAuthorizedServiceOAuth2Token";
 
         public const string UmbracoAuthorizedServiceKeyTableName = "umbracoAuthorizedServiceKey";
 
-        public const string UmbracoAuthorizedServiceOAuth1aTokenTableName = "umbracoAuthorizedServiceOAuth1aToken";
+        public const string UmbracoAuthorizedServiceOAuth1TokenTableName = "umbracoAuthorizedServiceOAuth1Token";
 
         public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
 
-        public const string UmbracoAuthorizedServiceTokenTargetState = "authorizedServices-token-db";
+        public const string UmbracoAuthorizedServiceOAuth2TokenTargetState = "authorizedServices-oauth2_token-db";
 
         public const string UmbracoAuthorizedServiceKeyTargetState = "authorizedServices-key-db";
 
-        public const string UmbracoAuthorizedServiceOAuth1aTargetState = "authorizedServices-oauth1a-db";
+        public const string UmbracoAuthorizedServiceOAuth1TargetState = "authorizedServices-oauth1_token-db";
     }
 }

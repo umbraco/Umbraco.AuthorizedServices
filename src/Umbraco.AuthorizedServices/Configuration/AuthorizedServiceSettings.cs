@@ -164,7 +164,7 @@ public class ServiceDetail : ServiceSummary
     public bool CanManuallyProvideApiKey { get; set; }
 
     /// <summary>
-    /// Gets or sets the path for requests for obtaining authorization for a user in OAuth1a flows.
+    /// Gets or sets the path for requests for obtaining authorization for a user in OAuth1 flows.
     /// </summary>
     public string RequestAuthorizationPath { get; set; } = string.Empty;
 

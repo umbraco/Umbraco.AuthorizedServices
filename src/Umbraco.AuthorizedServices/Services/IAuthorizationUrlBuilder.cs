@@ -9,6 +9,15 @@ namespace Umbraco.AuthorizedServices.Services;
 public interface IAuthorizationUrlBuilder
 {
     /// <summary>
+    /// Builds the request token URL.
+    /// </summary>
+    /// <param name="serviceDetail">The service detail.</param>
+    /// <param name="httpContext">The HTTP context.</param>
+    /// <param name="httpMethod">The HTTP method.</param>
+    /// <returns></returns>
+    string BuildOAuth1RequestTokenUrl(ServiceDetail serviceDetail, HttpContext? httpContext, HttpMethod httpMethod);
+
+    /// <summary>
     /// Buulds the authorization URL.
     /// </summary>
     /// <param name="serviceDetail">The service detail.</param>
@@ -16,5 +25,5 @@ public interface IAuthorizationUrlBuilder
     /// <param name="state">The randomly generated state.</param>
     /// <param name="codeChallenge">Code verifier hash used for PKCE OAuth flows.</param>
     /// <returns>The authorization URL.</returns>
-    string BuildUrl(ServiceDetail serviceDetail, HttpContext httpContext, string state, string codeChallenge);
+    string BuildOAuth2AuthorizationUrl(ServiceDetail serviceDetail, HttpContext httpContext, string state, string codeChallenge);
 }

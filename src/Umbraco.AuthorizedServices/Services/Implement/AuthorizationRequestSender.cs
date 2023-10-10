@@ -10,7 +10,7 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
 
     public AuthorizationRequestSender(IAuthorizationClientFactory authorizationClientFactory) => _authorizationClientFactory = authorizationClientFactory;
 
-    public async Task<HttpResponseMessage> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    public async Task<HttpResponseMessage> SendOAuth2Request(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
     {
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
@@ -39,7 +39,7 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         return await httpClient.PostAsync(url, content);
     }
 
-    public async Task<HttpResponseMessage> SendExchangeRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    public async Task<HttpResponseMessage> SendOAuth2ExchangeRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
     {
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
@@ -64,13 +64,13 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         return await httpClient.GetAsync(url);
     }
 
-    public async Task<HttpResponseMessage> SendOAuth1aRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    public async Task<HttpResponseMessage> SendOAuth1Request(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
     {
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
         var url = serviceDetail.IdentityHost + serviceDetail.RequestTokenPath
-            + $"?{Constants.OAuth1a.OAuthToken}=" + parameters[Constants.OAuth1a.OAuthToken]
-            + $"&{Constants.OAuth1a.OAuthVerifier}=" + parameters[Constants.OAuth1a.OAuthVerifier];
+            + $"?{Constants.OAuth1.OAuthToken}=" + parameters[Constants.OAuth1.OAuthToken]
+            + $"&{Constants.OAuth1.OAuthVerifier}=" + parameters[Constants.OAuth1.OAuthVerifier];
 
         return await httpClient.PostAsync(url, null);
     }

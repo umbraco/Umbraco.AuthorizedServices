@@ -3,14 +3,14 @@ using Umbraco.AuthorizedServices.Models;
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
 /// <summary>
-/// Implements <see cref="ITokenStorage"/> for token storage using in memory storage.
+/// Implements <see cref="IOAuth2TokenStorage"/> for token storage using in memory storage.
 /// </summary>
-internal sealed class InMemoryTokenStorage : ITokenStorage<Token>
+internal sealed class InMemoryTokenStorage : IOAuth2TokenStorage
 {
-    private static readonly Dictionary<string, Token> _tokens = new Dictionary<string, Token>();
+    private static readonly Dictionary<string, OAuth2Token> _tokens = new Dictionary<string, OAuth2Token>();
 
     /// <inheritdoc/>
-    public Token? GetToken(string serviceAlias)
+    public OAuth2Token? GetToken(string serviceAlias)
     {
         if (_tokens.ContainsKey(serviceAlias))
         {
@@ -21,7 +21,7 @@ internal sealed class InMemoryTokenStorage : ITokenStorage<Token>
     }
 
     /// <inheritdoc/>
-    public void SaveToken(string serviceAlias, Token token)
+    public void SaveToken(string serviceAlias, OAuth2Token token)
     {
         if (_tokens.ContainsKey(serviceAlias))
         {

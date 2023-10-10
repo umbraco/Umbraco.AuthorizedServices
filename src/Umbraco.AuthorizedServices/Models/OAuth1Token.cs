@@ -1,16 +1,16 @@
 namespace Umbraco.AuthorizedServices.Models;
 
 /// <summary>
-/// Defines a token used for authorizing OAuth1a requests to a service.
+/// Defines a token used for authorizing OAuth1 requests to a service.
 /// </summary>
-public class OAuth1aToken
+public class OAuth1Token
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="OAuth1aToken"/> class.
+    /// Initializes a new instance of the <see cref="OAuth1Token"/> class.
     /// </summary>
     /// <param name="oauthToken">The access token.</param>
     /// <param name="oauthTokenSecret">The token secret.</param>
-    public OAuth1aToken(string oauthToken, string oauthTokenSecret)
+    public OAuth1Token(string oauthToken, string oauthTokenSecret)
     {
         OAuthToken = oauthToken;
         OAuthTokenSecret = oauthTokenSecret;

@@ -6,24 +6,24 @@ using Umbraco.Cms.Infrastructure.Scoping;
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
 /// <summary>
-/// Implements <see cref="ITokenStorage{T}"/> for token storage using a database table.
+/// Implements <see cref="IOAuth1TokenStorage"/> for token storage using a database table.
 /// </summary>
-internal sealed class DatabaseOAuth1aTokenStorage : DatabaseAuthorizationParameterStorageBase, ITokenStorage<OAuth1aToken>
+internal sealed class DatabaseOAuth1TokenStorage : DatabaseAuthorizationParameterStorageBase, IOAuth1TokenStorage
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DatabaseTokenStorage"/> class.
+    /// Initializes a new instance of the <see cref="DatabaseOAuth2TokenStorage"/> class.
     /// </summary>
-    public DatabaseOAuth1aTokenStorage(IScopeProvider scopeProvider, ISecretEncryptor encryptor, ILogger<DatabaseTokenStorage> logger)
+    public DatabaseOAuth1TokenStorage(IScopeProvider scopeProvider, ISecretEncryptor encryptor, ILogger<DatabaseOAuth2TokenStorage> logger)
         : base(scopeProvider, encryptor, logger)
     {
     }
 
     /// <inheritdoc/>
-    public OAuth1aToken? GetToken(string serviceAlias)
+    public OAuth1Token? GetToken(string serviceAlias)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        OAuth1aTokenDto entity = scope.Database.FirstOrDefault<OAuth1aTokenDto>("where serviceAlias = @0", serviceAlias);
+        OAuth1TokenDto entity = scope.Database.FirstOrDefault<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
         if (entity == null)
         {
             return null;
@@ -41,7 +41,7 @@ internal sealed class DatabaseOAuth1aTokenStorage : DatabaseAuthorizationParamet
             return null;
         }
 
-        return new OAuth1aToken(oauthToken, oauthTokenSecret);
+        return new OAuth1Token(oauthToken, oauthTokenSecret);
     }
 
     private void RemoveCorruptToken(string serviceAlias, string tokenType)
@@ -51,14 +51,14 @@ internal sealed class DatabaseOAuth1aTokenStorage : DatabaseAuthorizationParamet
     }
 
     /// <inheritdoc/>
-    public void SaveToken(string serviceAlias, OAuth1aToken token)
+    public void SaveToken(string serviceAlias, OAuth1Token token)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        OAuth1aTokenDto entity = scope.Database.SingleOrDefault<OAuth1aTokenDto>("where serviceAlias = @0", serviceAlias);
+        OAuth1TokenDto entity = scope.Database.SingleOrDefault<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
 
         bool insert = entity == null;
-        entity ??= new OAuth1aTokenDto { ServiceAlias = serviceAlias };
+        entity ??= new OAuth1TokenDto { ServiceAlias = serviceAlias };
 
         entity.OAuthToken = Encryptor.Encrypt(token.OAuthToken);
         entity.OAuthTokenSecret = Encryptor.Encrypt(token.OAuthTokenSecret);
@@ -80,7 +80,7 @@ internal sealed class DatabaseOAuth1aTokenStorage : DatabaseAuthorizationParamet
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        OAuth1aTokenDto entity = scope.Database.Single<OAuth1aTokenDto>("where serviceAlias = @0", serviceAlias);
+        OAuth1TokenDto entity = scope.Database.Single<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
 
         scope.Database.Delete(entity);
 

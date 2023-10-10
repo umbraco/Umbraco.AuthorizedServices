@@ -12,14 +12,21 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
         vm.displayName = serviceData.displayName;
         vm.headerName = "Authorized Services: " + vm.displayName;
         vm.isAuthorized = serviceData.isAuthorized;
-        vm.authenticationMethod = serviceData.authenticationMethod;
         vm.canManuallyProvideToken = serviceData.canManuallyProvideToken;
         vm.canManuallyProvideApiKey = serviceData.canManuallyProvideApiKey;
         vm.authorizationUrl = serviceData.authorizationUrl;
         vm.sampleRequest = serviceData.sampleRequest;
         vm.sampleRequestResponse = null;
         vm.settings = serviceData.settings;
-        vm.isOAuthBasedAuthenticationMethod = serviceData.authenticationMethod !== AuthenticationMethod.ApiKey;
+
+        vm.authenticationMethod = {
+          isOAuth1: serviceData.authenticationMethod === AuthenticationMethod.OAuth1,
+          isOAuth2AuthorizationCode: serviceData.authenticationMethod === AuthenticationMethod.OAuth2AuthorizationCode,
+          isOAuth2ClientCredentials: serviceData.authenticationMethod === AuthenticationMethod.OAuth2ClientCredentials,
+          isApiKey: serviceData.authenticationMethod === AuthenticationMethod.ApiKey
+        };
+
+        console.log(vm.authenticationMethod);
       }, function (ex) {
         notificationsService.error("Authorized Services", ex.data.ExceptionMessage);
       });
@@ -57,14 +64,29 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
       });
   };
 
-  vm.saveAccessToken = function () {
+  vm.saveOAuth2AccessToken = function () {
     let inAccessToken = <HTMLInputElement>document.getElementById("inAccessToken");
 
     if (inAccessToken) {
-      authorizedServiceResource.saveToken(serviceAlias, inAccessToken.value)
+      authorizedServiceResource.saveOAuth2Token(serviceAlias, inAccessToken.value)
         .then(function () {
           notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service access token has been saved.");
           inAccessToken.value = "";
+          loadServiceDetails(serviceAlias);
+        });
+    }
+  }
+
+  vm.saveOAuth1TokenDetails = function () {
+    let inAccessToken = <HTMLInputElement>document.getElementById("inAccessToken");
+    let inTokenSecret = <HTMLInputElement>document.getElementById("inTokenSecret");
+
+    if (inAccessToken && inTokenSecret) {
+      authorizedServiceResource.saveOAuth1Token(serviceAlias, inAccessToken.value, inTokenSecret.value)
+        .then(function () {
+          notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service access token and token secret have been saved.");
+          inAccessToken.value = "";
+          inTokenSecret.value = "";
           loadServiceDetails(serviceAlias);
         });
     }

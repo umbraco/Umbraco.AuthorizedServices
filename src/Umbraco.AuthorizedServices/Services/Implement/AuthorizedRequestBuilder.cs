@@ -1,6 +1,7 @@
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Umbraco.AuthorizedServices.Configuration;
@@ -16,11 +17,11 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 
     public AuthorizedRequestBuilder(JsonSerializerFactory jsonSerializerFactory) => _jsonSerializerFactory = jsonSerializerFactory;
 
-    public HttpRequestMessage CreateRequestMessageWithToken<TRequest>(
+    public HttpRequestMessage CreateRequestMessageWithOAuth2Token<TRequest>(
         ServiceDetail serviceDetail,
         string path,
         HttpMethod httpMethod,
-        Token token,
+        OAuth2Token token,
         TRequest? requestContent)
         where TRequest : class
     {
@@ -98,7 +99,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
-    public HttpRequestMessage CreateIdentityRequestMessage<TRequest>(ServiceDetail serviceDetail, string url, HttpMethod httpMethod, TRequest? requestContent) where TRequest : class
+    public HttpRequestMessage CreateRequestMessageForOAuth1Token<TRequest>(ServiceDetail serviceDetail, string url, HttpMethod httpMethod, TRequest? requestContent) where TRequest : class
     {
         HttpRequestMessage requestMessage = CreateRequestMessage(
             httpMethod,
@@ -109,12 +110,12 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         return requestMessage;
     }
 
-    public HttpRequestMessage CreateRequestMessageWithOAuth1aToken<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, OAuth1aToken oauth1aToken, TRequest? requestContent) where TRequest : class
+    public HttpRequestMessage CreateRequestMessageWithOAuth1Token<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, OAuth1Token oauth1Token, TRequest? requestContent) where TRequest : class
     {
         var url = serviceDetail.ApiHost + path;
 
-        var nonce = OAuth1aHelper.GetNonce();
-        var timestamp = OAuth1aHelper.GetTimestamp();
+        var nonce = OAuth1Helper.GetNonce();
+        var timestamp = OAuth1Helper.GetTimestamp();
 
         var authorizationParams =
             new Dictionary<string, string>
@@ -123,15 +124,15 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
                 { "oauth_nonce", nonce },
                 { "oauth_signature_method", "HMAC-SHA1" },
                 { "oauth_timestamp", timestamp },
-                { "oauth_token", oauth1aToken.OAuthToken },
+                { "oauth_token", oauth1Token.OAuthToken },
                 { "oauth_version", "1.0" }
             };
 
-        var signature = OAuth1aHelper.GetAuthorizedSignature(
+        var signature = GetAuthorizedSignature(
             httpMethod.Method.ToUpper(),
             url,
             serviceDetail.ClientSecret,
-            oauth1aToken,
+            oauth1Token,
             authorizationParams);
 
         url += "?oauth_consumer_key=" + serviceDetail.ClientId
@@ -139,7 +140,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             + "&oauth_signature=" + Uri.EscapeDataString(signature)
             + "&oauth_signature_method=HMAC-SHA1"
             + "&oauth_timestamp" + timestamp
-            + "&oauth_token" + oauth1aToken.OAuthToken
+            + "&oauth_token" + oauth1Token.OAuthToken
             + "&oauth_version=1.0";
 
         HttpRequestMessage requestMessage = CreateRequestMessage(
@@ -148,5 +149,32 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             GetRequestContent(serviceDetail, requestContent));
         AddCommonHeaders(requestMessage);
         return requestMessage;
+    }
+
+    private string GetAuthorizedSignature(
+       string httpMethod,
+       string url,
+       string consumerSecret,
+       OAuth1Token oauth1Token,
+       Dictionary<string, string> authorizationParams)
+    {
+        string hashingKey = string.Format("{0}&{1}", consumerSecret, oauth1Token.OAuthTokenSecret);
+
+        using var hasher = new HMACSHA1(new ASCIIEncoding().GetBytes(hashingKey));
+
+        string authorizationParamsStr = string.Join(
+            "&",
+            authorizationParams
+                .Select(kvp => string.Format("{0}={1}", Uri.EscapeDataString(kvp.Key), Uri.EscapeDataString(kvp.Value)))
+                .OrderBy(p => p));
+
+        // signature format: HTTP method (uppercase) + & + request URL + & + authorization parameters
+        string signature = string.Format(
+            "{0}&{1}&{2}",
+            httpMethod,
+            Uri.EscapeDataString(url),
+            Uri.EscapeDataString(authorizationParamsStr));
+
+        return Convert.ToBase64String(hasher.ComputeHash(new ASCIIEncoding().GetBytes(signature)));
     }
 }
