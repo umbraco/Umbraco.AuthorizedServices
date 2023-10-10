@@ -78,7 +78,7 @@ public class AuthorizedServiceResponseController : UmbracoApiController
     }
 
     /// <summary>
-    /// Handles the retuning message for OAuth1 authorization flow with an external service.
+    /// Handles the returning message for OAuth1 authorization flow with an external service.
     /// </summary>
     /// <param name="oauth_token">The oauth_token.</param>
     /// <param name="oauth_verifier">The oauth_verifier.</param>

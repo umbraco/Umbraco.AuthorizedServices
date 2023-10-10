@@ -110,7 +110,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
         else if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
         {
-            OAuth1Token? token = GetOAuth1aToken(serviceAlias);
+            OAuth1Token? token = GetOAuth1Token(serviceAlias);
             if (token is null)
             {
                 // No token exists, query the service for a request_token.
@@ -262,7 +262,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return null;
     }
 
-    private OAuth1Token? GetOAuth1aToken(string serviceAlias) => OAuth1TokenStorage.GetToken(serviceAlias);
+    private OAuth1Token? GetOAuth1Token(string serviceAlias) => OAuth1TokenStorage.GetToken(serviceAlias);
 
     private void ClearAccessToken(string serviceAlias)
     {
