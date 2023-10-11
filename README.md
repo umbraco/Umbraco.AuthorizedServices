@@ -141,6 +141,8 @@ If no value is provided, it will default to `OAuth2AuthorizationCode`.
 
 Specifies the available options for providing credentials in an `OAuth2` flow: `AuthHeader` or `RequestBody`.
 
+This setting is only utilized when the `AuthenticatedMethod` value is configured as `OAuth2ClientCredentials`.
+
 ###### ApiHost *
 
 The host name for the service API that will be called to deliver business functionality.  E.g. for Github this is `https://api.github.com`.
