@@ -12,6 +12,22 @@ public class TestAuthorizedServicesController : UmbracoApiController
 
     public TestAuthorizedServicesController(IAuthorizedServiceCaller authorizedServiceCaller) => _authorizedServiceCaller = authorizedServiceCaller;
 
+    // /umbraco/api/TestAuthorizedServices/GetMeetupSelfUserInfo
+    public async Task<IActionResult> GetMeetupSelfUserInfo()
+    {
+        // This makes a GraphQL query
+        var response = await _authorizedServiceCaller.SendRequestRawAsync(
+            "meetup",
+            "/gql",
+            HttpMethod.Post,
+            new MeetupRequest
+            {
+                Query = "query { self { id name bio city } }"
+            });
+
+        return Content(response);
+    }
+
     public async Task<IActionResult> GetUmbracoContributorsFromGitHub()
     {
         List<GitHubContributorResponse>? response = await _authorizedServiceCaller.GetRequestAsync<List<GitHubContributorResponse>>(
