@@ -7,7 +7,7 @@ namespace Umbraco.AuthorizedServices.Tests.Services;
 internal class TokenFactoryTests
 {
     [Test]
-    public void CreateFromResponseContent_CreatesToken()
+    public void CreateFromResponseContent_CreatesOAuth2Token()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
@@ -31,4 +31,31 @@ internal class TokenFactoryTests
         result.RefreshToken.Should().Be("def");
         (result.ExpiresOn!.Value - utcNow).TotalSeconds.Should().Be(1800);
     }
+
+    [Test]
+    public void CreateFromResponseToken_CreatesOAuth1Token()
+    {
+        // Arrange
+        var serviceDetail = new ServiceDetail
+        {
+            Alias = "testService"
+        };
+
+        const string ResponseContent = "oauth_token=token-123&oauth_token_secret=secret-456";
+        DateTime utcNow = DateTime.UtcNow;
+        var dateTimeProvider = new Mock<IDateTimeProvider>();
+        dateTimeProvider
+            .Setup(x => x.UtcNow())
+            .Returns(utcNow);
+        var sut = new TokenFactory(dateTimeProvider.Object);
+
+        // Act
+        Models.OAuth1Token result = sut.CreateFromOAuth1ResponseContent(ResponseContent);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.OAuthToken.Should().Be("token-123");
+        result.OAuthTokenSecret.Should().Be("secret-456");
+    }
+
 }

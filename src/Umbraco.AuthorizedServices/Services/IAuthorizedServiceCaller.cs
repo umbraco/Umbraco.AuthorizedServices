@@ -63,7 +63,14 @@ public interface IAuthorizedServiceCaller
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>The access token if found, otherwise null.</returns>
-    string? GetToken(string serviceAlias);
+    string? GetOAuth2Token(string serviceAlias);
+
+    /// <summary>
+    /// Sends a request to an authorized service to receive the unencrypted OAuth token.
+    /// </summary>
+    /// <param name="serviceAlias">The service alias.</param>
+    /// <returns>The OAuth token if found, otherwise null.</returns>
+    string? GetOAuth1OAuthToken(string serviceAlias);
 
     /// <summary>
     /// Retrieve's the configured API key for a service.

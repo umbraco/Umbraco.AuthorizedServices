@@ -14,8 +14,10 @@ public interface IAuthorizationUrlBuilder
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="httpContext">The HTTP context.</param>
     /// <param name="httpMethod">The HTTP method.</param>
+    /// <param name="nonce">The randomly generated string.</param>
+    /// <param name="timestamp"> The current time in seconds.</param>
     /// <returns></returns>
-    string BuildOAuth1RequestTokenUrl(ServiceDetail serviceDetail, HttpContext? httpContext, HttpMethod httpMethod);
+    string BuildOAuth1RequestTokenUrl(ServiceDetail serviceDetail, HttpContext? httpContext, HttpMethod httpMethod, string nonce, string timestamp);
 
     /// <summary>
     /// Buulds the authorization URL.

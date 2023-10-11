@@ -48,24 +48,65 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
         await act.Should().ThrowAsync<AuthorizedServiceHttpException>();
     }
 
-    private AuthorizedServiceAuthorizer CreateService(bool withSuccessReponse = true)
+    [Test]
+    public async Task AuthorizeOAuth1ServiceAsync_WithSuccessResponse_StoresOAuth1TokenAndReturnsExpectedResponse()
+    {
+        // Arrange
+        AuthorizedServiceAuthorizer sut = CreateService(AuthenticationMethod.OAuth1);
+
+        // Act
+        AuthorizationResult result = await sut.AuthorizeOAuth1ServiceAsync(ServiceAlias, "1234", "5678");
+
+        // Assert
+        result.Success.Should().BeTrue();
+
+        OAuth1TokenStorageMock
+            .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth1Token>(y => y.OAuthToken == "abc")), Times.Once);
+    }
+
+    [Test]
+    public async Task AuthorizeOAuth1ServiceAsync_WithFailResponse_ThrowsExpectedException()
+    {
+        // Arrange
+        AuthorizedServiceAuthorizer sut = CreateService(withSuccessReponse: false);
+
+        // Act
+        Func<Task> act = () => sut.AuthorizeOAuth1ServiceAsync(ServiceAlias, "1234", "5678");
+
+        // Assert
+        await act.Should().ThrowAsync<AuthorizedServiceHttpException>();
+    }
+
+    private AuthorizedServiceAuthorizer CreateService(AuthenticationMethod authenticationMethod = AuthenticationMethod.OAuth2AuthorizationCode, bool withSuccessReponse = true)
     {
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
         HttpResponseMessage httpResponseMessage = withSuccessReponse
             ? new HttpResponseMessage
             {
                 StatusCode = System.Net.HttpStatusCode.OK,
-                Content = new StringContent("{\"refresh_token\": \"def\",\"access_token\": \"abc\",\"expires_in\": 1800}")
+                Content = authenticationMethod == AuthenticationMethod.OAuth2AuthorizationCode
+                    ? new StringContent("{\"refresh_token\": \"def\",\"access_token\": \"abc\",\"expires_in\": 1800}")
+                    : new StringContent("oauth_token=abc&oauth_token_secret=def")
             }
             : new HttpResponseMessage
             {
                 StatusCode = System.Net.HttpStatusCode.BadRequest,
             };
-        authorizationRequestSenderMock
-            .Setup(x => x.SendOAuth2Request(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(httpResponseMessage);
 
-        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail();
+        if (authenticationMethod == AuthenticationMethod.OAuth2AuthorizationCode)
+        {
+            authorizationRequestSenderMock
+                .Setup(x => x.SendOAuth2Request(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.IsAny<Dictionary<string, string>>()))
+                .ReturnsAsync(httpResponseMessage);
+        }
+        else if (authenticationMethod == AuthenticationMethod.OAuth1)
+        {
+            authorizationRequestSenderMock
+                .Setup(x => x.SendOAuth1Request(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.IsAny<Dictionary<string, string>>()))
+                .ReturnsAsync(httpResponseMessage);
+        }
+
+        Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod);
 
         return new AuthorizedServiceAuthorizer(
             AppCaches.Disabled,

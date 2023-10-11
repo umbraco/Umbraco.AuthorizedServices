@@ -136,11 +136,11 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             authorizationParams);
 
         url += "?oauth_consumer_key=" + serviceDetail.ClientId
-            + "&oauth_nonce" + nonce
+            + "&oauth_nonce=" + nonce
             + "&oauth_signature=" + Uri.EscapeDataString(signature)
             + "&oauth_signature_method=HMAC-SHA1"
-            + "&oauth_timestamp" + timestamp
-            + "&oauth_token" + oauth1Token.OAuthToken
+            + "&oauth_timestamp=" + timestamp
+            + "&oauth_token=" + oauth1Token.OAuthToken
             + "&oauth_version=1.0";
 
         HttpRequestMessage requestMessage = CreateRequestMessage(

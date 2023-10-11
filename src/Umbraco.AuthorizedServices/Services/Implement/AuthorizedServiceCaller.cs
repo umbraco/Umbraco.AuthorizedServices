@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Serialization;
@@ -114,7 +115,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             if (token is null)
             {
                 // No token exists, query the service for a request_token.
-                var url = _authorizationUrlBuilder.BuildOAuth1RequestTokenUrl(serviceDetail, _httpContextAccessor.HttpContext, httpMethod);
+                var url = _authorizationUrlBuilder.BuildOAuth1RequestTokenUrl(serviceDetail, _httpContextAccessor.HttpContext, httpMethod, OAuth1Helper.GetNonce(), OAuth1Helper.GetTimestamp());
                 requestMessage = _authorizedRequestBuilder.CreateRequestMessageForOAuth1Token(serviceDetail, url, httpMethod, requestContent);
             }
             else
@@ -158,10 +159,16 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             : KeyStorage.GetKey(serviceAlias);
     }
 
-    public string? GetToken(string serviceAlias)
+    public string? GetOAuth2Token(string serviceAlias)
     {
         OAuth2Token? token = GetAccessToken(serviceAlias);
         return token?.AccessToken;
+    }
+
+    public string? GetOAuth1OAuthToken(string serviceAlias)
+    {
+        OAuth1Token? token = GetOAuth1Token(serviceAlias);
+        return token?.OAuthToken;
     }
 
     private async Task<OAuth2Token> EnsureAccessToken(string serviceAlias, OAuth2Token token)

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
-using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 
 namespace Umbraco.AuthorizedServices.Tests.Services;

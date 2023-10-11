@@ -12,6 +12,32 @@ internal static class OAuth1Helper
     public static string GetNonce() =>
         Convert.ToBase64String(new ASCIIEncoding().GetBytes(DateTime.Now.Ticks.ToString()));
 
+    public static string GetSignature(
+        string httpMethod,
+        string url,
+        string consumerSecret,
+        Dictionary<string, string> authorizationParams)
+    {
+        string hashingKey = string.Format("{0}&", consumerSecret);
+
+        using var hasher = new HMACSHA1(new ASCIIEncoding().GetBytes(hashingKey));
+
+        string authorizationParamsStr = string.Join(
+            "&",
+            authorizationParams
+                .Select(kvp => string.Format("{0}={1}", Uri.EscapeDataString(kvp.Key), Uri.EscapeDataString(kvp.Value)))
+                .OrderBy(p => p));
+
+        // signature format: HTTP method (uppercase) + & + request URL + & + authorization parameters
+        string signature = string.Format(
+            "{0}&{1}&{2}",
+            httpMethod,
+            Uri.EscapeDataString(url),
+            Uri.EscapeDataString(authorizationParamsStr));
+
+        return Convert.ToBase64String(hasher.ComputeHash(new ASCIIEncoding().GetBytes(signature)));
+    }
+
     public static bool TryParseOAuth1Response(this string? response, out string oauthToken, out string oauthTokenSecret)
     {
         oauthToken = string.Empty;

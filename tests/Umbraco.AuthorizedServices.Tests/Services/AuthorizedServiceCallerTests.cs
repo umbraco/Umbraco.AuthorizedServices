@@ -27,7 +27,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public async Task SendRequestAsync_WithoutData_WithValidAccessToken_WithSuccessResponse_ReturnsExpectedResponse()
     {
         // Arrange
-        StoreToken();
+        StoreOAuth2Token();
 
         var path = "/api/test/";
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
@@ -64,7 +64,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public async Task SendRequestAsync_WithoutData_WithValidAccessToken_WithFailedResponse_ThrowsExpectedException()
     {
         // Arrange
-        StoreToken();
+        StoreOAuth2Token();
 
         var path = "/api/test/";
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.BadRequest);
@@ -80,7 +80,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public async Task SendRequestRawAsync_WithoutData_WithValidAccessToken_WithSuccessResponse_ReturnsExpectedResponse()
     {
         // Arrange
-        StoreToken();
+        StoreOAuth2Token();
 
         var path = "/api/test/";
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
@@ -100,7 +100,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public async Task SendRequestAsync_WithData_WithValidAccessToken_WithSuccessReponse_ReturnsExpectedResponse()
     {
         // Arrange
-        StoreToken();
+        StoreOAuth2Token();
 
         var path = "/api/test/";
         var data = new TestRequestData { Baz = "buzz" };
@@ -135,7 +135,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public async Task SendRequestAsync_WithExpiredAccessToken_WithRefreshTokenFail_ThrowsExpectedException()
     {
         // Arrange
-        StoreToken(-7);
+        StoreOAuth2Token(-7);
 
         var path = "/api/test/";
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, refreshTokenStatusCode: HttpStatusCode.BadRequest);
@@ -151,7 +151,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     public async Task SendRequestAsync_WithExpiredAccessToken_WithRefreshTokenSuccess_ReturnsExpectedRespons()
     {
         // Arrange
-        StoreToken(-7);
+        StoreOAuth2Token(-7);
 
         var path = "/api/test/";
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
@@ -210,14 +210,14 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public void GetToken_WithStoredToken_ReturnsAccessToken()
+    public void GetOAuth2Token_WithStoredToken_ReturnsAccessToken()
     {
         // Arrange
-        StoreToken();
+        StoreOAuth2Token();
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        var result = sut.GetToken(ServiceAlias);
+        var result = sut.GetOAuth2Token(ServiceAlias);
 
         // Assert
         result.Should().NotBeNull();
@@ -225,22 +225,55 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public void GetToken_WithoutStoredToken_ReturnsNull()
+    public void GetOAuth2Token_WithoutStoredToken_ReturnsNull()
     {
         // Arrange
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        var result = sut.GetToken(ServiceAlias);
+        var result = sut.GetOAuth2Token(ServiceAlias);
 
         // Assert
         result.Should().BeNull();
     }
 
-    private void StoreToken(int daysUntilExpiry = 7) =>
+    [Test]
+    public void GetOAuth1Token_WithStoredToken_ReturnsAccessToken()
+    {
+        // Arrange
+        StoreOAuth1Token();
+        AuthorizedServiceCaller sut = CreateService();
+
+        // Act
+        var result = sut.GetOAuth1OAuthToken(ServiceAlias);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Should().Be("abc");
+    }
+
+    [Test]
+    public void GetOAuth1Token_WithoutStoredToken_ReturnsNull()
+    {
+        // Arrange
+        AuthorizedServiceCaller sut = CreateService();
+
+        // Act
+        var result = sut.GetOAuth1OAuthToken(ServiceAlias);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    private void StoreOAuth2Token(int daysUntilExpiry = 7) =>
         OAuth2TokenStorageMock
             .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))
             .Returns(new OAuth2Token("abc", "def", DateTime.Now.AddDays(daysUntilExpiry)));
+
+    private void StoreOAuth1Token() =>
+        OAuth1TokenStorageMock
+            .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))
+            .Returns(new OAuth1Token("abc", "def"));
 
     private void StoreApiKey() =>
         KeyStorageMock
