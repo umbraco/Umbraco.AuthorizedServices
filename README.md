@@ -177,7 +177,8 @@ Provides a strongly typed configuration for a setup that allows exchanging an ac
 
 This setting is only utilized when `CanExchangeToken` is set to `true`.
 
-In this case the configuration includes:
+The configuration of exchange tokens includes:
+
 - `TokenHost`
 - `RequestTokenPath`
 - `TokenGrantType`
