@@ -165,7 +165,7 @@ Specifies whether the service supports generating of tokens via the provider's d
 
 ###### CanManuallyProvideApiKey
 
-Specifies whether an administrator can manually add API keys.
+Specifies whether an administrator can manually add API keys via the backoffice. You might prefer to use this option instead of storing the key in configuration via the `ApiKey` setting.
 
 ###### CanExchangeToken
 
