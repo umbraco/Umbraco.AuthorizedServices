@@ -42,6 +42,13 @@ public static class Constants
         public const string AuthorizedServices = nameof(AuthorizedServices);
     }
 
+    public static class Cache
+    {
+        public const string AuthorizationPayloadKeyFormat = "Umbraco_AuthorizedServices_Payload_{0}";
+
+        public const string AuthorizationTokenFormat = "Umbraco_AuthorizedServices_Token_{0}";
+    }
+
     public static class OAuth1
     {
         public const string OAuthToken = "oauth_token";
@@ -51,20 +58,32 @@ public static class Constants
         public const string OAuthVerifier = "oauth_verifier";
     }
 
-    public static class Migrations
+    public static class Database
     {
-        public const string UmbracoAuthorizedServiceOAuth2TokenTableName = "umbracoAuthorizedServiceOAuth2Token";
+        public static class TableNames
+        {
+            public const string OAuth2Token = "umbracoAuthorizedServiceOAuth2Token";
 
-        public const string UmbracoAuthorizedServiceKeyTableName = "umbracoAuthorizedServiceKey";
+            public const string ApiKey = "umbracoAuthorizedServiceKey";
 
-        public const string UmbracoAuthorizedServiceOAuth1TokenTableName = "umbracoAuthorizedServiceOAuth1Token";
+            public const string OAuth1Token = "umbracoAuthorizedServiceOAuth1Token";
+        }
 
-        public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
+        public static class Migrations
+        {
 
-        public const string UmbracoAuthorizedServiceOAuth2TokenTargetState = "authorizedServices-oauth2_token-db";
+            public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
 
-        public const string UmbracoAuthorizedServiceKeyTargetState = "authorizedServices-key-db";
+            public static class TargetStates
+            {
+                public const string AddOAuth2TokenTable = "authorizedServices-db";
 
-        public const string UmbracoAuthorizedServiceOAuth1TargetState = "authorizedServices-oauth1_token-db";
+                public const string RenameOAuth2TokenTable = "authorizedServices-oauth2-rename-db";
+
+                public const string AddKeyTable = "authorizedServices-key-db";
+
+                public const string AddOAuth1TokenTable = "authorizedServices-oauth1_token-db";
+            }
+        }
     }
 }

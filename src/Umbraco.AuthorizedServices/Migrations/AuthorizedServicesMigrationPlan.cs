@@ -11,17 +11,18 @@ public class AuthorizedServicesMigrationPlan : PackageMigrationPlan
     /// Initializes a new instance of the <see cref="AuthorizedServicesMigrationPlan" /> class.
     /// </summary>
     public AuthorizedServicesMigrationPlan()
-        : base(Constants.PackageName, Constants.Migrations.MigrationPlan)
+        : base(Constants.PackageName, Constants.Database.Migrations.MigrationPlan)
     { }
-
-    /// <inheritdoc />
-    public override bool IgnoreCurrentState => false;
 
     /// <inheritdoc />
     protected override void DefinePlan()
     {
-        To<AddDatabaseOAuth2TokenStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceOAuth2TokenTargetState);
-        To<AddDatabaseKeyStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceKeyTargetState);
-        To<AddDatabaseOAuth1TokenStorageTable>(Constants.Migrations.UmbracoAuthorizedServiceOAuth1TargetState);
+        // 0.2
+        To<AddOAuth2TokenTable>(Constants.Database.Migrations.TargetStates.AddOAuth2TokenTable);
+
+        // 0.3
+        To<RenameOAuth2TokenTable>(Constants.Database.Migrations.TargetStates.RenameOAuth2TokenTable);
+        To<AddKeyTable>(Constants.Database.Migrations.TargetStates.AddKeyTable);
+        To<AddOAuth1TokenTable>(Constants.Database.Migrations.TargetStates.AddOAuth1TokenTable);
     }
 }

@@ -7,7 +7,6 @@ using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Web.Common.Controllers;
-using Umbraco.Extensions;
 
 namespace Umbraco.AuthorizedServices.Controllers;
 
@@ -17,7 +16,6 @@ namespace Umbraco.AuthorizedServices.Controllers;
 public class AuthorizedServiceResponseController : UmbracoApiController
 {
     private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
-    private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
     private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
     private readonly AppCaches _appCaches;
 
@@ -26,12 +24,10 @@ public class AuthorizedServiceResponseController : UmbracoApiController
     /// </summary>
     public AuthorizedServiceResponseController(
         IAuthorizedServiceAuthorizer serviceAuthorizer,
-        IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         AppCaches appCaches)
     {
         _serviceAuthorizer = serviceAuthorizer;
-        _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
         _serviceDetailOptions = serviceDetailOptions;
         _appCaches = appCaches;
     }
@@ -49,8 +45,8 @@ public class AuthorizedServiceResponseController : UmbracoApiController
             throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
         }
 
-        AuthorizationPayload? cachedAuthorizationPayload = _authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]);
-        if (cachedAuthorizationPayload == null || stateParts[1] != cachedAuthorizationPayload.State)
+        var cacheKey = string.Format(Constants.Cache.AuthorizationPayloadKeyFormat, stateParts[0]);
+        if (_appCaches.RuntimeCache.Get(cacheKey) is not AuthorizationPayload cachedAuthorizationPayload || stateParts[1] != cachedAuthorizationPayload.State)
         {
             throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");
         }
@@ -59,10 +55,10 @@ public class AuthorizedServiceResponseController : UmbracoApiController
 
         var redirectUri = HttpContext.GetOAuth2AuthorizedServiceRedirectUri();
         var codeVerifier = cachedAuthorizationPayload.CodeVerifier;
-        _authorizedServiceAuthorizationPayloadCache.Remove(stateParts[0]);
+        _appCaches.RuntimeCache.ClearByKey(cacheKey);
         AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth2AuthorizationCodeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
 
-        // handle exchange
+        // Handle exchange of short for long-lived token if configured.
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(serviceAlias);
         if (serviceDetail.CanExchangeToken)
         {
@@ -86,7 +82,7 @@ public class AuthorizedServiceResponseController : UmbracoApiController
     /// <exception cref="AuthorizedServiceException"></exception>
     public async Task<IActionResult> HandleOAuth1IdentityResponse(string oauth_token, string oauth_verifier)
     {
-        var serviceAlias = _appCaches.RuntimeCache.GetCacheItem(oauth_token, () => string.Empty)
+        var serviceAlias = _appCaches.RuntimeCache.Get(oauth_token) as string
             ?? throw new AuthorizedServiceException("No cached service with the specified token was found.");
 
         AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth1ServiceAsync(serviceAlias, oauth_token, oauth_verifier);

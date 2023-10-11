@@ -99,17 +99,6 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
-    public HttpRequestMessage CreateRequestMessageForOAuth1Token<TRequest>(ServiceDetail serviceDetail, string url, HttpMethod httpMethod, TRequest? requestContent) where TRequest : class
-    {
-        HttpRequestMessage requestMessage = CreateRequestMessage(
-            httpMethod,
-            new Uri(url),
-            GetRequestContent(serviceDetail, requestContent));
-        AddCommonHeaders(requestMessage);
-
-        return requestMessage;
-    }
-
     public HttpRequestMessage CreateRequestMessageWithOAuth1Token<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, OAuth1Token oauth1Token, TRequest? requestContent) where TRequest : class
     {
         var url = serviceDetail.ApiHost + path;

@@ -217,7 +217,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        var result = sut.GetOAuth2Token(ServiceAlias);
+        var result = sut.GetOAuth2AccessToken(ServiceAlias);
 
         // Assert
         result.Should().NotBeNull();
@@ -231,7 +231,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        var result = sut.GetOAuth2Token(ServiceAlias);
+        var result = sut.GetOAuth2AccessToken(ServiceAlias);
 
         // Assert
         result.Should().BeNull();
@@ -245,7 +245,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        var result = sut.GetOAuth1OAuthToken(ServiceAlias);
+        var result = sut.GetOAuth1Token(ServiceAlias);
 
         // Assert
         result.Should().NotBeNull();
@@ -259,7 +259,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        var result = sut.GetOAuth1OAuthToken(ServiceAlias);
+        var result = sut.GetOAuth1Token(ServiceAlias);
 
         // Assert
         result.Should().BeNull();
