@@ -217,7 +217,7 @@ the authorization header.
 
 ###### API Key
 
-Specifies the key a service with `AuthenticationMethod=ApiKey` will use for making authorized requests to the API.
+Specifies the key a service with `AuthenticationMethod` set to `ApiKey` will use for making authorized requests to the API.
 
 ###### ApiKeyProvision
 
