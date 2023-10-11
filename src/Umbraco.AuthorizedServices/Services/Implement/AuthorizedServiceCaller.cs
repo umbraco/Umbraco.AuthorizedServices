@@ -111,17 +111,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
         else if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
         {
-            OAuth1Token? token = GetOAuth1Token(serviceAlias);
-            if (token is null)
-            {
-                // No token exists, query the service for a request_token.
-                var url = _authorizationUrlBuilder.BuildOAuth1RequestTokenUrl(serviceDetail, _httpContextAccessor.HttpContext, httpMethod, OAuth1Helper.GetNonce(), OAuth1Helper.GetTimestamp());
-                requestMessage = _authorizedRequestBuilder.CreateRequestMessageForOAuth1Token(serviceDetail, url, httpMethod, requestContent);
-            }
-            else
-            {
-                requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithOAuth1Token(serviceDetail, path, httpMethod, token, requestContent);
-            }
+            OAuth1Token? token = GetOAuth1Token(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no oauth token is available).");
+
+            requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithOAuth1Token(serviceDetail, path, httpMethod, token, requestContent);
         }
         else
         {

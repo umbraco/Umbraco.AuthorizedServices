@@ -1,3 +1,6 @@
+using System.IO;
+using System.Security.AccessControl;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -81,22 +84,6 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
 
                 authorizationUrl = _authorizationUrlBuilder
                     .BuildOAuth2AuthorizationUrl(serviceDetail, HttpContext, authorizationPayload.State, authorizationPayload.CodeChallenge);
-            }
-        }
-
-        if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1 && !isAuthorized)
-        {
-            var response = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.RequestAuthorizationPath, HttpMethod.Post);
-
-            if (response is not null && response.TryParseOAuth1Response(out var oauthToken, out _))
-            {
-                _appCaches.RuntimeCache.InsertCacheItem(oauthToken, () => serviceDetail.Alias);
-
-                authorizationUrl = string.Format(
-                    "{0}{1}?{2}",
-                    serviceDetail.IdentityHost,
-                    serviceDetail.RequestIdentityPath,
-                    response);
             }
         }
 
@@ -229,6 +216,29 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         }
 
         throw new AuthorizedServiceException("Failed to obtain access token");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GenerateRequestToken(GenerateToken model)
+    {
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
+
+        var url = _authorizationUrlBuilder.BuildOAuth1RequestTokenUrl(serviceDetail, HttpContext, HttpMethod.Post, OAuth1Helper.GetNonce(), OAuth1Helper.GetTimestamp());
+
+        Models.AuthorizationResult requestTokenResponse = await _serviceAuthorizer.GenerateOAuth1RequestTokenAsync(model.Alias, url);
+
+        if (requestTokenResponse.Success && requestTokenResponse.Result is not null && requestTokenResponse.Result.TryParseOAuth1Response(out var oauthToken, out _))
+        {
+            _appCaches.RuntimeCache.InsertCacheItem(oauthToken, () => serviceDetail.Alias);
+
+            return Ok(string.Format(
+                "{0}{1}?{2}",
+                serviceDetail.IdentityHost,
+                serviceDetail.RequestIdentityPath,
+                requestTokenResponse.Result));
+        }
+
+        throw new AuthorizedServiceException("Failed to obtain request token");
     }
 
     private bool CheckAuthorizationStatus(ServiceDetail serviceDetail) => serviceDetail.AuthenticationMethod switch

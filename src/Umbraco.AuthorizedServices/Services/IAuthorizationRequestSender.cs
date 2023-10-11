@@ -30,4 +30,11 @@ public interface IAuthorizationRequestSender
     /// <param name="parameters">The authorization parameters (OAuth token and verifier code).</param>
     /// <returns></returns>
     Task<HttpResponseMessage> SendOAuth1Request(ServiceDetail serviceDetail, Dictionary<string, string> parameters);
+
+    /// <summary>
+    /// Sends a request to the service for a request token.
+    /// </summary>
+    /// <param name="url">The OAuth1 generated URL.</param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> SendOAuth1RequestForRequestToken(string url);
 }

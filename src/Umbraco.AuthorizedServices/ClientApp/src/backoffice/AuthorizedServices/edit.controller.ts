@@ -25,19 +25,22 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
           isOAuth2ClientCredentials: serviceData.authenticationMethod === AuthenticationMethod.OAuth2ClientCredentials,
           isApiKey: serviceData.authenticationMethod === AuthenticationMethod.ApiKey
         };
-
-        console.log(vm.authenticationMethod);
       }, function (ex) {
         notificationsService.error("Authorized Services", ex.data.ExceptionMessage);
       });
   }
 
   vm.authorizeAccess = function () {
-    if (vm.authenticationMethod.toString() === AuthenticationMethod.OAuth2ClientCredentials.toString()) {
+    if (vm.authenticationMethod.isOAuth2ClientCredentials) {
       authorizedServiceResource.generateToken(serviceAlias)
         .then(function () {
           notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service has been authorized.");
           loadServiceDetails(serviceAlias);
+        });
+    } if (vm.authenticationMethod.isOAuth1) {
+      authorizedServiceResource.generateRequestToken(serviceAlias)
+        .then(function (response) {
+          location.href = response.data.message;
         });
     }
     else {

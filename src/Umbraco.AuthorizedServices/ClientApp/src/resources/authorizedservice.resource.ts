@@ -25,6 +25,9 @@ function authorizedServiceResource($q, $http) {
     },
     generateToken: function (alias: string) {
       return $http.post(apiRoot + "GenerateToken", { alias: alias });
+    },
+    generateRequestToken: function (alias: string) {
+      return $http.post(apiRoot + "GenerateRequestToken", { alias: alias});
     }
   };
 }

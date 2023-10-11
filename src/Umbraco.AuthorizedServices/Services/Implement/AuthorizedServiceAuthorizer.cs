@@ -69,6 +69,24 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         });
     }
 
+    public async Task<AuthorizationResult> GenerateOAuth1RequestTokenAsync(string serviceAlias, string url)
+    {
+        HttpResponseMessage response = await AuthorizationRequestSender.SendOAuth1RequestForRequestToken(url);
+        if (response.IsSuccessStatusCode)
+        {
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return AuthorizationResult.AsSuccess(responseContent);
+        }
+        else
+        {
+            throw new AuthorizedServiceHttpException(
+                $"Error response retrieving request token for '{serviceAlias}'.",
+                response.StatusCode,
+                response.ReasonPhrase,
+                await response.Content.ReadAsStringAsync());
+        }
+    }
+
     private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters, bool isExchangeTokenRequest = false)
     {
         HttpResponseMessage response = serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1
@@ -100,5 +118,4 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
                 await response.Content.ReadAsStringAsync());
         }
     }
-
 }
