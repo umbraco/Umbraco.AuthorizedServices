@@ -65,7 +65,7 @@ Details of services available need to be applied to the Umbraco web application'
         {
           "<serviceAlias>": {
             "DisplayName": "",
-            "AuthenticationMethod": "",
+            "AuthenticationMethod": "OAuth2AuthorizationCode|OAuth2ClientCredentials|OAuth1|ApiKey",
             "ClientCredentialsProvision": "",
             "ApiHost": "",
             "IdentityHost": "",
