@@ -174,6 +174,9 @@ Specifies whether the access token can be exchanged with a long lived one.
 ###### ExchangeTokenProvision
 
 Provides a strongly typed configuration for a setup that allows exchanging an access token. 
+
+This setting is only utilized when `CanExchangeToken` is set to `true`.
+
 In this case the configuration includes:
 - `TokenHost`
 - `RequestTokenPath`
