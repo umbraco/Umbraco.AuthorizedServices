@@ -135,7 +135,7 @@ Provides a friendly name for the service used for identification in the user int
 
 Specifies the type of authentication the service will use, from one of the following available options: `OAuth1`, `OAuth2AuthorizationCode`, `OAuth2ClientCredentials` or `ApiKey`.
 
-If none provided, it will default to `OAuth2AuthorizationCode`.
+If no value is provided, it will default to `OAuth2AuthorizationCode`.
 
 ###### ClientCredentialsProvision
 
