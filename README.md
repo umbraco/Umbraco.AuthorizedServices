@@ -159,7 +159,7 @@ Used, along with `IdentityHost` to construct a URL that the user is redirected t
 
 ###### CanManuallyProvideToken
 
-Specifies whether an administrator can manually add tokens.
+Specifies whether the service supports generating of tokens via the provider's developer portal such that an administrator can manually add one via the backoffice. 
 
 ###### CanManuallyProvideApiKey
 
