@@ -204,7 +204,7 @@ To make a call to an authorized service, you first need to obtain an instance of
 If making a request where all information is provided via the path and querystring, such as GET requests, the following method should be invoked:
 
 ```csharp
-Task<TResponse> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod);
+Task<Attempt<TResponse?>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod);
 ```
 
 The parameters for the request are as follows:
@@ -219,7 +219,7 @@ There is also a type parameter:
 If you need to provide data in the request, as is usually the case for POST or PUT requests that required the creation or update of a resource, an overload is available:
 
 ```csharp
-Task<TResponse> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+Task<Attempt<TResponse>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
     where TRequest : class;
 ```
 
@@ -234,16 +234,16 @@ And additional type parameter:
 If you need to work with the raw JSON response, there are equivalent methods for both of these that omit the deserialization step:
 
 ```csharp
-Task<string> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod);
+Task<Attempt<string?>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod);
 
-Task<string> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+Task<<Attempt<string?>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
     where TRequest : class;
 ```
 
 Finally, there are convenience extension methods available for each of the common HTTP verbs, allowing you to simplify the requests and omit the `HttpMethod` parameter, e.g.
 
 ```csharp
-Task<TResponse> GetRequestAsync<TResponse>(string serviceAlias, string path);
+Task<Attempt<TResponse?>> GetRequestAsync<TResponse>(string serviceAlias, string path);
 ```
 
 ## Providers

@@ -1,9 +1,9 @@
-using System.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Models;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Extensions;
@@ -40,41 +40,51 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
     }
 
-    public async Task SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
-      => await SendRequestAsync<EmptyResponse, object>(serviceAlias, path, httpMethod, null);
+    public async Task<Attempt<EmptyResponse?>> SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
+      => await SendRequestAsync<object, EmptyResponse>(serviceAlias, path, httpMethod, null);
 
-    public async Task<TResponse?> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod)
-      => await SendRequestAsync<EmptyResponse, TResponse>(serviceAlias, path, httpMethod, null);
+    public async Task<Attempt<TResponse?>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod)
+      => await SendRequestAsync<object, TResponse>(serviceAlias, path, httpMethod, null);
 
-    public async Task<TResponse?> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+    public async Task<Attempt<TResponse?>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class
     {
-        string responseContent = await SendRequestRawAsync(serviceAlias, path, httpMethod, requestContent);
+        Attempt<string?> responseContentAttempt = await SendRequestRawAsync(serviceAlias, path, httpMethod, requestContent);
 
-        if (typeof(TResponse) == typeof(EmptyResponse))
+        if (!responseContentAttempt.Success)
         {
-            return default;
+            if (responseContentAttempt.Exception is null)
+            {
+                return Attempt.Fail<TResponse?>();
+            }
+
+            return Attempt.Fail<TResponse?>(
+                default,
+                responseContentAttempt.Exception);
         }
 
+        var responseContent = responseContentAttempt.Result;
         if (!string.IsNullOrWhiteSpace(responseContent))
         {
             IJsonSerializer jsonSerializer = _jsonSerializerFactory.GetSerializer(serviceAlias);
             TResponse? result = jsonSerializer.Deserialize<TResponse>(responseContent);
             if (result != null)
             {
-                return result;
+                return Attempt.Succeed(result);
             }
 
-            throw new AuthorizedServiceException($"Could not deserialize result of request to service '{serviceAlias}'");
+            return Attempt.Fail<TResponse?>(
+                default,
+                new AuthorizedServiceException($"Could not deserialize result of request to service '{serviceAlias}'"));
         }
 
-        return default;
+        return Attempt.Succeed<TResponse?>(default);
     }
 
-    public async Task<string> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod)
+    public async Task<Attempt<string?>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod)
       => await SendRequestRawAsync<object>(serviceAlias, path, httpMethod, null);
 
-    public async Task<string> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+    public async Task<Attempt<string?>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
@@ -90,7 +100,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
             if (string.IsNullOrWhiteSpace(apiKey))
             {
-                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no API key is configured or stored).");
+                return Attempt.Fail<string?>(
+                    default,
+                    new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no API key is configured or stored)."));
             }
 
             requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithApiKey(
@@ -102,7 +114,13 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
         else
         {
-            Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no access token is available).");
+            Token? token = GetAccessToken(serviceAlias);
+            if (token is null)
+            {
+                return Attempt.Fail<string?>(
+                    default,
+                    new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no access token is available)."));
+            }
 
             token = serviceDetail.CanExchangeToken
                 ? await EnsureExchangeAccessToken(serviceAlias, token)
@@ -114,32 +132,47 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadAsStringAsync();
+            string responseContent = await response.Content.ReadAsStringAsync();
+            return Attempt.Succeed(responseContent);
         }
-        else if (response.StatusCode == HttpStatusCode.NotFound)
+
+        return Attempt.Fail<string?>(
+            default,
+            new AuthorizedServiceHttpException(
+                $"Error response received from request to '{serviceAlias}'.",
+                response.StatusCode,
+                response.ReasonPhrase,
+                await response.Content.ReadAsStringAsync()));
+    }
+
+    public Attempt<string?> GetApiKey(string serviceAlias)
+    {
+        // First check for configured API key.
+        var apiKey = GetServiceDetail(serviceAlias)?.ApiKey;
+        if (!string.IsNullOrWhiteSpace(apiKey))
         {
-            return string.Empty;
+            return Attempt.Succeed(apiKey);
         }
 
-        throw new AuthorizedServiceHttpException(
-            $"Error response received from request to '{serviceAlias}'.",
-            response.StatusCode,
-            response.ReasonPhrase,
-            await response.Content.ReadAsStringAsync());
+        // If not found, look for stored key.
+        apiKey = KeyStorage.GetKey(serviceAlias);
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            return Attempt.Succeed(apiKey);
+        }
+
+        return Attempt.Fail<string?>();
     }
 
-    public string? GetApiKey(string serviceAlias)
+    public Attempt<string?> GetToken(string serviceAlias)
     {
-        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
-        return !string.IsNullOrEmpty(serviceDetail.ApiKey)
-            ? serviceDetail.ApiKey
-            : KeyStorage.GetKey(serviceAlias);
-    }
+        var accessToken = GetAccessToken(serviceAlias)?.AccessToken;
+        if (!string.IsNullOrWhiteSpace(accessToken))
+        {
+            return Attempt.Succeed(accessToken);
+        }
 
-    public string? GetToken(string serviceAlias)
-    {
-        Token? token = GetAccessToken(serviceAlias);
-        return token?.AccessToken;
+        return Attempt.Fail<string?>();
     }
 
     private async Task<Token> EnsureAccessToken(string serviceAlias, Token token)
@@ -247,8 +280,4 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     }
 
     private static string GetTokenCacheKey(string serviceAlias) => $"Umbraco_AuthorizedServiceToken_{serviceAlias}";
-
-    private class EmptyResponse
-    {
-    }
 }

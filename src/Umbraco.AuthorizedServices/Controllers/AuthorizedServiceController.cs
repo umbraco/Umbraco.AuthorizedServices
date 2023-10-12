@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -6,6 +7,7 @@ using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Models.Request;
 using Umbraco.AuthorizedServices.Services;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
 
@@ -119,8 +121,26 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     [HttpGet]
     public async Task<IActionResult> SendSampleRequest(string alias, string path)
     {
-        string response = await _authorizedServiceCaller.SendRequestRawAsync(alias, path, HttpMethod.Get);
-        return Ok(response);
+        Attempt<string?> responseAttempt = await _authorizedServiceCaller.SendRequestRawAsync(alias, path, HttpMethod.Get);
+        if (responseAttempt.Success && responseAttempt.Result is not null)
+        {
+            return Ok(responseAttempt.Result);
+        }
+
+        if (responseAttempt.Exception is not null)
+        {
+            if (responseAttempt.Exception is AuthorizedServiceHttpException authorizedServiceHttpException)
+            {
+                return StatusCode((int)authorizedServiceHttpException.StatusCode, authorizedServiceHttpException.Reason + ": " + authorizedServiceHttpException.Content);
+            }
+
+            if (responseAttempt.Exception is AuthorizedServiceException authorizedServiceException)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, authorizedServiceException.Message);
+            }
+        }
+
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Could not complete the sample request due to an unexpected error");
     }
 
     /// <summary>
