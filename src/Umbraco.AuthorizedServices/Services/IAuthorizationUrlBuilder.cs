@@ -9,7 +9,7 @@ namespace Umbraco.AuthorizedServices.Services;
 public interface IAuthorizationUrlBuilder
 {
     /// <summary>
-    /// Builds the request token URL.
+    /// Builds the OAuth1 request token URL.
     /// </summary>
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="httpContext">The HTTP context.</param>
@@ -20,7 +20,7 @@ public interface IAuthorizationUrlBuilder
     string BuildOAuth1RequestTokenUrl(ServiceDetail serviceDetail, HttpContext? httpContext, HttpMethod httpMethod, string nonce, string timestamp);
 
     /// <summary>
-    /// Buulds the authorization URL.
+    /// Builds the OAuth2 authorization URL.
     /// </summary>
     /// <param name="serviceDetail">The service detail.</param>
     /// <param name="httpContext">The HTTP context.</param>

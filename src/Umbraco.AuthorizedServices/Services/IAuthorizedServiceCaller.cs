@@ -54,7 +54,6 @@ public interface IAuthorizedServiceCaller
     /// <param name="httpMethod">The HTTP method.</param>
     /// <param name="requestContent">The request data.</param>
     /// <returns>A <see cref="Task{String}"/> representing the result of the asynchronous operation.</returns>
-
     Task<string> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class;
 
@@ -63,14 +62,14 @@ public interface IAuthorizedServiceCaller
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>The access token if found, otherwise null.</returns>
-    string? GetOAuth2Token(string serviceAlias);
+    string? GetOAuth2AccessToken(string serviceAlias);
 
     /// <summary>
     /// Sends a request to an authorized service to receive the unencrypted OAuth token.
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>The OAuth token if found, otherwise null.</returns>
-    string? GetOAuth1OAuthToken(string serviceAlias);
+    string? GetOAuth1Token(string serviceAlias);
 
     /// <summary>
     /// Retrieve's the configured API key for a service.

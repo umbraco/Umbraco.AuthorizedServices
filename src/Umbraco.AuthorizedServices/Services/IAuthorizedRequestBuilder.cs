@@ -45,22 +45,6 @@ public interface IAuthorizedRequestBuilder
         where TRequest : class;
 
     /// <summary>
-    /// Creates a request to an authorized service for a request token in an OAuth1 flow.
-    /// </summary>
-    /// <typeparam name="TRequest">The typed request data.</typeparam>
-    /// <param name="serviceDetail">The service detail.</param>
-    /// <param name="url">The request path.</param>
-    /// <param name="httpMethod">The HTTP method.</param>
-    /// <param name="requestContent">The request data.</param>
-    /// <returns>The request instance.</returns>
-    HttpRequestMessage CreateRequestMessageForOAuth1Token<TRequest>(
-        ServiceDetail serviceDetail,
-        string url,
-        HttpMethod httpMethod,
-        TRequest? requestContent)
-        where TRequest : class;
-
-    /// <summary>
     /// Creates an request to an authorized service using OAuth1 flow.
     /// </summary>
     /// <typeparam name="TRequest">The typed request data.</typeparam>

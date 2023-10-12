@@ -111,13 +111,13 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
         else if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
         {
-            OAuth1Token? token = GetOAuth1Token(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no oauth token is available).");
+            OAuth1Token? token = GetOAuth1TokenFromCacheOrStorage(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no OAuth token is available).");
 
             requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithOAuth1Token(serviceDetail, path, httpMethod, token, requestContent);
         }
         else
         {
-            OAuth2Token? token = GetAccessToken(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no access token is available).");
+            OAuth2Token? token = GetOAuth2AccessTokenFromCacheOrStorage(serviceAlias) ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as access has not yet been authorized (no access token is available).");
 
             token = serviceDetail.CanExchangeToken
                 ? await EnsureExchangeAccessToken(serviceAlias, token)
@@ -130,10 +130,6 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadAsStringAsync();
-        }
-        else if (response.StatusCode == HttpStatusCode.NotFound)
-        {
-            return string.Empty;
         }
 
         throw new AuthorizedServiceHttpException(
@@ -151,15 +147,15 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             : KeyStorage.GetKey(serviceAlias);
     }
 
-    public string? GetOAuth2Token(string serviceAlias)
+    public string? GetOAuth2AccessToken(string serviceAlias)
     {
-        OAuth2Token? token = GetAccessToken(serviceAlias);
+        OAuth2Token? token = GetOAuth2AccessTokenFromCacheOrStorage(serviceAlias);
         return token?.AccessToken;
     }
 
-    public string? GetOAuth1OAuthToken(string serviceAlias)
+    public string? GetOAuth1Token(string serviceAlias)
     {
-        OAuth1Token? token = GetOAuth1Token(serviceAlias);
+        OAuth1Token? token = GetOAuth1TokenFromCacheOrStorage(serviceAlias);
         return token?.OAuthToken;
     }
 
@@ -170,7 +166,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         {
             if (string.IsNullOrEmpty(token.RefreshToken))
             {
-                ClearAccessToken(serviceAlias);
+                ClearOAuth2AccessToken(serviceAlias);
                 throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expire and no refresh token is available to use. The expired token has been deleted.");
             }
 
@@ -240,7 +236,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
     }
 
-    private OAuth2Token? GetAccessToken(string serviceAlias)
+    private OAuth2Token? GetOAuth2AccessTokenFromCacheOrStorage(string serviceAlias)
     {
         // First look in cache.
         var cacheKey = GetTokenCacheKey(serviceAlias);
@@ -261,15 +257,34 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return null;
     }
 
-    private OAuth1Token? GetOAuth1Token(string serviceAlias) => OAuth1TokenStorage.GetToken(serviceAlias);
+    private OAuth1Token? GetOAuth1TokenFromCacheOrStorage(string serviceAlias)
+    {
+        // First look in cache.
+        var cacheKey = GetTokenCacheKey(serviceAlias);
+        OAuth1Token? token = AppCaches.RuntimeCache.GetCacheItem<OAuth1Token>(cacheKey);
+        if (token != null)
+        {
+            return token;
+        }
 
-    private void ClearAccessToken(string serviceAlias)
+        // Second, look in storage, and if found, save to cache.
+        token = OAuth1TokenStorage.GetToken(serviceAlias);
+        if (token != null)
+        {
+            AppCaches.RuntimeCache.InsertCacheItem(cacheKey, () => token);
+            return token;
+        }
+
+        return null;
+    }
+
+    private void ClearOAuth2AccessToken(string serviceAlias)
     {
         AppCaches.RuntimeCache.ClearByKey(GetTokenCacheKey(serviceAlias));
         OAuth2TokenStorage.DeleteToken(serviceAlias);
     }
 
-    private static string GetTokenCacheKey(string serviceAlias) => $"Umbraco_AuthorizedServiceToken_{serviceAlias}";
+    private static string GetTokenCacheKey(string serviceAlias) => string.Format(Constants.Cache.AuthorizationTokenFormat, serviceAlias);
 
     private class EmptyResponse
     {

@@ -7,7 +7,7 @@ namespace Umbraco.AuthorizedServices.Tests.Services;
 internal class TokenFactoryTests
 {
     [Test]
-    public void CreateFromResponseContent_CreatesOAuth2Token()
+    public void CreateFromOAuth2ResponseContent_CreatesOAuth2Token()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
@@ -33,7 +33,7 @@ internal class TokenFactoryTests
     }
 
     [Test]
-    public void CreateFromResponseToken_CreatesOAuth1Token()
+    public void CreateFromOAuth1ResponseContent_CreatesOAuth1Token()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
@@ -57,5 +57,4 @@ internal class TokenFactoryTests
         result.OAuthToken.Should().Be("token-123");
         result.OAuthTokenSecret.Should().Be("secret-456");
     }
-
 }

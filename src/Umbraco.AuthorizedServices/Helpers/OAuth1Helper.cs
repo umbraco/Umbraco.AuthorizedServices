@@ -1,6 +1,5 @@
 using System.Security.Cryptography;
 using System.Text;
-using Umbraco.AuthorizedServices.Models;
 
 namespace Umbraco.AuthorizedServices.Helpers;
 

@@ -31,8 +31,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     private readonly AppCaches _appCaches;
     private readonly IAuthorizationUrlBuilder _authorizationUrlBuilder;
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
-    private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
-    private readonly IAuthorizationPayloadBuilder _authorizedServiceAuthorizationPayloadBuilder;
+    private readonly IAuthorizationPayloadBuilder _authorizationPayloadBuilder;
     private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
 
     /// <summary>
@@ -46,8 +45,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         AppCaches appCaches,
         IAuthorizationUrlBuilder authorizationUrlBuilder,
         IAuthorizedServiceCaller authorizedServiceCaller,
-        IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
-        IAuthorizationPayloadBuilder authorizedServiceAuthorizationPayloadBuilder,
+        IAuthorizationPayloadBuilder authorizationPayloadBuilder,
         IAuthorizedServiceAuthorizer serviceAuthorizer)
     {
         _serviceDetailOptions = serviceDetailOptions;
@@ -57,8 +55,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         _appCaches = appCaches;
         _authorizationUrlBuilder = authorizationUrlBuilder;
         _authorizedServiceCaller = authorizedServiceCaller;
-        _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
-        _authorizedServiceAuthorizationPayloadBuilder = authorizedServiceAuthorizationPayloadBuilder;
+        _authorizationPayloadBuilder = authorizationPayloadBuilder;
         _serviceAuthorizer = serviceAuthorizer;
     }
 
@@ -67,7 +64,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// </summary>
     /// <param name="alias">The service alias.</param>
     [HttpGet]
-    public async Task<AuthorizedServiceDisplay?> GetByAlias(string alias)
+    public AuthorizedServiceDisplay? GetByAlias(string alias)
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(alias);
 
@@ -78,9 +75,10 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         {
             if (!isAuthorized)
             {
-                AuthorizationPayload authorizationPayload = _authorizedServiceAuthorizationPayloadBuilder.BuildPayload();
+                AuthorizationPayload authorizationPayload = _authorizationPayloadBuilder.BuildPayload();
 
-                _authorizedServiceAuthorizationPayloadCache.Add(alias, authorizationPayload);
+                var cacheKey = string.Format(Constants.Cache.AuthorizationPayloadKeyFormat, alias);
+                _appCaches.RuntimeCache.Insert(cacheKey, () => authorizationPayload);
 
                 authorizationUrl = _authorizationUrlBuilder
                     .BuildOAuth2AuthorizationUrl(serviceDetail, HttpContext, authorizationPayload.State, authorizationPayload.CodeChallenge);
@@ -143,21 +141,23 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     public IActionResult RevokeAccess(RevokeAccess model)
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
-        if (serviceDetail.AuthenticationMethod != AuthenticationMethod.ApiKey)
+
+        switch (serviceDetail.AuthenticationMethod)
         {
-            if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
-            {
+            case AuthenticationMethod.ApiKey:
+                _keyStorage.DeleteKey(model.Alias);
+                break;
+            case AuthenticationMethod.OAuth1:
                 _oauth1TokenStorage.DeleteToken(model.Alias);
-            }
-            else
-            {
+                break;
+            case AuthenticationMethod.OAuth2AuthorizationCode:
+            case AuthenticationMethod.OAuth2ClientCredentials:
                 _oauth2TokenStorage.DeleteToken(model.Alias);
-            }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(serviceDetail.AuthenticationMethod));
         }
-        else
-        {
-            _keyStorage.DeleteKey(model.Alias);
-        }
+
         return Ok();
     }
 
@@ -198,7 +198,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     }
 
     /// <summary>
-    /// Generates access token for an authorized service.
+    /// Generates access token for an authorized service (using OAuth2).
     /// </summary>
     /// <param name="model">Request model identifying the service.</param>
     /// <returns></returns>
@@ -247,7 +247,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         AuthenticationMethod.OAuth2AuthorizationCode => StoredOAuth2TokenExists(serviceDetail),
         AuthenticationMethod.OAuth2ClientCredentials => StoredOAuth2TokenExists(serviceDetail),
         AuthenticationMethod.ApiKey => !string.IsNullOrEmpty(serviceDetail.ApiKey)
-                                        || _keyStorage.GetKey(serviceDetail.Alias) is not null,
+                                       || _keyStorage.GetKey(serviceDetail.Alias) is not null,
         _ => false
     };
 
