@@ -51,8 +51,8 @@ Services that this package are intended to support will offer an OAuth authentic
 
 When creating the app it will usually be necessary to configure a call back URL. You should use the following:
 
-- For OAuth2: `/api/AuthorizedServiceResponse/HandleOAuth2IdentityResponse`
-- For OAuth1: `/api/AuthorizedServiceResponse/HandleOAuth1IdentityResponse`
+- For OAuth2: `/umbraco/api/AuthorizedServiceResponse/HandleOAuth2IdentityResponse`
+- For OAuth1: `/umbraco/api/AuthorizedServiceResponse/HandleOAuth1IdentityResponse`
 
 ### Configuring a Service
 
