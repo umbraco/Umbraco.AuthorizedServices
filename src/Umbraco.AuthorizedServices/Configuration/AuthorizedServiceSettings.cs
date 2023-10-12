@@ -184,6 +184,16 @@ public class ServiceDetail : ServiceSummary
     public string RequestTokenPath { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets a value indicating whether additional parameters need to be sent when requesting OAuth1 access token.
+    /// </summary>
+    public bool UseRequestTokenWithExtendedParametersList { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTTP method used to retrieve the access token.
+    /// </summary>
+    public HttpMethod RequestTokenMethod { get; set; } = HttpMethod.Post;
+
+    /// <summary>
     /// Gets or sets the format to use for encoding the request for a token.
     /// </summary>
     public TokenRequestContentFormat? RequestTokenFormat { get; set; }

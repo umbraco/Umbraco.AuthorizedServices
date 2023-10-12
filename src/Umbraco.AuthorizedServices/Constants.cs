@@ -56,6 +56,18 @@ public static class Constants
         public const string OAuthTokenSecret = "oauth_token_secret";
 
         public const string OAuthVerifier = "oauth_verifier";
+
+        public const string OAuthNonce = "oauth_nonce";
+
+        public const string OAuthTimestamp = "oauth_timestamp";
+
+        public const string OAuthSignature = "oauth_signature";
+
+        public const string OAuthSignatureMethod = "oauth_signature_method";
+
+        public const string OAuthConsumerKey = "oauth_consumer_key";
+
+        public const string OAuthVersion = "oauth_version";
     }
 
     public static class Database

@@ -15,9 +15,12 @@ internal static class OAuth1Helper
         string httpMethod,
         string url,
         string consumerSecret,
+        string? oauthTokenSecret,
         Dictionary<string, string> authorizationParams)
     {
-        string hashingKey = string.Format("{0}&", consumerSecret);
+        string hashingKey = oauthTokenSecret is null
+            ? string.Format("{0}&", consumerSecret)
+            : string.Format("{0}&{1}", consumerSecret, oauthTokenSecret);
 
         using var hasher = new HMACSHA1(new ASCIIEncoding().GetBytes(hashingKey));
 

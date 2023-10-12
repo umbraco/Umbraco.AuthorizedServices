@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.Extensions;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
@@ -68,11 +69,26 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
     {
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
-        var url = serviceDetail.IdentityHost + serviceDetail.RequestTokenPath
-            + $"?{Constants.OAuth1.OAuthToken}=" + parameters[Constants.OAuth1.OAuthToken]
-            + $"&{Constants.OAuth1.OAuthVerifier}=" + parameters[Constants.OAuth1.OAuthVerifier];
+        var url = new StringBuilder();
+        url.Append(serviceDetail.IdentityHost)
+            .Append(serviceDetail.RequestTokenPath);
 
-        return await httpClient.PostAsync(url, null);
+        if(serviceDetail.UseRequestTokenWithExtendedParametersList)
+        {
+            foreach (KeyValuePair<string, string> parameter in parameters.OrderBy(p => p.Key))
+            {
+                url.Append($"{(parameters.IndexOf(parameter) == 0 ? "?" : "&")}{parameter.Key}=").Append(parameter.Value);
+            }
+        }
+        else
+        {
+            url.Append($"?{Constants.OAuth1.OAuthToken}=").Append(parameters[Constants.OAuth1.OAuthToken]);
+            url.Append($"&{Constants.OAuth1.OAuthVerifier}=").Append(parameters[Constants.OAuth1.OAuthVerifier]);
+        }
+
+        return serviceDetail.RequestTokenMethod == HttpMethod.Get
+            ? await httpClient.GetAsync(url.ToString())
+            : await httpClient.PostAsync(url.ToString(), null);
     }
 
     public async Task<HttpResponseMessage> SendOAuth1RequestForRequestToken(string url)

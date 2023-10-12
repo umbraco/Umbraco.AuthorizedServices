@@ -124,12 +124,13 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// Sends a sample request for an authorized service.
     /// </summary>
     /// <param name="alias">The service alias.</param>
-    /// <param name="path">The path to the sample request.</param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<IActionResult> SendSampleRequest(string alias, string path)
+    public async Task<IActionResult> SendSampleRequest(string alias)
     {
-        string response = await _authorizedServiceCaller.SendRequestRawAsync(alias, path, HttpMethod.Get);
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(alias);
+
+        string response = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.SampleRequest ?? string.Empty, HttpMethod.Get);
         return Ok(response);
     }
 
@@ -227,9 +228,11 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
 
         Models.AuthorizationResult requestTokenResponse = await _serviceAuthorizer.GenerateOAuth1RequestTokenAsync(model.Alias, url);
 
-        if (requestTokenResponse.Success && requestTokenResponse.Result is not null && requestTokenResponse.Result.TryParseOAuth1Response(out var oauthToken, out _))
+        if (requestTokenResponse.Success && requestTokenResponse.Result is not null && requestTokenResponse.Result.TryParseOAuth1Response(out var oauthToken, out var oauthTokenSecret))
         {
             _appCaches.RuntimeCache.InsertCacheItem(oauthToken, () => serviceDetail.Alias);
+
+            _appCaches.RuntimeCache.InsertCacheItem($"{serviceDetail.Alias}-oauth-token-secret", () => oauthTokenSecret);
 
             return Ok(string.Format(
                 "{0}{1}?{2}",

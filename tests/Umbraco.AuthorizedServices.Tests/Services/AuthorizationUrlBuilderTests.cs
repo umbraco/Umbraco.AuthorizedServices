@@ -95,6 +95,7 @@ internal class AuthorizationUrlBuilderTests
             httpMethod.ToString(),
             $"{serviceDetail.IdentityHost}{serviceDetail.RequestAuthorizationPath}",
             serviceDetail.ClientSecret,
+            null,
             authorizationParameters);
 
         var sut = new AuthorizationUrlBuilder();
@@ -149,6 +150,7 @@ internal class AuthorizationUrlBuilderTests
             httpMethod.ToString(),
             $"{serviceDetail.IdentityHost}{serviceDetail.RequestAuthorizationPath}",
             serviceDetail.ClientSecret,
+            null,
             authorizationParameters);
 
         var sut = new AuthorizationUrlBuilder();

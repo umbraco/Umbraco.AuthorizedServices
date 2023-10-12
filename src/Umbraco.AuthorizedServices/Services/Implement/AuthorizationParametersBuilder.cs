@@ -1,4 +1,5 @@
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Helpers;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
@@ -39,6 +40,40 @@ internal sealed class AuthorizationParametersBuilder : IAuthorizationParametersB
         if (serviceDetail.IncludeScopesInAuthorizationRequest)
         {
             parametersDictionary.Add("scope", serviceDetail.Scopes);
+        }
+
+        return parametersDictionary;
+    }
+
+    public Dictionary<string, string> BuildParametersForOAuth1(ServiceDetail serviceDetail, string oauthToken, string oauthVerifier, string oauthTokenSecret)
+    {
+        string nonce = OAuth1Helper.GetNonce();
+        string timestamp = OAuth1Helper.GetTimestamp();
+
+        var parametersDictionary = new Dictionary<string, string>();
+        if (serviceDetail.UseRequestTokenWithExtendedParametersList)
+        {
+            parametersDictionary.Add(Constants.OAuth1.OAuthConsumerKey, serviceDetail.ClientId);
+            parametersDictionary.Add(Constants.OAuth1.OAuthNonce, nonce);
+            parametersDictionary.Add(Constants.OAuth1.OAuthSignatureMethod, "HMAC-SHA1");
+            parametersDictionary.Add(Constants.OAuth1.OAuthTimestamp, timestamp);
+            parametersDictionary.Add(Constants.OAuth1.OAuthToken, oauthToken);
+            parametersDictionary.Add(Constants.OAuth1.OAuthVerifier, oauthVerifier);
+            parametersDictionary.Add(Constants.OAuth1.OAuthVersion, "1.0");
+
+            var signature = OAuth1Helper.GetSignature(
+                serviceDetail.RequestTokenMethod.Method,
+                $"{serviceDetail.IdentityHost}{serviceDetail.RequestTokenPath}",
+                serviceDetail.ClientSecret,
+                oauthTokenSecret,
+                parametersDictionary);
+
+            parametersDictionary.Add(Constants.OAuth1.OAuthSignature, Uri.EscapeDataString(signature));
+        }
+        else
+        {
+            parametersDictionary.Add(Constants.OAuth1.OAuthToken, oauthToken);
+            parametersDictionary.Add(Constants.OAuth1.OAuthVerifier, oauthVerifier);
         }
 
         return parametersDictionary;

@@ -1,11 +1,9 @@
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
-using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Infrastructure.Serialization;
-using Umbraco.Extensions;
 
 namespace Umbraco.AuthorizedServices.Tests.Services;
 

@@ -58,7 +58,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
 
   vm.sendSampleRequest = function () {
     vm.sampleRequestResponse = null;
-    authorizedServiceResource.sendSampleRequest(serviceAlias, vm.sampleRequest)
+    authorizedServiceResource.sendSampleRequest(serviceAlias)
       .then(function (response) {
         vm.sampleRequestResponse = "Request: " + vm.sampleRequest + "\r\nResponse: " + JSON.stringify(response.data, null, 2);
       })

@@ -127,6 +127,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
 
         HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
+
         if (response.IsSuccessStatusCode)
         {
             return await response.Content.ReadAsStringAsync();

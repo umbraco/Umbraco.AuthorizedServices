@@ -44,6 +44,7 @@ internal sealed class AuthorizationUrlBuilder : IAuthorizationUrlBuilder
             httpMethod.Method.ToUpper(),
             $"{serviceDetail.IdentityHost}{serviceDetail.RequestAuthorizationPath}",
             serviceDetail.ClientSecret,
+            null,
             authorizationParams);
         url.Append("&oauth_signature=").Append(Uri.EscapeDataString(signature));
         url.Append("&oauth_signature_method=HMAC-SHA1");

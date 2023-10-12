@@ -117,11 +117,11 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
                 { "oauth_version", "1.0" }
             };
 
-        var signature = GetAuthorizedSignature(
+        var signature = OAuth1Helper.GetSignature(
             httpMethod.Method.ToUpper(),
             url,
             serviceDetail.ClientSecret,
-            oauth1Token,
+            oauth1Token.OAuthTokenSecret,
             authorizationParams);
 
         url += "?oauth_consumer_key=" + serviceDetail.ClientId
