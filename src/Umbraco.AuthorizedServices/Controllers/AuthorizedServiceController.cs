@@ -1,7 +1,4 @@
-using System.IO;
 using System.Net;
-using System.Security.AccessControl;
-using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -79,7 +76,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
             {
                 AuthorizationPayload authorizationPayload = _authorizationPayloadBuilder.BuildPayload();
 
-                var cacheKey = string.Format(Constants.Cache.AuthorizationPayloadKeyFormat, alias);
+                var cacheKey = CacheHelper.GetPayloadKey(alias);
                 _appCaches.RuntimeCache.Insert(cacheKey, () => authorizationPayload);
 
                 authorizationUrl = _authorizationUrlBuilder
@@ -167,19 +164,34 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         {
             case AuthenticationMethod.ApiKey:
                 _keyStorage.DeleteKey(model.Alias);
+                ClearCachedApiKey(model.Alias);
                 break;
             case AuthenticationMethod.OAuth1:
                 _oauth1TokenStorage.DeleteToken(model.Alias);
+                ClearCachedToken(model.Alias);
                 break;
             case AuthenticationMethod.OAuth2AuthorizationCode:
             case AuthenticationMethod.OAuth2ClientCredentials:
                 _oauth2TokenStorage.DeleteToken(model.Alias);
+                ClearCachedToken(model.Alias);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(serviceDetail.AuthenticationMethod));
         }
 
         return Ok();
+    }
+
+    private void ClearCachedApiKey(string serviceAlias)
+    {
+        var cacheKey = CacheHelper.GetApiKeyCacheKey(serviceAlias);
+        _appCaches.RuntimeCache.ClearByKey(cacheKey);
+    }
+
+    private void ClearCachedToken(string serviceAlias)
+    {
+        var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
+        _appCaches.RuntimeCache.ClearByKey(cacheKey);
     }
 
     /// <summary>
@@ -252,7 +264,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         {
             _appCaches.RuntimeCache.InsertCacheItem(oauthToken, () => serviceDetail.Alias);
 
-            _appCaches.RuntimeCache.InsertCacheItem($"{serviceDetail.Alias}-oauth-token-secret", () => oauthTokenSecret);
+            _appCaches.RuntimeCache.InsertCacheItem(CacheHelper.GetTokenSecretCacheKey(serviceDetail.Alias), () => oauthTokenSecret);
 
             return Ok(string.Format(
                 "{0}{1}?{2}",

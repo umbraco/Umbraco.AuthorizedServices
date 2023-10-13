@@ -145,7 +145,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     {
         var apiKey = !string.IsNullOrEmpty(serviceDetail.ApiKey)
             ? serviceDetail.ApiKey
-            : KeyStorage.GetKey(serviceAlias);
+            : GetApiKeyFromCacheOrStorage(serviceAlias);
 
         if (string.IsNullOrWhiteSpace(apiKey))
         {
@@ -314,10 +314,31 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
     }
 
+    private string? GetApiKeyFromCacheOrStorage(string serviceAlias)
+    {
+        // First look in cache.
+        var cacheKey = CacheHelper.GetApiKeyCacheKey(serviceAlias);
+        string? apiKey = AppCaches.RuntimeCache.GetCacheItem<string>(cacheKey);
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            return apiKey;
+        }
+
+        // Second, look in storage, and if found, save to cache.
+        apiKey = KeyStorage.GetKey(serviceAlias);
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            AppCaches.RuntimeCache.InsertCacheItem(cacheKey, () => apiKey);
+            return apiKey;
+        }
+
+        return null;
+    }
+
     private OAuth2Token? GetOAuth2TokenFromCacheOrStorage(string serviceAlias)
     {
         // First look in cache.
-        var cacheKey = GetTokenCacheKey(serviceAlias);
+        var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
         OAuth2Token? token = AppCaches.RuntimeCache.GetCacheItem<OAuth2Token>(cacheKey);
         if (token != null)
         {
@@ -338,7 +359,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     private OAuth1Token? GetOAuth1TokenFromCacheOrStorage(string serviceAlias)
     {
         // First look in cache.
-        var cacheKey = GetTokenCacheKey(serviceAlias);
+        var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
         OAuth1Token? token = AppCaches.RuntimeCache.GetCacheItem<OAuth1Token>(cacheKey);
         if (token != null)
         {
@@ -358,9 +379,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
     private void ClearOAuth2AccessToken(string serviceAlias)
     {
-        AppCaches.RuntimeCache.ClearByKey(GetTokenCacheKey(serviceAlias));
+        var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
+        AppCaches.RuntimeCache.ClearByKey(cacheKey);
         OAuth2TokenStorage.DeleteToken(serviceAlias);
     }
-
-    private static string GetTokenCacheKey(string serviceAlias) => string.Format(Constants.Cache.AuthorizationTokenFormat, serviceAlias);
 }
