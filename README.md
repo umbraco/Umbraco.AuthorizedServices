@@ -270,7 +270,7 @@ The following details are those useful for those contributing to development of 
 
 The following diagrams indicate some of the key authentication and authorization flows supported by the package, along with the components involved.
 
-#### OAuth2 Display of Service Status
+#### OAuth2 Display of Service Status and Authorization Link
 
 This diagram shows the steps involved with finding and displaying the status of a service in the backoffice, along with how the authorization URL that the user is presented with to initiate the authorization process is generated.
 
@@ -282,6 +282,10 @@ This diagram shows the steps and components involved in the authorization flow f
 
 ![OAuth2 Authorization Flow](./docs/images/oauth2-authorization-flow.png)
 
+#### OAuth1 Display of Service Status and Authorization Link
+
+TBC
+
 #### OAuth1 Authorization Flow
 
 TBC
@@ -289,6 +293,8 @@ TBC
 #### Calling an Authorized Service
 
 The following diagram shows the steps and components involved in making a request to an external service. It shows the three methods available: OAuth2, OAuth1 and API key.
+
+![OAuth2 Authorization Flow](./docs/images/call-authorized-service.png)
 
 ### Component Description
 

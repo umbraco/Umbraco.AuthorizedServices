@@ -10,7 +10,7 @@ public class AuthorizationResult
     }
 
     /// <summary>
-    /// Gets a value indicating whether the operation succeeeded.
+    /// Gets a value indicating whether the operation succeeded.
     /// </summary>
     public bool Success { get; private set; }
 
