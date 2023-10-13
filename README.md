@@ -266,6 +266,30 @@ The branching strategy in this repository follows a "gitflow" model:
 
 The following details are those useful for those contributing to development of the package, and for anyone interested in the how it has been implemented. For anyone using the package too, and finding the existing configuration options aren't sufficient to specify a particular service, there may be scope to provide a custom implementation for particular components.
 
+### Flow Diagrams
+
+The following diagrams indicate some of the key authentication and authorization flows supported by the package, along with the components involved.
+
+#### OAuth2 Display of Service Status
+
+This diagram shows the steps involved with finding and displaying the status of a service in the backoffice, along with how the authorization URL that the user is presented with to initiate the authorization process is generated.
+
+![OAuth2 Display of Service Status](./docs/images/oauth2-display-service-status.png)
+
+#### OAuth2 Authorization Flow
+
+This diagram shows the steps and components involved in the authorization flow for the OAuth2 protocol.
+
+![OAuth2 Authorization Flow](./docs/images/oauth2-authorization-flow.png)
+
+#### OAuth1 Authorization Flow
+
+TBC
+
+#### Calling an Authorized Service
+
+The following diagram shows the steps and components involved in making a request to an external service. It shows the three methods available: OAuth2, OAuth1 and API key.
+
 ### Component Description
 
 Note that there has been a deliberate decision taken in designing the package to use a number of components, each responsible for a small part of the authentication and authorization flow. In this way, there's more scope for an implementor to replace specific parts of the implementation should they need to.
