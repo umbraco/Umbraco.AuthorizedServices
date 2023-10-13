@@ -22,11 +22,11 @@ function authorizedServiceResource($q, $http) {
     saveApiKey: function (alias: string, apiKey: string) {
       return $http.post(apiRoot + "SaveApiKey", { alias: alias, apiKey: apiKey });
     },
-    generateToken: function (alias: string) {
-      return $http.post(apiRoot + "GenerateToken", { alias: alias });
+    generateOAuth2ClientCredentialsToken: function (alias: string) {
+      return $http.post(apiRoot + "GenerateOAuth2ClientCredentialsToken", { alias: alias });
     },
-    generateRequestToken: function (alias: string) {
-      return $http.post(apiRoot + "GenerateRequestToken", { alias: alias});
+    generateOAuth1RequestToken: function (alias: string) {
+      return $http.post(apiRoot + "GenerateOAuth1RequestToken", { alias: alias});
     }
   };
 }

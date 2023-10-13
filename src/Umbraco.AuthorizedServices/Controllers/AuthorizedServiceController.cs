@@ -204,7 +204,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// <param name="model">Request model identifying the service.</param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<IActionResult> GenerateToken(GenerateToken model)
+    public async Task<IActionResult> GenerateOAuth2ClientCredentialsToken(GenerateToken model)
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
 
@@ -220,7 +220,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     }
 
     [HttpPost]
-    public async Task<IActionResult> GenerateRequestToken(GenerateToken model)
+    public async Task<IActionResult> GenerateOAuth1RequestToken(GenerateToken model)
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
 

@@ -32,13 +32,13 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
 
   vm.authorizeAccess = function () {
     if (vm.authenticationMethod.isOAuth2ClientCredentials) {
-      authorizedServiceResource.generateToken(serviceAlias)
+      authorizedServiceResource.generateOAuth2ClientCredentialsToken(serviceAlias)
         .then(function () {
           notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service has been authorized.");
           loadServiceDetails(serviceAlias);
         });
     } if (vm.authenticationMethod.isOAuth1) {
-      authorizedServiceResource.generateRequestToken(serviceAlias)
+      authorizedServiceResource.generateOAuth1RequestToken(serviceAlias)
         .then(function (response) {
           location.href = response.data.message;
         });
