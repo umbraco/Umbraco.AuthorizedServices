@@ -304,8 +304,6 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         bool withConfiguredApiKey = false)
     {
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
-        var authorizationUrlBuilderMock = new Mock<IAuthorizationUrlBuilder>();
-        var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
         // Setup refresh token response.
         var httpResponseMessage = new HttpResponseMessage
@@ -331,11 +329,9 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             optionsMonitorServiceDetailMock.Object,
             new TestHttpClientFactory(statusCode, responseContent),
             factory,
-            authorizationUrlBuilderMock.Object,
             new AuthorizedRequestBuilder(factory),
             new RefreshTokenParametersBuilder(),
-            new ExchangeTokenParametersBuilder(),
-            httpContextAccessorMock.Object);
+            new ExchangeTokenParametersBuilder());
     }
 
     private class TestHttpClientFactory : IHttpClientFactory

@@ -1,5 +1,3 @@
-using Azure.Core;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
@@ -17,11 +15,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly JsonSerializerFactory _jsonSerializerFactory;
-    private readonly IAuthorizationUrlBuilder _authorizationUrlBuilder;
     private readonly IAuthorizedRequestBuilder _authorizedRequestBuilder;
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
     private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public AuthorizedServiceCaller(
         AppCaches appCaches,
@@ -34,20 +30,16 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IHttpClientFactory httpClientFactory,
         JsonSerializerFactory jsonSerializerFactory,
-        IAuthorizationUrlBuilder authorizationUrlBuilder,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder,
-        IExchangeTokenParametersBuilder exchangeTokenParametersBuilder,
-        IHttpContextAccessor httpContextAccessor)
+        IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
         : base(appCaches, tokenFactory, oauth2TokenStorage, oauth1TokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
         _jsonSerializerFactory = jsonSerializerFactory;
-        _authorizationUrlBuilder = authorizationUrlBuilder;
         _authorizedRequestBuilder = authorizedRequestBuilder;
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
-        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<Attempt<EmptyResponse?>> SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
