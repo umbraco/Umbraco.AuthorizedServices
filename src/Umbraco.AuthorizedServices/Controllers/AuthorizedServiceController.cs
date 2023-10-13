@@ -1,13 +1,19 @@
+using System.IO;
+using System.Security.AccessControl;
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Models.Request;
 using Umbraco.AuthorizedServices.Services;
+using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
+using Umbraco.Extensions;
 
 namespace Umbraco.AuthorizedServices.Controllers;
 
@@ -19,12 +25,13 @@ namespace Umbraco.AuthorizedServices.Controllers;
 public class AuthorizedServiceController : BackOfficeNotificationsController
 {
     private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
-    private readonly ITokenStorage _tokenStorage;
+    private readonly IOAuth2TokenStorage _oauth2TokenStorage;
+    private readonly IOAuth1TokenStorage _oauth1TokenStorage;
     private readonly IKeyStorage _keyStorage;
+    private readonly AppCaches _appCaches;
     private readonly IAuthorizationUrlBuilder _authorizationUrlBuilder;
     private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
-    private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
-    private readonly IAuthorizationPayloadBuilder _authorizedServiceAuthorizationPayloadBuilder;
+    private readonly IAuthorizationPayloadBuilder _authorizationPayloadBuilder;
     private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
 
     /// <summary>
@@ -32,21 +39,23 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// </summary>
     public AuthorizedServiceController(
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
-        ITokenStorage tokenStorage,
+        IOAuth1TokenStorage oauth1TokenStorage,
+        IOAuth2TokenStorage oauth2TokenStorage,
         IKeyStorage keyStorage,
+        AppCaches appCaches,
         IAuthorizationUrlBuilder authorizationUrlBuilder,
         IAuthorizedServiceCaller authorizedServiceCaller,
-        IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
-        IAuthorizationPayloadBuilder authorizedServiceAuthorizationPayloadBuilder,
+        IAuthorizationPayloadBuilder authorizationPayloadBuilder,
         IAuthorizedServiceAuthorizer serviceAuthorizer)
     {
         _serviceDetailOptions = serviceDetailOptions;
-        _tokenStorage = tokenStorage;
+        _oauth1TokenStorage = oauth1TokenStorage;
+        _oauth2TokenStorage = oauth2TokenStorage;
         _keyStorage = keyStorage;
+        _appCaches = appCaches;
         _authorizationUrlBuilder = authorizationUrlBuilder;
         _authorizedServiceCaller = authorizedServiceCaller;
-        _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
-        _authorizedServiceAuthorizationPayloadBuilder = authorizedServiceAuthorizationPayloadBuilder;
+        _authorizationPayloadBuilder = authorizationPayloadBuilder;
         _serviceAuthorizer = serviceAuthorizer;
     }
 
@@ -66,12 +75,13 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         {
             if (!isAuthorized)
             {
-                AuthorizationPayload authorizationPayload = _authorizedServiceAuthorizationPayloadBuilder.BuildPayload();
+                AuthorizationPayload authorizationPayload = _authorizationPayloadBuilder.BuildPayload();
 
-                _authorizedServiceAuthorizationPayloadCache.Add(alias, authorizationPayload);
+                var cacheKey = string.Format(Constants.Cache.AuthorizationPayloadKeyFormat, alias);
+                _appCaches.RuntimeCache.Insert(cacheKey, () => authorizationPayload);
 
                 authorizationUrl = _authorizationUrlBuilder
-                    .BuildUrl(serviceDetail, HttpContext, authorizationPayload.State, authorizationPayload.CodeChallenge);
+                    .BuildOAuth2AuthorizationUrl(serviceDetail, HttpContext, authorizationPayload.State, authorizationPayload.CodeChallenge);
             }
         }
 
@@ -114,12 +124,13 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// Sends a sample request for an authorized service.
     /// </summary>
     /// <param name="alias">The service alias.</param>
-    /// <param name="path">The path to the sample request.</param>
     /// <returns></returns>
     [HttpGet]
-    public async Task<IActionResult> SendSampleRequest(string alias, string path)
+    public async Task<IActionResult> SendSampleRequest(string alias)
     {
-        string response = await _authorizedServiceCaller.SendRequestRawAsync(alias, path, HttpMethod.Get);
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(alias);
+
+        string response = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.SampleRequest ?? string.Empty, HttpMethod.Get);
         return Ok(response);
     }
 
@@ -131,26 +142,47 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     public IActionResult RevokeAccess(RevokeAccess model)
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
-        if (serviceDetail.AuthenticationMethod != AuthenticationMethod.ApiKey)
+
+        switch (serviceDetail.AuthenticationMethod)
         {
-            _tokenStorage.DeleteToken(model.Alias);
+            case AuthenticationMethod.ApiKey:
+                _keyStorage.DeleteKey(model.Alias);
+                break;
+            case AuthenticationMethod.OAuth1:
+                _oauth1TokenStorage.DeleteToken(model.Alias);
+                break;
+            case AuthenticationMethod.OAuth2AuthorizationCode:
+            case AuthenticationMethod.OAuth2ClientCredentials:
+                _oauth2TokenStorage.DeleteToken(model.Alias);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(serviceDetail.AuthenticationMethod));
         }
-        else
-        {
-            _keyStorage.DeleteKey(model.Alias);
-        }
+
         return Ok();
     }
 
     /// <summary>
-    /// Adds a new access token for an authorized service.
+    /// Adds a new access token for an OAuth2 authorized service.
     /// </summary>
     /// <param name="model">Request model identifying the service.</param>
     /// <returns></returns>
     [HttpPost]
-    public IActionResult SaveToken(AddToken model)
+    public IActionResult SaveOAuth2Token(AddOAuth2Token model)
     {
-        _tokenStorage.SaveToken(model.Alias, new Token(model.Token));
+        _oauth2TokenStorage.SaveToken(model.Alias, new OAuth2Token(model.Token));
+        return Ok();
+    }
+
+    /// <summary>
+    /// Adds a new access token/token secret pair for an OAuth1 authorized service.
+    /// </summary>
+    /// <param name="model">Request model identifying the service.</param>
+    /// <returns></returns>
+    [HttpPost]
+    public IActionResult SaveOAuth1Token(AddOAuth1Token model)
+    {
+        _oauth1TokenStorage.SaveToken(model.Alias, new OAuth1Token(model.Token, model.TokenSecret));
         return Ok();
     }
 
@@ -167,12 +199,12 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     }
 
     /// <summary>
-    /// Generates access token for an authorized service.
+    /// Generates access token for an authorized service (using OAuth2).
     /// </summary>
     /// <param name="model">Request model identifying the service.</param>
     /// <returns></returns>
     [HttpPost]
-    public async Task<IActionResult> GenerateToken(GenerateToken model)
+    public async Task<IActionResult> GenerateOAuth2ClientCredentialsToken(GenerateToken model)
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
 
@@ -187,15 +219,42 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         throw new AuthorizedServiceException("Failed to obtain access token");
     }
 
+    [HttpPost]
+    public async Task<IActionResult> GenerateOAuth1RequestToken(GenerateToken model)
+    {
+        ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
+
+        var url = _authorizationUrlBuilder.BuildOAuth1RequestTokenUrl(serviceDetail, HttpContext, HttpMethod.Post, OAuth1Helper.GetNonce(), OAuth1Helper.GetTimestamp());
+
+        Models.AuthorizationResult requestTokenResponse = await _serviceAuthorizer.GenerateOAuth1RequestTokenAsync(model.Alias, url);
+
+        if (requestTokenResponse.Success && requestTokenResponse.Result is not null && requestTokenResponse.Result.TryParseOAuth1Response(out var oauthToken, out var oauthTokenSecret))
+        {
+            _appCaches.RuntimeCache.InsertCacheItem(oauthToken, () => serviceDetail.Alias);
+
+            _appCaches.RuntimeCache.InsertCacheItem($"{serviceDetail.Alias}-oauth-token-secret", () => oauthTokenSecret);
+
+            return Ok(string.Format(
+                "{0}{1}?{2}",
+                serviceDetail.IdentityHost,
+                serviceDetail.RequestIdentityPath,
+                requestTokenResponse.Result));
+        }
+
+        throw new AuthorizedServiceException("Failed to obtain request token");
+    }
+
     private bool CheckAuthorizationStatus(ServiceDetail serviceDetail) => serviceDetail.AuthenticationMethod switch
     {
-        AuthenticationMethod.OAuth1 => false,
-        AuthenticationMethod.OAuth2AuthorizationCode => StoredTokenExists(serviceDetail),
-        AuthenticationMethod.OAuth2ClientCredentials => StoredTokenExists(serviceDetail),
+        AuthenticationMethod.OAuth1 => StoredOAuth1TokenExists(serviceDetail),
+        AuthenticationMethod.OAuth2AuthorizationCode => StoredOAuth2TokenExists(serviceDetail),
+        AuthenticationMethod.OAuth2ClientCredentials => StoredOAuth2TokenExists(serviceDetail),
         AuthenticationMethod.ApiKey => !string.IsNullOrEmpty(serviceDetail.ApiKey)
-                                        || _keyStorage.GetKey(serviceDetail.Alias) is not null,
+                                       || _keyStorage.GetKey(serviceDetail.Alias) is not null,
         _ => false
     };
 
-    private bool StoredTokenExists(ServiceDetail serviceDetail) => _tokenStorage.GetToken(serviceDetail.Alias) != null;
+    private bool StoredOAuth2TokenExists(ServiceDetail serviceDetail) => _oauth2TokenStorage.GetToken(serviceDetail.Alias) != null;
+
+    private bool StoredOAuth1TokenExists(ServiceDetail serviceDetail) => _oauth1TokenStorage.GetToken(serviceDetail.Alias) != null;
 }

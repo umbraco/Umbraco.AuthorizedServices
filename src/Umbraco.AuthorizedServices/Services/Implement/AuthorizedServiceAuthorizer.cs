@@ -4,6 +4,7 @@ using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Cache;
+using Umbraco.Extensions;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
@@ -15,14 +16,15 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     public AuthorizedServiceAuthorizer(
         AppCaches appCaches,
         ITokenFactory tokenFactory,
-        ITokenStorage tokenStorage,
+        IOAuth2TokenStorage oauth2TokenStorage,
+        IOAuth1TokenStorage oauth1TokenStorage,
         IKeyStorage keyStorage,
         IAuthorizationRequestSender authorizationRequestSender,
         ILogger<AuthorizedServiceAuthorizer> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IAuthorizationParametersBuilder authorizationParametersBuilder,
         IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
-        : base(appCaches, tokenFactory, tokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
+        : base(appCaches, tokenFactory, oauth2TokenStorage, oauth1TokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _authorizationParametersBuilder = authorizationParametersBuilder;
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
@@ -50,23 +52,64 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        Token? token = GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
+        OAuth2Token? token = GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
 
         Dictionary<string, string> parameters = _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, token.AccessToken);
 
         return await SendRequest(serviceDetail, parameters, true);
     }
 
-    private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters, bool isExchangeTokenRequest = false)
+    public async Task<AuthorizationResult> AuthorizeOAuth1ServiceAsync(string serviceAlias, string oauthToken, string oauthVerifier)
     {
-        HttpResponseMessage response = isExchangeTokenRequest
-            ? await AuthorizationRequestSender.SendExchangeRequest(serviceDetail, parameters)
-            : await AuthorizationRequestSender.SendRequest(serviceDetail, parameters);
+        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
+
+        var oauthTokenSecret = AppCaches.RuntimeCache.GetCacheItem($"{serviceDetail.Alias}-oauth-token-secret", () => string.Empty);
+
+        Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParametersForOAuth1(serviceDetail, oauthToken, oauthVerifier, oauthTokenSecret ?? string.Empty);
+
+        return await SendRequest(serviceDetail, parameters);
+    }
+
+    public async Task<AuthorizationResult> GenerateOAuth1RequestTokenAsync(string serviceAlias, string url)
+    {
+        HttpResponseMessage response = await AuthorizationRequestSender.SendOAuth1RequestForRequestToken(url);
         if (response.IsSuccessStatusCode)
         {
-            Token token = await CreateTokenFromResponse(serviceDetail, response);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return AuthorizationResult.AsSuccess(responseContent);
+        }
+        else
+        {
+            throw new AuthorizedServiceHttpException(
+                $"Error response retrieving request token for '{serviceAlias}'.",
+                response.StatusCode,
+                response.ReasonPhrase,
+                await response.Content.ReadAsStringAsync());
+        }
+    }
 
-            StoreToken(serviceDetail.Alias, token);
+    private async Task<AuthorizationResult> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters, bool isExchangeTokenRequest = false)
+    {
+        HttpResponseMessage response = serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1
+            ? await AuthorizationRequestSender.SendOAuth1Request(serviceDetail, parameters)
+            : (isExchangeTokenRequest
+                    ? await AuthorizationRequestSender.SendOAuth2ExchangeRequest(serviceDetail, parameters)
+                    : await AuthorizationRequestSender.SendOAuth2Request(serviceDetail, parameters));
+
+        var responseContent = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode)
+        {
+            if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
+            {
+                OAuth1Token token = await CreateOAuth1TokenFromResponse(response);
+                StoreOAuth1Token(serviceDetail.Alias, token);
+            }
+            else
+            {
+                OAuth2Token token = await CreateOAuth2TokenFromResponse(serviceDetail, response);
+                StoreOAuth2Token(serviceDetail.Alias, token);
+            }
 
             return AuthorizationResult.AsSuccess();
         }
@@ -79,5 +122,4 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
                 await response.Content.ReadAsStringAsync());
         }
     }
-
 }

@@ -5,21 +5,21 @@ namespace Umbraco.AuthorizedServices.Models;
 /// <summary>
 /// Defines a token used for authorizing requests to a service.
 /// </summary>
-public class Token
+public class OAuth2Token
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="Token"/> class.
+    /// Initializes a new instance of the <see cref="OAuth2Token"/> class.
     /// </summary>
     /// <param name="accessToken">The access token.</param>
-    public Token(string accessToken) => AccessToken = accessToken;
+    public OAuth2Token(string accessToken) => AccessToken = accessToken;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Token"/> class.
+    /// Initializes a new instance of the <see cref="OAuth2Token"/> class.
     /// </summary>
     /// <param name="accessToken">The access token.</param>
     /// <param name="refreshToken">The refreh token.</param>
     /// <param name="expiresOn">The date the access token expires.</param>
-    public Token(string accessToken, string? refreshToken, DateTime? expiresOn)
+    public OAuth2Token(string accessToken, string? refreshToken, DateTime? expiresOn)
         : this(accessToken)
     {
         RefreshToken = refreshToken;

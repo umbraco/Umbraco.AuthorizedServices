@@ -135,10 +135,21 @@ public class TestAuthorizedServicesController : UmbracoApiController
 
     public IActionResult GetAccessToken(string serviceAlias)
     {
-        var response = _authorizedServiceCaller.GetToken(serviceAlias);
+        var response = _authorizedServiceCaller.GetOAuth2AccessToken(serviceAlias);
         if (response == null)
         {
             return Problem("Could not retrieve access token.");
+        }
+
+        return Content(response);
+    }
+
+    public IActionResult GetOAuth1OAuthToken(string serviceAlias)
+    {
+        var response = _authorizedServiceCaller.GetOAuth1Token(serviceAlias);
+        if (response == null)
+        {
+            return Problem("Could not retrieve the OAuth token.");
         }
 
         return Content(response);

@@ -5,6 +5,7 @@ using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Extensions;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
+using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Umbraco.AuthorizedServices.Controllers;
@@ -15,20 +16,20 @@ namespace Umbraco.AuthorizedServices.Controllers;
 public class AuthorizedServiceResponseController : UmbracoApiController
 {
     private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
-    private readonly IAuthorizationPayloadCache _authorizedServiceAuthorizationPayloadCache;
     private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
+    private readonly AppCaches _appCaches;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceResponseController"/> class.
     /// </summary>
     public AuthorizedServiceResponseController(
         IAuthorizedServiceAuthorizer serviceAuthorizer,
-        IAuthorizationPayloadCache authorizedServiceAuthorizationPayloadCache,
-        IOptionsMonitor<ServiceDetail> serviceDetailOptions)
+        IOptionsMonitor<ServiceDetail> serviceDetailOptions,
+        AppCaches appCaches)
     {
         _serviceAuthorizer = serviceAuthorizer;
-        _authorizedServiceAuthorizationPayloadCache = authorizedServiceAuthorizationPayloadCache;
         _serviceDetailOptions = serviceDetailOptions;
+        _appCaches = appCaches;
     }
 
     /// <summary>
@@ -36,7 +37,7 @@ public class AuthorizedServiceResponseController : UmbracoApiController
     /// </summary>
     /// <param name="code">The authorization code.</param>
     /// <param name="state">The state.</param>
-    public async Task<IActionResult> HandleIdentityResponse(string code, string state)
+    public async Task<IActionResult> HandleOAuth2IdentityResponse(string code, string state)
     {
         var stateParts = state.Split(Constants.Separator);
         if (stateParts.Length != 2)
@@ -44,26 +45,47 @@ public class AuthorizedServiceResponseController : UmbracoApiController
             throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
         }
 
-        AuthorizationPayload? cachedAuthorizationPayload = _authorizedServiceAuthorizationPayloadCache.Get(stateParts[0]);
-        if (cachedAuthorizationPayload == null || stateParts[1] != cachedAuthorizationPayload.State)
+        var cacheKey = string.Format(Constants.Cache.AuthorizationPayloadKeyFormat, stateParts[0]);
+        if (_appCaches.RuntimeCache.Get(cacheKey) is not AuthorizationPayload cachedAuthorizationPayload || stateParts[1] != cachedAuthorizationPayload.State)
         {
             throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");
         }
 
         var serviceAlias = stateParts[0];
 
-        var redirectUri = HttpContext.GetAuthorizedServiceRedirectUri();
+        var redirectUri = HttpContext.GetOAuth2AuthorizedServiceRedirectUri();
         var codeVerifier = cachedAuthorizationPayload.CodeVerifier;
-        _authorizedServiceAuthorizationPayloadCache.Remove(stateParts[0]);
+        _appCaches.RuntimeCache.ClearByKey(cacheKey);
         AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth2AuthorizationCodeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
 
-        // handle exchange
+        // Handle exchange of short for long-lived token if configured.
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(serviceAlias);
         if (serviceDetail.CanExchangeToken)
         {
             return await HandleTokenExchange(serviceDetail);
         }
 
+        if (result.Success)
+        {
+            return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");
+        }
+
+        throw new AuthorizedServiceException("Failed to obtain access token");
+    }
+
+    /// <summary>
+    /// Handles the returning message for OAuth1 authorization flow with an external service.
+    /// </summary>
+    /// <param name="oauth_token">The oauth_token.</param>
+    /// <param name="oauth_verifier">The oauth_verifier.</param>
+    /// <returns></returns>
+    /// <exception cref="AuthorizedServiceException"></exception>
+    public async Task<IActionResult> HandleOAuth1IdentityResponse(string oauth_token, string oauth_verifier)
+    {
+        var serviceAlias = _appCaches.RuntimeCache.Get(oauth_token) as string
+            ?? throw new AuthorizedServiceException("No cached service with the specified token was found.");
+
+        AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth1ServiceAsync(serviceAlias, oauth_token, oauth_verifier);
         if (result.Success)
         {
             return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");
