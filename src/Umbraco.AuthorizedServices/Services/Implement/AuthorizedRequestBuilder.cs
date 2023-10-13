@@ -139,31 +139,4 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         AddCommonHeaders(requestMessage);
         return requestMessage;
     }
-
-    private string GetAuthorizedSignature(
-       string httpMethod,
-       string url,
-       string consumerSecret,
-       OAuth1Token oauth1Token,
-       Dictionary<string, string> authorizationParams)
-    {
-        string hashingKey = string.Format("{0}&{1}", consumerSecret, oauth1Token.OAuthTokenSecret);
-
-        using var hasher = new HMACSHA1(new ASCIIEncoding().GetBytes(hashingKey));
-
-        string authorizationParamsStr = string.Join(
-            "&",
-            authorizationParams
-                .Select(kvp => string.Format("{0}={1}", Uri.EscapeDataString(kvp.Key), Uri.EscapeDataString(kvp.Value)))
-                .OrderBy(p => p));
-
-        // signature format: HTTP method (uppercase) + & + request URL + & + authorization parameters
-        string signature = string.Format(
-            "{0}&{1}&{2}",
-            httpMethod,
-            Uri.EscapeDataString(url),
-            Uri.EscapeDataString(authorizationParamsStr));
-
-        return Convert.ToBase64String(hasher.ComputeHash(new ASCIIEncoding().GetBytes(signature)));
-    }
 }
