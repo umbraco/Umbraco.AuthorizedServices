@@ -9,7 +9,7 @@ namespace Umbraco.AuthorizedServices.Tests.Services;
 internal class AuthorizationUrlBuilderTests
 {
     [Test]
-    public void BuildUrl_ReturnsExpectedResult()
+    public void BuildOAuth2AuthorizationUrl_ReturnsExpectedResult()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
@@ -34,7 +34,7 @@ internal class AuthorizationUrlBuilderTests
     }
 
     [Test]
-    public void BuildUrl_WithRequiredRedirectUrl_ReturnsExpectedResult()
+    public void BuildOAuth2AuthorizationUrl_WithRequiredRedirectUrl_ReturnsExpectedResult()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
@@ -63,7 +63,7 @@ internal class AuthorizationUrlBuilderTests
     }
 
     [Test]
-    public void BuildOAuth1Url_WithNoRedirectUrl_ReturnsExpectedResult()
+    public void BuildOAuth1RequestTokenUrl_WithNoRedirectUrl_ReturnsExpectedResult()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
@@ -115,7 +115,7 @@ internal class AuthorizationUrlBuilderTests
     }
 
     [Test]
-    public void BuildOAuth1Url_WithRequiredRedirectUrl_ReturnsExpectedResult()
+    public void BuildOAuth1RequestTokenUrl_WithRequiredRedirectUrl_ReturnsExpectedResult()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
