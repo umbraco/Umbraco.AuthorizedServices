@@ -73,17 +73,9 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         url.Append(serviceDetail.IdentityHost)
             .Append(serviceDetail.RequestTokenPath);
 
-        if(serviceDetail.UseRequestTokenWithExtendedParametersList)
+        foreach (KeyValuePair<string, string> parameter in parameters.OrderBy(p => p.Key))
         {
-            foreach (KeyValuePair<string, string> parameter in parameters.OrderBy(p => p.Key))
-            {
-                url.Append($"{(parameters.IndexOf(parameter) == 0 ? "?" : "&")}{parameter.Key}=").Append(parameter.Value);
-            }
-        }
-        else
-        {
-            url.Append($"?{Constants.OAuth1.OAuthToken}=").Append(parameters[Constants.OAuth1.OAuthToken]);
-            url.Append($"&{Constants.OAuth1.OAuthVerifier}=").Append(parameters[Constants.OAuth1.OAuthVerifier]);
+            url.Append($"{(parameters.IndexOf(parameter) == 0 ? "?" : "&")}{parameter.Key}=").Append(parameter.Value);
         }
 
         return serviceDetail.RequestTokenMethod == HttpMethod.Get

@@ -73,32 +73,6 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
         return requestMessage;
     }
 
-    private HttpRequestMessage CreateRequestMessage(HttpMethod httpMethod, Uri requestUri, HttpContent? content) =>
-        new HttpRequestMessage
-        {
-            Method = httpMethod,
-            RequestUri = requestUri,
-            Content = content
-        };
-
-    private StringContent? GetRequestContent<TRequest>(ServiceDetail serviceDetail, TRequest? requestContent)
-    {
-        if (requestContent == null)
-        {
-            return null;
-        }
-
-        IJsonSerializer jsonSerializer = _jsonSerializerFactory.GetSerializer(serviceDetail.Alias);
-        var serializedContent = jsonSerializer.Serialize(requestContent);
-        return new StringContent(serializedContent, Encoding.UTF8, "application/json");
-    }
-
-    private static void AddCommonHeaders(HttpRequestMessage requestMessage)
-    {
-        requestMessage.Headers.UserAgent.Add(new ProductInfoHeaderValue("UmbracoServiceIntegration", "1.0.0"));
-        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    }
-
     public HttpRequestMessage CreateRequestMessageWithOAuth1Token<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, OAuth1Token oauth1Token, TRequest? requestContent) where TRequest : class
     {
         var url = serviceDetail.ApiHost + path;
@@ -138,5 +112,31 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             GetRequestContent(serviceDetail, requestContent));
         AddCommonHeaders(requestMessage);
         return requestMessage;
+    }
+
+    private HttpRequestMessage CreateRequestMessage(HttpMethod httpMethod, Uri requestUri, HttpContent? content) =>
+        new HttpRequestMessage
+        {
+            Method = httpMethod,
+            RequestUri = requestUri,
+            Content = content
+        };
+
+    private StringContent? GetRequestContent<TRequest>(ServiceDetail serviceDetail, TRequest? requestContent)
+    {
+        if (requestContent == null)
+        {
+            return null;
+        }
+
+        IJsonSerializer jsonSerializer = _jsonSerializerFactory.GetSerializer(serviceDetail.Alias);
+        var serializedContent = jsonSerializer.Serialize(requestContent);
+        return new StringContent(serializedContent, Encoding.UTF8, "application/json");
+    }
+
+    private static void AddCommonHeaders(HttpRequestMessage requestMessage)
+    {
+        requestMessage.Headers.UserAgent.Add(new ProductInfoHeaderValue("UmbracoServiceIntegration", "1.0.0"));
+        requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 }
