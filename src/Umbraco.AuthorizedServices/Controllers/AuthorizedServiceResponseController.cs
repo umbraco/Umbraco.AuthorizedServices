@@ -51,11 +51,11 @@ public class AuthorizedServiceResponseController : UmbracoApiController
             throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");
         }
 
-        var serviceAlias = stateParts[0];
+        _appCaches.RuntimeCache.ClearByKey(cacheKey);
 
+        var serviceAlias = stateParts[0];
         var redirectUri = HttpContext.GetOAuth2AuthorizedServiceRedirectUri();
         var codeVerifier = cachedAuthorizationPayload.CodeVerifier;
-        _appCaches.RuntimeCache.ClearByKey(cacheKey);
         AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth2AuthorizationCodeServiceAsync(serviceAlias, code, redirectUri, codeVerifier);
 
         // Handle exchange of short for long-lived token if configured.
