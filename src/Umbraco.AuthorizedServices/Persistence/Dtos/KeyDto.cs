@@ -3,13 +3,13 @@ using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
 
 namespace Umbraco.AuthorizedServices.Persistence.Dtos;
 
-[TableName(Constants.Migrations.UmbracoAuthorizedServiceKeyTableName)]
+[TableName(Constants.Database.TableNames.ApiKey)]
 [PrimaryKey("serviceAlias", AutoIncrement = false)]
 [ExplicitColumns]
 public class KeyDto
 {
     [Column("serviceAlias")]
-    [PrimaryKeyColumn(Name = "PK_serviceAlias", AutoIncrement = false)]
+    [PrimaryKeyColumn(Name = "PK_umbracoAuthorizedServiceKey_serviceAlias", AutoIncrement = false)]
     [Length(100)]
     public string ServiceAlias { get; set; } = string.Empty;
 

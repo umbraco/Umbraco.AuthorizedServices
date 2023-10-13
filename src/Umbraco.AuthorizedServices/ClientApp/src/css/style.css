@@ -32,3 +32,12 @@
   padding: 4px 8px;
 }
 
+.oauth-form-item uui-label {
+    font-size: 14px;
+}
+
+.oauth-form-item uui-input {
+    font-size: 14px;
+    width: 40%;
+}
+

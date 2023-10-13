@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.Extensions;
 
 namespace Umbraco.AuthorizedServices.Services.Implement;
 
@@ -10,7 +11,7 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
 
     public AuthorizationRequestSender(IAuthorizationClientFactory authorizationClientFactory) => _authorizationClientFactory = authorizationClientFactory;
 
-    public async Task<HttpResponseMessage> SendRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    public async Task<HttpResponseMessage> SendOAuth2Request(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
     {
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
@@ -39,7 +40,7 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         return await httpClient.PostAsync(url, content);
     }
 
-    public async Task<HttpResponseMessage> SendExchangeRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    public async Task<HttpResponseMessage> SendOAuth2ExchangeRequest(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
     {
         HttpClient httpClient = _authorizationClientFactory.CreateClient();
 
@@ -62,6 +63,31 @@ internal sealed class AuthorizationRequestSender : IAuthorizationRequestSender
         url += BuildAuthorizationQuerystring(parameters);
 
         return await httpClient.GetAsync(url);
+    }
+
+    public async Task<HttpResponseMessage> SendOAuth1Request(ServiceDetail serviceDetail, Dictionary<string, string> parameters)
+    {
+        HttpClient httpClient = _authorizationClientFactory.CreateClient();
+
+        var url = new StringBuilder();
+        url.Append(serviceDetail.IdentityHost)
+            .Append(serviceDetail.RequestTokenPath);
+
+        foreach (KeyValuePair<string, string> parameter in parameters.OrderBy(p => p.Key))
+        {
+            url.Append($"{(parameters.IndexOf(parameter) == 0 ? "?" : "&")}{parameter.Key}=").Append(parameter.Value);
+        }
+
+        return serviceDetail.RequestTokenMethod == HttpMethod.Get
+            ? await httpClient.GetAsync(url.ToString())
+            : await httpClient.PostAsync(url.ToString(), null);
+    }
+
+    public async Task<HttpResponseMessage> SendOAuth1RequestForRequestToken(string url)
+    {
+        HttpClient httpClient = _authorizationClientFactory.CreateClient();
+
+        return await httpClient.PostAsync(url, null);
     }
 
     private static string BuildAuthorizationQuerystring(Dictionary<string, string> parameters)

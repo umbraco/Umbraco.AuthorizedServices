@@ -45,10 +45,14 @@ Install-Package Umbraco.AuthorizedServices
 dotnet add package Umbraco.AuthorizedServices
 ```
 
-
 ### App Creation
 
 Services that this package are intended to support will offer an OAuth authentication and authorization flow against an "app" that the developer will need to create with the service.  From this various information will be available, including for example a "client ID" and "client secret" that will need to be applied in configuration.
+
+When creating the app it will usually be necessary to configure a call back URL. You should use the following:
+
+- For OAuth2: `/umbraco/api/AuthorizedServiceResponse/HandleOAuth2IdentityResponse`
+- For OAuth1: `/umbraco/api/AuthorizedServiceResponse/HandleOAuth1IdentityResponse`
 
 ### Configuring a Service
 
@@ -149,7 +153,7 @@ An enum value that defines the JSON serializer to use when creating requests and
 
 ###### AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken
 
-This flag indicates whether the basic token should be included in the request for access token. If true, a base64 encoding of <clientId>:<clientSecret> will be added to 
+This flag indicates whether the basic token should be included in the request for access token. If true, a base64 encoding of <clientId>:<clientSecret> will be added to
 the authorization header.
 
 ###### ClientId *

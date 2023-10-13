@@ -18,11 +18,11 @@ public interface IAuthorizedRequestBuilder
     /// <param name="token">The authorization token.</param>
     /// <param name="requestContent">The request data.</param>
     /// <returns>The request instance.</returns>
-    HttpRequestMessage CreateRequestMessageWithToken<TRequest>(
+    HttpRequestMessage CreateRequestMessageWithOAuth2Token<TRequest>(
         ServiceDetail serviceDetail,
         string path,
         HttpMethod httpMethod,
-        Token token,
+        OAuth2Token token,
         TRequest? requestContent)
         where TRequest : class;
 
@@ -41,6 +41,24 @@ public interface IAuthorizedRequestBuilder
         string path,
         HttpMethod httpMethod,
         string apiKey,
+        TRequest? requestContent)
+        where TRequest : class;
+
+    /// <summary>
+    /// Creates an request to an authorized service using OAuth1 flow.
+    /// </summary>
+    /// <typeparam name="TRequest">The typed request data.</typeparam>
+    /// <param name="serviceDetail">The service detail.</param>
+    /// <param name="path">The request path.</param>
+    /// <param name="httpMethod">The HTTP method.</param>
+    /// <param name="oauth1Token">The authorization token.</param>
+    /// <param name="requestContent">The request data.</param>
+    /// <returns>The request instance.</returns>
+    HttpRequestMessage CreateRequestMessageWithOAuth1Token<TRequest>(
+        ServiceDetail serviceDetail,
+        string path,
+        HttpMethod httpMethod,
+        OAuth1Token oauth1Token,
         TRequest? requestContent)
         where TRequest : class;
 }

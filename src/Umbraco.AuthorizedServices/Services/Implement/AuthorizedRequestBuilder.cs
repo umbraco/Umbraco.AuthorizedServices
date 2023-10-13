@@ -1,8 +1,11 @@
 using System.Collections.Specialized;
+using System.Linq;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Serialization;
 
@@ -14,11 +17,11 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 
     public AuthorizedRequestBuilder(JsonSerializerFactory jsonSerializerFactory) => _jsonSerializerFactory = jsonSerializerFactory;
 
-    public HttpRequestMessage CreateRequestMessageWithToken<TRequest>(
+    public HttpRequestMessage CreateRequestMessageWithOAuth2Token<TRequest>(
         ServiceDetail serviceDetail,
         string path,
         HttpMethod httpMethod,
-        Token token,
+        OAuth2Token token,
         TRequest? requestContent)
         where TRequest : class
     {
@@ -66,6 +69,47 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             requestMessage.Headers.Add(serviceDetail.ApiKeyProvision.Key, apiKey);
         }
 
+        AddCommonHeaders(requestMessage);
+        return requestMessage;
+    }
+
+    public HttpRequestMessage CreateRequestMessageWithOAuth1Token<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, OAuth1Token oauth1Token, TRequest? requestContent) where TRequest : class
+    {
+        var url = serviceDetail.ApiHost + path;
+
+        var nonce = OAuth1Helper.GetNonce();
+        var timestamp = OAuth1Helper.GetTimestamp();
+
+        var authorizationParams =
+            new Dictionary<string, string>
+            {
+                { "oauth_consumer_key", serviceDetail.ClientId },
+                { "oauth_nonce", nonce },
+                { "oauth_signature_method", "HMAC-SHA1" },
+                { "oauth_timestamp", timestamp },
+                { "oauth_token", oauth1Token.OAuthToken },
+                { "oauth_version", "1.0" }
+            };
+
+        var signature = OAuth1Helper.GetSignature(
+            httpMethod.Method.ToUpper(),
+            url,
+            serviceDetail.ClientSecret,
+            oauth1Token.OAuthTokenSecret,
+            authorizationParams);
+
+        url += "?oauth_consumer_key=" + serviceDetail.ClientId
+            + "&oauth_nonce=" + nonce
+            + "&oauth_signature=" + Uri.EscapeDataString(signature)
+            + "&oauth_signature_method=HMAC-SHA1"
+            + "&oauth_timestamp=" + timestamp
+            + "&oauth_token=" + oauth1Token.OAuthToken
+            + "&oauth_version=1.0";
+
+        HttpRequestMessage requestMessage = CreateRequestMessage(
+            httpMethod,
+            new Uri(url),
+            GetRequestContent(serviceDetail, requestContent));
         AddCommonHeaders(requestMessage);
         return requestMessage;
     }

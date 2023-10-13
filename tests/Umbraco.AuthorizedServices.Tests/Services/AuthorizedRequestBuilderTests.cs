@@ -20,12 +20,12 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         };
         const string Path = "/api/test";
         const string AccessToken = "1234";
-        var token = new Token(AccessToken, null, DateTime.Now.AddDays(7));
+        var token = new OAuth2Token(AccessToken, null, DateTime.Now.AddDays(7));
         var data = new TestRequestData("bar");
         AuthorizedRequestBuilder sut = CreateSut();
 
         // Act
-        HttpRequestMessage result = sut.CreateRequestMessageWithToken(serviceDetail, Path, HttpMethod.Post, token, data);
+        HttpRequestMessage result = sut.CreateRequestMessageWithOAuth2Token(serviceDetail, Path, HttpMethod.Post, token, data);
 
         // Assert
         var expectedUri = new Uri("https://service.url/api/test");
@@ -95,6 +95,42 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         result.Headers.Count().Should().Be(3);
         result.Headers.Single(x => x.Key == "x-api-key").Value.First().Should().Be("abc");
         AssertCommonHeaders(result);
+    }
+
+    [Test]
+    public async Task CreateOAuth1RequestWithToken_ReturnsExpectedResult()
+    {
+        // Arrange
+        var serviceDetail = new ServiceDetail
+        {
+            Alias = ServiceAlias,
+            ApiHost = "https://service.url",
+            ClientId = "TestClientId",
+            ClientSecret = "TestClientSecret"
+        };
+
+        const string Path = "/api/test";
+        var token = new OAuth1Token("1234", "5678");
+        var data = new TestRequestData("bar");
+        AuthorizedRequestBuilder sut = CreateSut();
+
+        // Act
+        HttpRequestMessage result = sut.CreateRequestMessageWithOAuth1Token(serviceDetail, Path, HttpMethod.Get, token, data);
+
+        // Assert
+        result.Method.Should().Be(HttpMethod.Get);
+        result.RequestUri.Should().NotBeNull();
+
+        result.RequestUri?.Query.Should().Contain("oauth_consumer_key=");
+        result.RequestUri?.Query.Should().Contain("oauth_nonce=");
+        result.RequestUri?.Query.Should().Contain("oauth_signature=");
+        result.RequestUri?.Query.Should().Contain("oauth_signature_method=HMAC-SHA1");
+        result.RequestUri?.Query.Should().Contain("oauth_token=1234");
+        result.RequestUri?.Query.Should().Contain("oauth_version=1.0");
+
+        var stringContent = result.Content as StringContent;
+        var content = await stringContent!.ReadAsStringAsync();
+        content.Should().Be("{\"Foo\":\"bar\"}");
     }
 
     private static AuthorizedRequestBuilder CreateSut()

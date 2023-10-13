@@ -160,12 +160,24 @@ public class TestAuthorizedServicesController : AuthorizedServicesApiControllerB
         return Content(apiKeyAttempt.Result ?? string.Empty);
     }
 
-    public IActionResult GetAccessToken(string serviceAlias)
+    public IActionResult GetOAuthToken(string serviceAlias)
     {
-        Attempt<string?> responseAttempt = AuthorizedServiceCaller.GetToken(serviceAlias);
+        Attempt<string?> responseAttempt = AuthorizedServiceCaller.GetOAuth2AccessToken(serviceAlias);
         if (!responseAttempt.Success || responseAttempt.Result is null)
         {
             return HandleFailedRequest(responseAttempt.Exception, "Could not retrieve access token.");
+        }
+
+        var response = responseAttempt.Result;
+        return Content(response);
+    }
+
+    public IActionResult GetOAuth1Token(string serviceAlias)
+    {
+        Attempt<string?> responseAttempt = AuthorizedServiceCaller.GetOAuth1Token(serviceAlias);
+        if (!responseAttempt.Success || responseAttempt.Result is null)
+        {
+            return Problem("Could not retrieve the OAuth token.");
         }
 
         var response = responseAttempt.Result;

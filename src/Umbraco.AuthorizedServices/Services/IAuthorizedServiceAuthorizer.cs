@@ -30,4 +30,21 @@ public interface IAuthorizedServiceAuthorizer
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>A <see cref="Task{AuthorizationResult}"/> representing the result of the asynchronous operation.</returns>
     Task<AuthorizationResult> ExchangeOAuth2AccessTokenAsync(string serviceAlias);
+
+    /// <summary>
+    /// Authorizes access to an external service using OAuth1 authentication flow.
+    /// </summary>
+    /// <param name="serviceAlias">The service alias.</param>
+    /// <param name="oauthToken">The returned OAuth token.</param>
+    /// <param name="oauthVerifier">The returned OAuth verifier code.</param>
+    /// <returns>A <see cref="Task{AuthorizationResult}"/> representing the result of the asynchronous operation.</returns>
+    Task<AuthorizationResult> AuthorizeOAuth1ServiceAsync(string serviceAlias, string oauthToken, string oauthVerifier);
+
+    /// <summary>
+    /// Requests an OAuth1 service for a request token.
+    /// </summary>
+    /// <param name="serviceAlias">The service alias.</param>
+    /// <param name="url">The OAuth1 generated url.</param>
+    /// <returns>A <see cref="Task{AuthorizationResult}"/> representing the result of the asynchronous operation. </returns>
+    Task<AuthorizationResult> GenerateOAuth1RequestTokenAsync(string serviceAlias, string url);
 }

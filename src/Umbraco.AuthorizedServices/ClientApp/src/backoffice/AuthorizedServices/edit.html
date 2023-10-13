@@ -24,8 +24,7 @@
                             action="vm.sendSampleRequest()"
                             type="button"
                             label="Verify Sample Request"></umb-button>
-                <umb-button ng-if="vm.isOAuthBasedAuthenticationMethod
-                            || (!vm.isOAuthBasedAuthenticationMethod && vm.canManuallyProvideApiKey)"
+                <umb-button ng-if="vm.authenticationMethod.isOAuth1 || vm.authenticationMethod.isOAuth2AuthorizationCode || vm.authenticationMethod.isOAuth2ClientCredentials"
                             action="vm.revokeAccess()"
                             type="button"
                             button-style="danger"
@@ -48,8 +47,39 @@
           </uui-icon-registry-essential>
         </umb-box-content>
       </umb-box>
-      <!-- Provide Token Section -->
-      <umb-box ng-if="vm.canManuallyProvideToken">
+      <!-- Provide OAuth1 Token Section -->
+      <umb-box ng-if="vm.canManuallyProvideToken && vm.authenticationMethod.isOAuth1">
+        <umb-box-header title="Provide OAuth1 Access Token and Token Secret"></umb-box-header>
+        <umb-box-content>
+          <uui-icon-registry-essential>
+            <uui-card-content-node name="OAuth1 Access Token and Token Secret">
+              <uui-icon slot="icon" name="add"></uui-icon>
+              <p class="auth-srv">Enter service access token and token secret</p>
+              <p>This service is configured indicating that an access token and a token secret can be generated via the service's developer portal. Once you have obtained them you can copy and paste them here to authorize the service.</p>
+              <div>
+                <uui-form>
+                  <uui-form-layout-item class="oauth-form-item">
+                    <uui-label for="inAccessToken" slot="label">Access Token</uui-label>
+                    <uui-input id="inAccessToken" name="access_token" type="text" label="Access Token"></uui-input>
+                  </uui-form-layout-item>
+                  <uui-form-layout-item class="oauth-form-item">
+                    <uui-label for="inTokenSecret" slot="label">Token Secret</uui-label>
+                    <uui-input id="inTokenSecret" name="token_secret" type="text" label="Token Secret"></uui-input>
+                  </uui-form-layout-item>
+                  <div>
+                    <umb-button action="vm.saveOAuth1TokenDetails()"
+                                type="button"
+                                button-style="primary"
+                                label="Save"></umb-button>
+                  </div>
+                </uui-form>
+              </div>
+            </uui-card-content-node>
+          </uui-icon-registry-essential>
+        </umb-box-content>
+      </umb-box>
+      <!-- Provide OAuth2 Token Section -->
+      <umb-box ng-if="vm.canManuallyProvideToken && (vm.authenticationMethod.isOAuth2AuthorizationCode || vm.authenticationMethod.isOAuth2ClientCredentials)">
         <umb-box-header title="Provide Token"></umb-box-header>
         <umb-box-content>
           <uui-icon-registry-essential>
@@ -58,18 +88,25 @@
               <p class="auth-srv">Enter service access token</p>
               <p>This service is configured indicating that a token can be generated via the service's developer portal. Once you have obtained one you can copy and paste it here to authorize the service.</p>
               <div>
-                <uui-input id="inAccessToken" type="text" name="inAccessToken" style="width: 40%;font-size:14px;"></uui-input>
-                <umb-button action="vm.saveAccessToken()"
-                            type="button"
-                            button-style="primary"
-                            label="Save"></umb-button>
+                <uui-form>
+                  <uui-form-layout-item class="oauth-form-item">
+                    <uui-label for="inAccessToken" slot="label">Access Token</uui-label>
+                    <uui-input id="inAccessToken" name="access_token" type="text" label="Access Token"></uui-input>
+                  </uui-form-layout-item>
+                  <div>
+                    <umb-button action="vm.saveOAuth2AccessToken()"
+                                type="button"
+                                button-style="primary"
+                                label="Save"></umb-button>
+                  </div>
+                </uui-form>
               </div>
             </uui-card-content-node>
           </uui-icon-registry-essential>
         </umb-box-content>
       </umb-box>
       <!-- Provide Key Section -->
-      <umb-box ng-if="vm.canManuallyProvideApiKey">
+      <umb-box ng-if="vm.canManuallyProvideApiKey && vm.authenticationMethod.isApiKey">
         <umb-box-header title="Provide API key"></umb-box-header>
         <umb-box-content>
           <uui-icon-registry-essential>
@@ -81,11 +118,18 @@
                 Once you have obtained one you can copy and paste it here to authorize the service.
               </p>
               <div>
-                <uui-input id="inApiKey" type="text" name="inApiKey" style="width: 40%;font-size:14px;"></uui-input>
-                <umb-button action="vm.saveApiKey()"
-                            type="button"
-                            button-style="primary"
-                            label="Save"></umb-button>
+                <uui-form>
+                  <uui-form-layout-item class="oauth-form-item">
+                    <uui-label for="inApiKey" slot="label">Api Key</uui-label>
+                    <uui-input id="inApiKey" name="access_token" type="text" label="Api Key"></uui-input>
+                  </uui-form-layout-item>
+                  <div>
+                    <umb-button action="vm.saveApiKey()"
+                                type="button"
+                                button-style="primary"
+                                label="Save"></umb-button>
+                  </div>
+                </uui-form>
               </div>
             </uui-card-content-node>
           </uui-icon-registry-essential>

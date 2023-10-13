@@ -8,7 +8,8 @@ internal abstract class AuthorizedServiceTestsBase
 {
     protected const string ServiceAlias = "testService";
 
-    protected Mock<ITokenStorage> TokenStorageMock { get; set; } = null!;
+    protected Mock<IOAuth2TokenStorage> OAuth2TokenStorageMock { get; set; } = null!;
+    protected Mock<IOAuth1TokenStorage> OAuth1TokenStorageMock { get; set; } = null!;
 
     protected Mock<IKeyStorage> KeyStorageMock { get; set; } = null!;
 
