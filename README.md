@@ -284,11 +284,15 @@ This diagram shows the steps and components involved in the authorization flow f
 
 #### OAuth1 Display of Service Status and Authorization Link
 
-TBC
+This diagram shows the steps involved with finding and displaying the status of a service in the backoffice, along with how the authorization URL that the user is presented with to initiate the authorization process is generated.
+
+![OAuth1 Display of Service Status](./docs/images/oauth1-display-service-status.png)
 
 #### OAuth1 Authorization Flow
 
-TBC
+This diagram shows the steps and components involved in the authorization flow for the OAuth1 protocol.
+
+![OAuth1 Authorization Flow](./docs/images/oauth1-authorization-flow.png)
 
 #### Calling an Authorized Service
 
