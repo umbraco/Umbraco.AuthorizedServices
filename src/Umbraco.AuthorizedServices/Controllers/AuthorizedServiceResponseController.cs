@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Extensions;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.Cms.Core.Cache;
@@ -45,7 +46,7 @@ public class AuthorizedServiceResponseController : UmbracoApiController
             throw new AuthorizedServiceException("The state provided in the identity response could not be parsed.");
         }
 
-        var cacheKey = string.Format(Constants.Cache.AuthorizationPayloadKeyFormat, stateParts[0]);
+        var cacheKey = CacheHelper.GetPayloadKey(stateParts[0]);
         if (_appCaches.RuntimeCache.Get(cacheKey) is not AuthorizationPayload cachedAuthorizationPayload || stateParts[1] != cachedAuthorizationPayload.State)
         {
             throw new AuthorizedServiceException("The state provided in the identity response did not match the expected value.");

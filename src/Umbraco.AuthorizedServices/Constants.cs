@@ -42,13 +42,6 @@ public static class Constants
         public const string AuthorizedServices = nameof(AuthorizedServices);
     }
 
-    public static class Cache
-    {
-        public const string AuthorizationPayloadKeyFormat = "Umbraco_AuthorizedServices_Payload_{0}";
-
-        public const string AuthorizationTokenFormat = "Umbraco_AuthorizedServices_Token_{0}";
-    }
-
     public static class OAuth1
     {
         public const string OAuthToken = "oauth_token";

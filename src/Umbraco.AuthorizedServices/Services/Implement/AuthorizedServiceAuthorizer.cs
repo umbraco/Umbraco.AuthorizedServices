@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Extensions;
@@ -63,7 +64,7 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        var oauthTokenSecret = AppCaches.RuntimeCache.GetCacheItem($"{serviceDetail.Alias}-oauth-token-secret", () => string.Empty);
+        var oauthTokenSecret = AppCaches.RuntimeCache.GetCacheItem(CacheHelper.GetTokenSecretCacheKey(serviceDetail.Alias), () => string.Empty);
 
         Dictionary<string, string> parameters = _authorizationParametersBuilder.BuildParametersForOAuth1(serviceDetail, oauthToken, oauthVerifier, oauthTokenSecret ?? string.Empty);
 

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
+using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Extensions;
@@ -63,7 +64,7 @@ internal abstract class AuthorizedServiceBase
     protected void StoreOAuth2Token(string serviceAlias, OAuth2Token token)
     {
         // Add the access token details to the cache.
-        var cacheKey = GetTokenCacheKey(serviceAlias);
+        var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
         AppCaches.RuntimeCache.InsertCacheItem(cacheKey, () => token);
 
         // Save the refresh token into the storage.
@@ -75,6 +76,4 @@ internal abstract class AuthorizedServiceBase
         // Save the token information into the storage.
         OAuth1TokenStorage.SaveToken(serviceAlias, token);
     }
-
-    private static string GetTokenCacheKey(string serviceAlias) => $"Umbraco_AuthorizedServiceToken_{serviceAlias}";
 }

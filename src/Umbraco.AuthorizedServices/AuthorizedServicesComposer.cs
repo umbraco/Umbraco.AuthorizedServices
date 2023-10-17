@@ -62,7 +62,5 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IKeyStorage, DatabaseKeyStorage>();
 
         builder.Services.AddSingleton<JsonSerializerFactory>();
-
-        builder.Services.AddHttpContextAccessor();
     }
 }

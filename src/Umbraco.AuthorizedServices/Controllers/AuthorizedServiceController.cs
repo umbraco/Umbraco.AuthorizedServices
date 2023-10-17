@@ -1,6 +1,4 @@
-using System.IO;
-using System.Security.AccessControl;
-using Azure;
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -10,6 +8,7 @@ using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Models.Request;
 using Umbraco.AuthorizedServices.Services;
+using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Cms.Web.BackOffice.Controllers;
 using Umbraco.Cms.Web.Common.Attributes;
@@ -77,7 +76,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
             {
                 AuthorizationPayload authorizationPayload = _authorizationPayloadBuilder.BuildPayload();
 
-                var cacheKey = string.Format(Constants.Cache.AuthorizationPayloadKeyFormat, alias);
+                var cacheKey = CacheHelper.GetPayloadKey(alias);
                 _appCaches.RuntimeCache.Insert(cacheKey, () => authorizationPayload);
 
                 authorizationUrl = _authorizationUrlBuilder
@@ -130,8 +129,26 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(alias);
 
-        string response = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.SampleRequest ?? string.Empty, HttpMethod.Get);
-        return Ok(response);
+        Attempt<string?> responseAttempt = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.SampleRequest ?? string.Empty, HttpMethod.Get);
+        if (responseAttempt.Success && responseAttempt.Result is not null)
+        {
+            return Ok(responseAttempt.Result);
+        }
+
+        if (responseAttempt.Exception is not null)
+        {
+            if (responseAttempt.Exception is AuthorizedServiceHttpException authorizedServiceHttpException)
+            {
+                return StatusCode((int)authorizedServiceHttpException.StatusCode, authorizedServiceHttpException.Reason + ": " + authorizedServiceHttpException.Content);
+            }
+
+            if (responseAttempt.Exception is AuthorizedServiceException authorizedServiceException)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, authorizedServiceException.Message);
+            }
+        }
+
+        return StatusCode((int)HttpStatusCode.InternalServerError, "Could not complete the sample request due to an unexpected error");
     }
 
     /// <summary>
@@ -147,19 +164,34 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         {
             case AuthenticationMethod.ApiKey:
                 _keyStorage.DeleteKey(model.Alias);
+                ClearCachedApiKey(model.Alias);
                 break;
             case AuthenticationMethod.OAuth1:
                 _oauth1TokenStorage.DeleteToken(model.Alias);
+                ClearCachedToken(model.Alias);
                 break;
             case AuthenticationMethod.OAuth2AuthorizationCode:
             case AuthenticationMethod.OAuth2ClientCredentials:
                 _oauth2TokenStorage.DeleteToken(model.Alias);
+                ClearCachedToken(model.Alias);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(serviceDetail.AuthenticationMethod));
         }
 
         return Ok();
+    }
+
+    private void ClearCachedApiKey(string serviceAlias)
+    {
+        var cacheKey = CacheHelper.GetApiKeyCacheKey(serviceAlias);
+        _appCaches.RuntimeCache.ClearByKey(cacheKey);
+    }
+
+    private void ClearCachedToken(string serviceAlias)
+    {
+        var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
+        _appCaches.RuntimeCache.ClearByKey(cacheKey);
     }
 
     /// <summary>
@@ -232,7 +264,7 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         {
             _appCaches.RuntimeCache.InsertCacheItem(oauthToken, () => serviceDetail.Alias);
 
-            _appCaches.RuntimeCache.InsertCacheItem($"{serviceDetail.Alias}-oauth-token-secret", () => oauthTokenSecret);
+            _appCaches.RuntimeCache.InsertCacheItem(CacheHelper.GetTokenSecretCacheKey(serviceDetail.Alias), () => oauthTokenSecret);
 
             return Ok(string.Format(
                 "{0}{1}?{2}",
