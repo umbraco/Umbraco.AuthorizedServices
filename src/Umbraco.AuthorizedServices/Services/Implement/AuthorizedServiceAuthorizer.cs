@@ -97,8 +97,6 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
                     ? await AuthorizationRequestSender.SendOAuth2ExchangeRequest(serviceDetail, parameters)
                     : await AuthorizationRequestSender.SendOAuth2Request(serviceDetail, parameters));
 
-        var responseContent = await response.Content.ReadAsStringAsync();
-
         if (response.IsSuccessStatusCode)
         {
             if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
