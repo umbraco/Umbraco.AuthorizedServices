@@ -45,10 +45,14 @@ Install-Package Umbraco.AuthorizedServices
 dotnet add package Umbraco.AuthorizedServices
 ```
 
-
 ### App Creation
 
 Services that this package are intended to support will offer an OAuth authentication and authorization flow against an "app" that the developer will need to create with the service.  From this various information will be available, including for example a "client ID" and "client secret" that will need to be applied in configuration.
+
+When creating the app it will usually be necessary to configure a call back URL. You should use the following:
+
+- For OAuth2: `/umbraco/api/AuthorizedServiceResponse/HandleOAuth2IdentityResponse`
+- For OAuth1: `/umbraco/api/AuthorizedServiceResponse/HandleOAuth1IdentityResponse`
 
 ### Configuring a Service
 
@@ -212,7 +216,7 @@ An enum value that defines the JSON serializer to use when creating requests and
 
 ###### AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken
 
-This flag indicates whether the basic token should be included in the request for access token. If true, a base64 encoding of <clientId>:<clientSecret> will be added to 
+This flag indicates whether the basic token should be included in the request for access token. If true, a base64 encoding of <clientId>:<clientSecret> will be added to
 the authorization header.
 
 ###### API Key
@@ -279,7 +283,7 @@ To make a call to an authorized service, you first need to obtain an instance of
 If making a request where all information is provided via the path and querystring, such as GET requests, the following method should be invoked:
 
 ```csharp
-Task<TResponse> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod);
+Task<Attempt<TResponse?>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod);
 ```
 
 The parameters for the request are as follows:
@@ -294,7 +298,7 @@ There is also a type parameter:
 If you need to provide data in the request, as is usually the case for POST or PUT requests that required the creation or update of a resource, an overload is available:
 
 ```csharp
-Task<TResponse> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+Task<Attempt<TResponse>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
     where TRequest : class;
 ```
 
@@ -309,16 +313,16 @@ And additional type parameter:
 If you need to work with the raw JSON response, there are equivalent methods for both of these that omit the deserialization step:
 
 ```csharp
-Task<string> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod);
+Task<Attempt<string?>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod);
 
-Task<string> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+Task<<Attempt<string?>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
     where TRequest : class;
 ```
 
 Finally, there are convenience extension methods available for each of the common HTTP verbs, allowing you to simplify the requests and omit the `HttpMethod` parameter, e.g.
 
 ```csharp
-Task<TResponse> GetRequestAsync<TResponse>(string serviceAlias, string path);
+Task<Attempt<TResponse?>> GetRequestAsync<TResponse>(string serviceAlias, string path);
 ```
 
 ## Providers
@@ -336,6 +340,40 @@ The branching strategy in this repository follows a "gitflow" model:
 - as needed `support/x.x.x` branches are introduced from tags used for updates to older versions
 
 The following details are those useful for those contributing to development of the package, and for anyone interested in the how it has been implemented. For anyone using the package too, and finding the existing configuration options aren't sufficient to specify a particular service, there may be scope to provide a custom implementation for particular components.
+
+### Flow Diagrams
+
+The following diagrams indicate some of the key authentication and authorization flows supported by the package, along with the components involved.
+
+#### OAuth2 Display of Service Status and Authorization Link
+
+This diagram shows the steps involved with finding and displaying the status of a service in the backoffice, along with how the authorization URL that the user is presented with to initiate the authorization process is generated.
+
+![OAuth2 Display of Service Status](./docs/images/oauth2-display-service-status.png)
+
+#### OAuth2 Authorization Flow
+
+This diagram shows the steps and components involved in the authorization flow for the OAuth2 protocol.
+
+![OAuth2 Authorization Flow](./docs/images/oauth2-authorization-flow.png)
+
+#### OAuth1 Display of Service Status and Authorization Link
+
+This diagram shows the steps involved with finding and displaying the status of a service in the backoffice, along with how the authorization URL that the user is presented with to initiate the authorization process is generated.
+
+![OAuth1 Display of Service Status](./docs/images/oauth1-display-service-status.png)
+
+#### OAuth1 Authorization Flow
+
+This diagram shows the steps and components involved in the authorization flow for the OAuth1 protocol.
+
+![OAuth1 Authorization Flow](./docs/images/oauth1-authorization-flow.png)
+
+#### Calling an Authorized Service
+
+The following diagram shows the steps and components involved in making a request to an external service. It shows the three methods available: OAuth2, OAuth1 and API key.
+
+![OAuth2 Authorization Flow](./docs/images/call-authorized-service.png)
 
 ### Component Description
 

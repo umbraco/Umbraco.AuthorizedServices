@@ -42,16 +42,53 @@ public static class Constants
         public const string AuthorizedServices = nameof(AuthorizedServices);
     }
 
-    public static class Migrations
+    public static class OAuth1
     {
-        public const string UmbracoAuthorizedServiceTokenTableName = "umbracoAuthorizedServiceToken";
+        public const string OAuthToken = "oauth_token";
 
-        public const string UmbracoAuthorizedServiceKeyTableName = "umbracoAuthorizedServiceKey";
+        public const string OAuthTokenSecret = "oauth_token_secret";
 
-        public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
+        public const string OAuthVerifier = "oauth_verifier";
 
-        public const string UmbracoAuthorizedServiceTokenTargetState = "authorizedServices-token-db";
+        public const string OAuthNonce = "oauth_nonce";
 
-        public const string UmbracoAuthorizedServiceKeyTargetState = "authorizedServices-key-db";
+        public const string OAuthTimestamp = "oauth_timestamp";
+
+        public const string OAuthSignature = "oauth_signature";
+
+        public const string OAuthSignatureMethod = "oauth_signature_method";
+
+        public const string OAuthConsumerKey = "oauth_consumer_key";
+
+        public const string OAuthVersion = "oauth_version";
+    }
+
+    public static class Database
+    {
+        public static class TableNames
+        {
+            public const string OAuth2Token = "umbracoAuthorizedServiceOAuth2Token";
+
+            public const string ApiKey = "umbracoAuthorizedServiceKey";
+
+            public const string OAuth1Token = "umbracoAuthorizedServiceOAuth1Token";
+        }
+
+        public static class Migrations
+        {
+
+            public const string MigrationPlan = "AuthorizedServicesDatabaseMigration";
+
+            public static class TargetStates
+            {
+                public const string AddOAuth2TokenTable = "authorizedServices-db";
+
+                public const string RenameOAuth2TokenTable = "authorizedServices-oauth2-rename-db";
+
+                public const string AddKeyTable = "authorizedServices-key-db";
+
+                public const string AddOAuth1TokenTable = "authorizedServices-oauth1_token-db";
+            }
+        }
     }
 }

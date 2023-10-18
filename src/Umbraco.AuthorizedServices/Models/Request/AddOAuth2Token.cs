@@ -3,7 +3,7 @@ namespace Umbraco.AuthorizedServices.Models.Request;
 /// <summary>
 /// Defines the model used for saving a service token via a backoffice operation.
 /// </summary>
-public class AddToken
+public class AddOAuth2Token
 {
     /// <summary>
     /// Gets or sets the service alias.

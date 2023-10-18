@@ -94,6 +94,28 @@ internal class AuthorizationParametersBuilderTests
         result["grant_type"].Should().Be("client_credentials");
     }
 
+    [Test]
+    public void BuildParametersForOAuth1_WithClientCredentialsProvisionInAuthHeader_ReturnsExpectedResult()
+    {
+        // Arrange
+        ServiceDetail serviceDetail = CreateServiceDetail();
+        serviceDetail.AuthenticationMethod = AuthenticationMethod.OAuth1;
+        const string Token = "1234";
+        const string Verifier = "5678";
+        const string Secret = "90";
+
+        var sut = new AuthorizationParametersBuilder();
+
+        // Act
+        Dictionary<string, string> result = sut.BuildParametersForOAuth1(serviceDetail, Token, Verifier, Secret);
+
+        // Assert
+        result.Count.Should().Be(8);
+        result["oauth_token"].Should().Be(Token);
+        result["oauth_verifier"].Should().Be(Verifier);
+        result["oauth_consumer_key"].Should().Be("TestClientId");
+    }
+
     private static ServiceDetail CreateServiceDetail() => new()
     {
         ClientId = "TestClientId",

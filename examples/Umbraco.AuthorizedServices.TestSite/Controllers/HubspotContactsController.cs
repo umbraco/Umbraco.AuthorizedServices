@@ -3,31 +3,33 @@ using Umbraco.AuthorizedServices.Extensions;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.TestSite.Models.Dtos;
 using Umbraco.AuthorizedServices.TestSite.Models.ServiceResponses;
-using Umbraco.Cms.Web.Common.Controllers;
+using Umbraco.Cms.Core;
 
 namespace Umbraco.AuthorizedServices.TestSite.Controllers;
 
 [Route("umbraco/authorizedservice/hubspot/v1/contacts")]
-public class HubspotContactsController : UmbracoApiController
+public class HubspotContactsController : AuthorizedServicesApiControllerBase
 {
     private const string ServiceAlias = "hubspot";
     private const string BasePath = "/crm/v3/objects/contacts/";
 
-    private readonly IAuthorizedServiceCaller _authorizedServiceCaller;
-
-    public HubspotContactsController(IAuthorizedServiceCaller authorizedServiceCaller) => _authorizedServiceCaller = authorizedServiceCaller;
+    public HubspotContactsController(IAuthorizedServiceCaller authorizedServiceCaller)
+        : base(authorizedServiceCaller)
+    {
+    }
 
     [HttpGet]
     public async Task<IActionResult> Get()
     {
-       HubspotContactResponse? response = await _authorizedServiceCaller.GetRequestAsync<HubspotContactResponse>(
+       Attempt<HubspotContactResponse?> responseAttempt = await AuthorizedServiceCaller.GetRequestAsync<HubspotContactResponse>(
             ServiceAlias,
             BasePath);
-        if (response == null)
+        if (!responseAttempt.Success || responseAttempt.Result is null)
         {
-            return Problem("Could not retrieve contacts.");
+            return HandleFailedRequest(responseAttempt.Exception, "Could not retrieve contacts.");
         }
 
+        HubspotContactResponse response = responseAttempt.Result;
         return Ok(
             response.Results
                 .Select(MapToDto)
@@ -38,44 +40,48 @@ public class HubspotContactsController : UmbracoApiController
     [Route("{id}")]
     public async Task<IActionResult> Get(string id)
     {
-        HubspotContactResponse.Result? response = await _authorizedServiceCaller.GetRequestAsync<HubspotContactResponse.Result>(
+        Attempt<HubspotContactResponse.Result?> responseAttempt = await AuthorizedServiceCaller.GetRequestAsync<HubspotContactResponse.Result>(
             ServiceAlias,
             $"{BasePath}{id}");
-        if (response == null)
+
+        if (!responseAttempt.Success || responseAttempt.Result is null)
         {
-            return NotFound();
+            return HandleFailedRequest(responseAttempt.Exception, "Could not retrieve contact.");
         }
 
+        HubspotContactResponse.Result response = responseAttempt.Result;
         return Ok(MapToDto(response));
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ContactDto contact)
     {
-        HubspotContactResponse.Result? response = await _authorizedServiceCaller.PostRequestAsync<HubspotContactResponse.Result, HubspotContactResponse.Result>(
+        Attempt<HubspotContactResponse.Result?> responseAttempt = await AuthorizedServiceCaller.PostRequestAsync<HubspotContactResponse.Result, HubspotContactResponse.Result>(
             ServiceAlias,
             BasePath,
             MapToRequest(contact));
-        if (response == null)
+        if (!responseAttempt.Success || responseAttempt.Result is null)
         {
-            return Problem("Could not create contact.");
+            return HandleFailedRequest(responseAttempt.Exception, "Could not create contact.");
         }
 
+        HubspotContactResponse.Result response = responseAttempt.Result;
         return CreatedAtAction(nameof(Get), new { id = response.Id }, MapToDto(response));
     }
 
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] ContactDto contact)
     {
-        HubspotContactResponse.Result? response = await _authorizedServiceCaller.PatchRequestAsync<HubspotContactResponse.Result, HubspotContactResponse.Result>(
+        Attempt<HubspotContactResponse.Result?> responseAttempt = await AuthorizedServiceCaller.PatchRequestAsync<HubspotContactResponse.Result, HubspotContactResponse.Result>(
             ServiceAlias,
             $"{BasePath}{contact.Id}",
             MapToRequest(contact));
-        if (response == null)
+        if (!responseAttempt.Success || responseAttempt.Result is null)
         {
-            return Problem("Could not update contact.");
+            return HandleFailedRequest(responseAttempt.Exception, "Could not update contact.");
         }
 
+        HubspotContactResponse.Result response = responseAttempt.Result;
         return Ok(MapToDto(response));
     }
 
@@ -83,7 +89,7 @@ public class HubspotContactsController : UmbracoApiController
     [Route("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
-        await _authorizedServiceCaller.DeleteRequestAsync(
+        await AuthorizedServiceCaller.DeleteRequestAsync(
             ServiceAlias,
             $"{BasePath}{id}");
 
@@ -91,7 +97,7 @@ public class HubspotContactsController : UmbracoApiController
     }
 
     private ContactDto MapToDto(HubspotContactResponse.Result result) =>
-        new ContactDto
+        new()
         {
             Id = result.Id,
             FirstName = result.Properties.FirstName,
@@ -100,7 +106,7 @@ public class HubspotContactsController : UmbracoApiController
         };
 
     private HubspotContactResponse.Result MapToRequest(ContactDto dto) =>
-        new HubspotContactResponse.Result
+        new()
         {
             Id = dto.Id,
             Properties = new HubspotContactResponse.ResultProperties

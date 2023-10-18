@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Manifests;
+using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Composing;
@@ -51,13 +52,13 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IDateTimeProvider, DateTimeProvider>();
         builder.Services.AddUnique<IRefreshTokenParametersBuilder, RefreshTokenParametersBuilder>();
 
-        builder.Services.AddUnique<IAuthorizationPayloadCache, AuthorizationPayloadCache>();
         builder.Services.AddUnique<IAuthorizationPayloadBuilder, AuthorizationPayloadBuilder>();
 
         builder.Services.AddUnique<ISecretEncryptor, DataProtectionSecretEncryptor>();
 
         builder.Services.AddUnique<ITokenFactory, TokenFactory>();
-        builder.Services.AddUnique<ITokenStorage, DatabaseTokenStorage>();
+        builder.Services.AddUnique<IOAuth2TokenStorage, DatabaseOAuth2TokenStorage>();
+        builder.Services.AddUnique<IOAuth1TokenStorage, DatabaseOAuth1TokenStorage>();
         builder.Services.AddUnique<IKeyStorage, DatabaseKeyStorage>();
 
         builder.Services.AddSingleton<JsonSerializerFactory>();

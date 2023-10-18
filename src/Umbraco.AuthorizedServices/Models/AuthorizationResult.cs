@@ -10,7 +10,7 @@ public class AuthorizationResult
     }
 
     /// <summary>
-    /// Gets a value indicating whether the operation succeeeded.
+    /// Gets a value indicating whether the operation succeeded.
     /// </summary>
     public bool Success { get; private set; }
 
@@ -20,9 +20,19 @@ public class AuthorizationResult
     public string ErrorMessage { get; private set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets a return value for a successful operation.
+    /// </summary>
+    public string? Result { get; private set; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizationResult"/> class for a successful operation.
     /// </summary>
     public static AuthorizationResult AsSuccess() => new() { Success = true };
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuthorizationResult"/> class for a successful operation with a result value.
+    /// </summary>
+    public static AuthorizationResult AsSuccess(string result) => new() { Success = true, Result = result };
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizationResult"/> class for a failed operation.

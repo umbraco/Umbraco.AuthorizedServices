@@ -36,7 +36,7 @@ internal class AuthorizationRequestSenderTests
         var sut = new AuthorizationRequestSender(clientFactoryMock.Object);
 
         // Act
-        await sut.SendRequest(serviceDetail, parameters);
+        await sut.SendOAuth2Request(serviceDetail, parameters);
 
         // Assert
         const string ExpectedUrl = "https://service.url/login/oauth/access_token?foo=bar&baz=buzz";
@@ -75,7 +75,7 @@ internal class AuthorizationRequestSenderTests
         var sut = new AuthorizationRequestSender(clientFactoryMock.Object);
 
         // Act
-        await sut.SendRequest(serviceDetail, parameters);
+        await sut.SendOAuth2Request(serviceDetail, parameters);
 
         // Assert
         const string ExpectedUrl = "https://service.url/login/oauth/access_token";
@@ -117,7 +117,7 @@ internal class AuthorizationRequestSenderTests
         var sut = new AuthorizationRequestSender(clientFactoryMock.Object);
 
         // Act
-        await sut.SendRequest(serviceDetail, parameters);
+        await sut.SendOAuth2Request(serviceDetail, parameters);
 
         // Assert
         AuthenticationHeaderValue expectedAuthenticationHeader = BuildBasicAuthenticationHeader(serviceDetail);
@@ -126,6 +126,50 @@ internal class AuthorizationRequestSenderTests
                 "SendAsync",
                 Times.Once(),
                 ItExpr.Is<HttpRequestMessage>(x => IsAuthenticationHeaderValid(x, expectedAuthenticationHeader)),
+                ItExpr.IsAny<CancellationToken>());
+    }
+
+    [Test]
+    public async Task SendRequest_ForOAuth1_SendsRequest()
+    {
+        // Arrange
+        var httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+        httpMessageHandlerMock.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+
+        var clientFactoryMock = new Mock<IAuthorizationClientFactory>();
+        clientFactoryMock
+            .Setup(x => x.CreateClient())
+            .Returns(new HttpClient(httpMessageHandlerMock.Object));
+
+        var serviceDetail = new ServiceDetail
+        {
+            AuthenticationMethod = AuthenticationMethod.OAuth1,
+            IdentityHost = "https://service.url",
+            RequestTokenPath = "/oauth/access_token",
+            ClientId = "TestClientId",
+            ClientSecret = "TestClientSecret"
+        };
+
+        var parameters = new Dictionary<string, string>
+        {
+            { "oauth_token", "test-oauth-token" },
+            { "oauth_verifier", "test-oauth-verifier" }
+        };
+
+        var sut = new AuthorizationRequestSender(clientFactoryMock.Object);
+
+        // Act
+        await sut.SendOAuth1Request(serviceDetail, parameters);
+
+        // Assert
+        const string ExpectedUrl = "https://service.url/oauth/access_token?oauth_token=test-oauth-token&oauth_verifier=test-oauth-verifier";
+        httpMessageHandlerMock.Protected()
+            .Verify(
+                "SendAsync",
+                Times.Once(),
+                ItExpr.Is<HttpRequestMessage>(x => x.RequestUri!.ToString() == ExpectedUrl),
                 ItExpr.IsAny<CancellationToken>());
     }
 
@@ -154,5 +198,4 @@ internal class AuthorizationRequestSenderTests
 
         return new AuthenticationHeaderValue("Basic", base64String);
     }
-
 }

@@ -23,4 +23,14 @@ public interface IAuthorizationParametersBuilder
     /// <param name="serviceDetail">The service detail.</param>
     /// <returns>A dictionary containing the authorization parameters.</returns>
     Dictionary<string, string> BuildParametersForOAuth2ClientCredentials(ServiceDetail serviceDetail);
+
+    /// <summary>
+    /// Builds the parameter dictionary used in OAuth1 authorization requests.
+    /// </summary>
+    /// <param name="serviceDetail">The service detail.</param>
+    /// <param name="oauthToken">The OAuth Token.</param>
+    /// <param name="oauthVerifier">The OAuth Verifier.</param>
+    /// <param name="oauthTokenSecret">The OAuth Token Secret.</param>
+    /// <returns>A dictionary containing the authorization parameters.</returns>
+    Dictionary<string, string> BuildParametersForOAuth1(ServiceDetail serviceDetail, string oauthToken, string oauthVerifier, string oauthTokenSecret);
 }
