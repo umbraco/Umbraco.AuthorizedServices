@@ -13,10 +13,7 @@ Having worked with a few OAuth integrations across different providers, as would
 - Serializing requests and deserializing the API responses.
 - Handling cases where the token has expired and obtaining a new one via a refresh token.
 
-For API key based flows, the integration steps include:
-
-- Use an API key stored in the settings file or persisted into the database to serialize requests and deserialize the API responses.
-- Use provisioning options for passing the key to the API.
+With API key based flows, the process is a little simpler.  But you still have to consider secure storage of the key, providing it correctly in API calls and handling serialization tasks.
 
 There are though also differences, across request and response structures and variations in the details of the flow itself.
 
