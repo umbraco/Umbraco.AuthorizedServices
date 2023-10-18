@@ -2,16 +2,18 @@
 
 ## Aims
 
-**Umbraco Authorized Services** is an Umbraco package designed to reduce the effort needed to integrate third party services that require authentication and authorization via an OAuth flow into Umbraco solutions.  It's based on the premise that working with these services requires a fair bit of plumbing code to handle creating an authorized connection.  This is necessary before the developer working with the service can get to actually using the provided API to implement the business requirements.
+**Umbraco Authorized Services** is an Umbraco package designed to reduce the effort needed to integrate third party services that require authentication and authorization via an OAuth or API key based flow into Umbraco solutions.  It's based on the premise that working with these services requires a fair bit of plumbing code to handle creating an authorized connection.  This is necessary before the developer working with the service can get to actually using the provided API to implement the business requirements.
 
 Having worked with a few OAuth integrations across different providers, as would be expected, there are quite a few similarities to the flow that needs to be implemented.  Steps include:
 
 - Redirecting to an authentication endpoint.
-- Handling the response including an authentication code and exchanging it for an access token.
+- Handling the response including an authentication code (or an oauth token and verifier code) and exchanging it for an access token.
 - Securely storing the token.
 - Including the token in API requests.
 - Serializing requests and deserializing the API responses.
 - Handling cases where the token has expired and obtaining a new one via a refresh token.
+
+With API key based flows, the process is a little simpler.  But you still have to consider secure storage of the key, providing it correctly in API calls and handling serialization tasks.
 
 There are though also differences, across request and response structures and variations in the details of the flow itself.
 
@@ -23,7 +25,7 @@ For the solution developer, the Umbraco Authorized Services offers two primary f
 
 Firstly there's an tree available in the _Settings_ section of the backoffice, called _Authorized Services_. The tree shows the list of services based on the details provided in configuration.
 
-Each tree entry has a management screen where an administrator can authenticate with an app that has been setup with the service.  The status of each service, in terms of whether the authentication and authorization flow has been completed and an access token stored, is shown on this screen.
+Each tree entry has a management screen where an administrator can authenticate with an app that has been setup with the service.  The status of each service, in terms of whether the authentication and authorization flow has been completed and an access token (or API key) stored, is shown on this screen.
 
 ![Backoffice settings screen](https://2904150615-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FeCauR3aomRsx2gdckuDO%2Fuploads%2Fgit-blob-d8f49355a2c62920863e5653f7ad97e135fbc7cb%2Fauthorized-services-tree.png?alt=media)
 
@@ -69,23 +71,45 @@ Details of services available need to be applied to the Umbraco web application'
         {
           "<serviceAlias>": {
             "DisplayName": "",
+            "AuthenticationMethod": "OAuth2AuthorizationCode|OAuth2ClientCredentials|OAuth1|ApiKey",
+            "ClientCredentialsProvision": "AuthHeader|RequestBody",
             "ApiHost": "",
             "IdentityHost": "",
             "TokenHost": "",
             "RequestIdentityPath": "",
+            "CanManuallyProvideToken": true|false,
+            "CanManuallyProvideApiKey": true|false,
+            "CanExchangeToken": true|false,
+            "ExchangeTokenProvision": {
+              "TokenHost": "",
+              "RequestTokenPath": "",
+              "TokenGrantType": "",
+              "RequestRefreshTokenPath": "",
+              "RefreshTokenGrantType": "",
+              "ExchangeTokenWhenExpiresWithin": ""
+            },
             "AuthorizationUrlRequiresRedirectUrl": true|false,
             "RequestTokenPath": "",
-            "JsonSerializer": "",
-            "RequestTokenFormat": "",
+            "RequestTokenMethod": "GET|POST",
+            "RequestAuthorizationPath": "",
+            "JsonSerializer": "Default|JsonNet|SystemTextJson",
+            "RequestTokenFormat": "Querystring|FormUrlEncoded",
             "AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken": true|false,
+            "ApiKey": "",
+            "ApiKeyProvision": {
+              "Method": "HttpHeader|QueryString",
+              "Key": ""
+            },
             "ClientId": "",
             "ClientSecret": "",
             "UseProofKeyForCodeExchange": true|false,
             "Scopes": "",
+            "IncludeScopesInAuthorizationRequest": true|false,
             "AccessTokenResponseKey": "access_token",
             "RefreshTokenResponseKey": "refresh_token",
             "ExpiresInResponseKey": "expires_in",
-            "SampleRequest": ""
+            "SampleRequest": "",
+            "RefreshAccessTokenWhenExpiresWithin": ""
         }
       }
     }
@@ -115,6 +139,18 @@ The value contains the following elements:
 
 Provides a friendly name for the service used for identification in the user interface.
 
+###### AuthenticationMethod
+
+Specifies the type of authentication the service will use, from one of the following available options: `OAuth1`, `OAuth2AuthorizationCode`, `OAuth2ClientCredentials` or `ApiKey`.
+
+If no value is provided, it will default to `OAuth2AuthorizationCode`.
+
+###### ClientCredentialsProvision
+
+Specifies the available options for providing credentials in an `OAuth2` flow: `AuthHeader` or `RequestBody`.
+
+This setting is only utilized when the `AuthenticatedMethod` value is configured as `OAuth2ClientCredentials`.
+
 ###### ApiHost *
 
 The host name for the service API that will be called to deliver business functionality.  E.g. for Github this is `https://api.github.com`.
@@ -131,6 +167,33 @@ Some providers make available a separately hosted service for handling requests 
 
 Used, along with `IdentityHost` to construct a URL that the user is redirected to when initiating the authorization of the service via the backoffice. For GitHub, the required value is `/login/oauth/authorize`.
 
+###### CanManuallyProvideToken
+
+Specifies whether the service supports generating of tokens via the provider's developer portal such that an administrator can manually add one via the backoffice. 
+
+###### CanManuallyProvideApiKey
+
+Specifies whether an administrator can manually add API keys via the backoffice. You might prefer to use this option instead of storing the key in configuration via the `ApiKey` setting.
+
+###### CanExchangeToken
+
+Specifies whether the access token can be exchanged with a long lived one.
+
+###### ExchangeTokenProvision
+
+Provides a strongly typed configuration for a setup that allows exchanging an access token. 
+
+This setting is only utilized when `CanExchangeToken` is set to `true`.
+
+The configuration of exchange tokens includes:
+
+- `TokenHost`
+- `RequestTokenPath`
+- `TokenGrantType`
+- `RequestRefreshTokenPath`
+- `RefreshTokenGrantType`
+- `ExchangeTokenWhenExpiresWithin` 
+
 ###### AuthorizationUrlRequiresRedirectUrl
 
 Some providers require a redirect URL to be provided with the authentication request. For others, instead it's necessary to configure this as part of the registered app. The default value if not provided via configuration is `false`, which is sufficient for the GitHub example.
@@ -142,6 +205,10 @@ Used, along with `TokenHost` to construct a URL used for retrieving access token
 ###### RequestTokenFormat
 
 An enum value that controls how the request to retrieve an access token is formatted. Options are `Querystring` and `FormUrlEncoded`. `Querystring` is the default value and is used for GitHub.
+
+###### RequestAuthorizationPath
+
+Required in `OAuth1` flows for building the service authorization URL.
 
 ###### JsonSerializer
 
@@ -156,13 +223,23 @@ An enum value that defines the JSON serializer to use when creating requests and
 This flag indicates whether the basic token should be included in the request for access token. If true, a base64 encoding of <clientId>:<clientSecret> will be added to
 the authorization header.
 
+###### API Key
+
+Specifies the key a service with `AuthenticationMethod` set to `ApiKey` will use for making authorized requests to the API.
+
+###### ApiKeyProvision
+
+For `ApiKey` authentication methods, options for passing the API key need to be set, by specifying a method: `HttpHeader` or `QueryString` and the name for the key holding the value.
+
 ###### ClientId *
 
 This value will be retrieved from the registered service app.
+For `OAuth1` flows it matches the `consumer key` value from the registered service app.
 
 ###### ClientSecret *
 
 This value will be retrieved from the registered service app.  As the name suggests, it should be kept secret and so is probably best not added directly to `appSettings.json` and checked into source control.
+For `OAuth1` flows it matches the `consumer secret` value from the registered service app.
 
 ###### UseProofKeyForCodeExchange *
 
@@ -176,6 +253,9 @@ compare it with the previously sent `code_challenge`.
 ###### Scopes *
 
 This value will be configured on the service app and retrieved from there. Best practice is to define only the set of permissions that the integration will need.  For GitHub, the single scope needed to retrieve details about a repository's contributors is `repo`.
+
+###### IncludeScopesInAuthorizationRequest
+Specifies whether the provided scopes should be included in the authorization request body (e.g. `Microsoft`).
 
 ###### AccessTokenResponseKey
 
@@ -192,6 +272,10 @@ The expected key for retrieving the datetime of token expiry from a response. If
 ###### SampleRequest
 
 An optional sample request can be provided, which can be used to check that an authorized service is functioning as expected from the backoffice.  For example, to retrieve the set of contributors to the Umbraco repository hosted at GitHub, this request can be used: `/repos/Umbraco/Umbraco-CMS/contributors`.
+
+###### RefreshAccessTokenWhenExpiresWithin
+
+Specifies a time interval for expiration of access tokens.
 
 ### Authorizing a Service
 
@@ -312,6 +396,10 @@ Responsible for creating an HTTP client used for making authorization requests t
 
 Responsible for creating a dictionary of parameters provided in the request to retrieve an access token from an authorization code. Implemented by `AuthorizationParametersBuilder`.
 
+#### IAuthorizationPayloadBuilder
+
+Responsible for generating the authorization payload used between the authorization and access token requests. Implemented by `AuthorizationPayloadBuilder`.
+
 #### IAuthorizationRequestSender
 
 Responsible for sending the request to retrieve access tokens. Implemented by `AuthorizationRequestSender`, which depends on `IAuthorizationClientFactory`.
@@ -327,6 +415,10 @@ Responsible for building the URL used to instigate the authentication and author
 #### IAuthorizedRequestBuilder
 
 Responsible for creating a request to an authorized service, providing the content and access token. Implemented by `AuthorizedRequestBuilder`.
+
+#### IExchangeTokenParametersBuilder
+
+Responsible for defining the operations building the dictionary of parameters used in exchange token authorization requests. Implemented by `ExchangeTokenParametersBuilder`.
 
 #### IAuthorizedServiceCaller
 
@@ -356,14 +448,10 @@ builder.Services.AddUnique<ISecretEncryptor, AesSecretEncryptor>();
 
 Responsible for instantiating a new strongly typed `Token` instance from the service response. Implemented by `TokenFactory`.
 
-#### ITokenStorage
+#### IKeyStorage
 
-Responsible for storing tokens. Implemented by `InMemoryTokenStorage` and `DatabaseTokenStorage`.
+Responsible for storing API keys. Implemented by `DatabaseKeyStorage`.
 
-#### IAuthorizedServiceCache
+#### ITokenStorage | IOAuth1TokenStorage | IOAuth2TokenStorage
 
-Responsible for caching data payload. Implemented by `AuthorizedServiceAuthorizationPayloadCache` to store the authorization payload.
-
-#### IAuthorizedServiceAuthorizationPayloadBuilder
-
-Responsible for generating the authorization payload used between the authorization and access token requests. Implemented by `AuthorizedServiceAuthorizationPayloadBuilder`.
+Responsible for storing tokens. Implemented by `InMemoryTokenStorage`, `DatabaseOAuth1TokenStorage` and `DatabaseOAuth2TokenStorage`.
