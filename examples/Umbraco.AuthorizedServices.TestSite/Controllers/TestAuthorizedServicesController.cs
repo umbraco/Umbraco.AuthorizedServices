@@ -138,16 +138,62 @@ public class TestAuthorizedServicesController : AuthorizedServicesApiControllerB
         return Content(string.Join(", ", response.Select(x => x.ToString())));
     }
 
-    public async Task<IActionResult> GetVideoDetailsFromYouTube()
+    public async Task<IActionResult> GetVideoDetailsFromYouTube(string videoId)
     {
         Attempt<string?> responseAttempt = await AuthorizedServiceCaller.SendRequestRawAsync(
             "youtube",
-            "/v3/videos?id=[video_id]&part=snippet,contentDetails,statistics,status",
+            $"/v3/videos?id={videoId}&part=snippet,contentDetails,statistics,status",
             HttpMethod.Get);
 
         if (!responseAttempt.Success || responseAttempt.Result is null)
         {
             return HandleFailedRequest(responseAttempt.Exception, "Could not retrieve video details.");
+        }
+
+        var response = responseAttempt.Result;
+        return Content(response);
+    }
+
+    public async Task<IActionResult> GetInstagramProfile()
+    {
+        Attempt<InstagramProfileResponse?> responseAttempt = await AuthorizedServiceCaller.GetRequestAsync<InstagramProfileResponse>(
+            "instagram",
+            $"/v3.0/me?fields=username");
+
+        if (!responseAttempt.Success || responseAttempt.Result is null)
+        {
+            return HandleFailedRequest(responseAttempt.Exception, "Could not retrieve account details.");
+        }
+
+        return Content(responseAttempt.Result.Username);
+    }
+
+    public async Task<IActionResult> GetTwitterProfileUsingOAuth1()
+    {
+        Attempt<string?> responseAttempt = await AuthorizedServiceCaller.SendRequestRawAsync(
+            "twitter",
+            "/1.1/account/settings.json",
+            HttpMethod.Get);
+
+        if (!responseAttempt.Success || responseAttempt.Result is null)
+        {
+            return HandleFailedRequest(responseAttempt.Exception, "Could not retrieve account details.");
+        }
+
+        var response = responseAttempt.Result;
+        return Content(response);
+    }
+
+    public async Task<IActionResult> GetTwitterProfileUsingOAuth2()
+    {
+        Attempt<string?> responseAttempt = await AuthorizedServiceCaller.SendRequestRawAsync(
+            "twitter_oauth2",
+            "/2/users/me",
+            HttpMethod.Get);
+
+        if (!responseAttempt.Success || responseAttempt.Result is null)
+        {
+            return HandleFailedRequest(responseAttempt.Exception, "Could not retrieve account details.");
         }
 
         var response = responseAttempt.Result;
