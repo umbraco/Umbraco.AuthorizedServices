@@ -37,7 +37,7 @@ function AuthorizedServiceEditController(this: any, $routeParams, $location, aut
           notificationsService.success("Authorized Services", "The '" + vm.displayName + "' service has been authorized.");
           loadServiceDetails(serviceAlias);
         });
-    } if (vm.authenticationMethod.isOAuth1) {
+    } else if (vm.authenticationMethod.isOAuth1) {
       authorizedServiceResource.generateOAuth1RequestToken(serviceAlias)
         .then(function (response) {
           location.href = response.data.message;

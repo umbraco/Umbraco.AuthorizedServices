@@ -36,7 +36,7 @@
                   </div>
                 </div>
               </div>
-              <div ng-show="!vm.isAuthorized">
+              <div ng-show="!vm.isAuthorized && !vm.authenticationMethod.isApiKey">
                 <p>To authorize the service click to sign-in to the provider's portal, confirm the permission request and return to Umbraco.</p>
                 <umb-button action="vm.authorizeAccess()"
                             type="button"
