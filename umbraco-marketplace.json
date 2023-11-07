@@ -3,12 +3,17 @@
   "AuthorDetails": {
     "Description": "Umbraco HQ",
     "Url": "https://umbraco.com/",
-    "ImageUrl": "https://avatars.githubusercontent.com/u/1419552?s=200&v=4"
+    "ImageUrl": "https://github.com/umbraco.png"
   },
-  "DocumentationUrl": "https//docs.umbraco.com/umbraco-dxp/packages/authorized-services",
+  "DocumentationUrl": "https://docs.umbraco.com/umbraco-dxp/packages/authorized-services",
   "Category": "Developer Tools",
   "IssueTrackerUrl": "https://github.com/umbraco/Umbraco.AuthorizedServices/issues",
-  "LicenseType": "Free",
+  "LicenseTypes": [
+    "Free"
+  ],
   "PackageType": "Package",
-  "Tags": [ "integration", "authorization" ]
+  "Tags": [
+    "integration",
+    "authorization"
+  ]
 }
