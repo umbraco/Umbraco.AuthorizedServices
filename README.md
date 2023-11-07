@@ -98,7 +98,9 @@ Details of services available need to be applied to the Umbraco web application'
             "ApiKey": "",
             "ApiKeyProvision": {
               "Method": "HttpHeader|QueryString",
-              "Key": ""
+              "Key": "",
+              "AdditionalParameters": {
+              }
             },
             "ClientId": "",
             "ClientSecret": "",
@@ -169,7 +171,7 @@ Used, along with `IdentityHost` to construct a URL that the user is redirected t
 
 ###### CanManuallyProvideToken
 
-Specifies whether the service supports generating of tokens via the provider's developer portal such that an administrator can manually add one via the backoffice. 
+Specifies whether the service supports generating of tokens via the provider's developer portal such that an administrator can manually add one via the backoffice.
 
 ###### CanManuallyProvideApiKey
 
@@ -181,7 +183,7 @@ Specifies whether the access token can be exchanged with a long lived one.
 
 ###### ExchangeTokenProvision
 
-Provides a strongly typed configuration for a setup that allows exchanging an access token. 
+Provides a strongly typed configuration for a setup that allows exchanging an access token.
 
 This setting is only utilized when `CanExchangeToken` is set to `true`.
 
@@ -192,7 +194,7 @@ The configuration of exchange tokens includes:
 - `TokenGrantType`
 - `RequestRefreshTokenPath`
 - `RefreshTokenGrantType`
-- `ExchangeTokenWhenExpiresWithin` 
+- `ExchangeTokenWhenExpiresWithin`
 
 ###### AuthorizationUrlRequiresRedirectUrl
 
@@ -230,6 +232,8 @@ Specifies the key a service with `AuthenticationMethod` set to `ApiKey` will use
 ###### ApiKeyProvision
 
 For `ApiKey` authentication methods, options for passing the API key need to be set, by specifying a method: `HttpHeader` or `QueryString` and the name for the key holding the value.
+
+You can also provide additional parameters that will be included in the querystring or headers via the `AdditionalParameters` dictionary.
 
 ###### ClientId *
 
