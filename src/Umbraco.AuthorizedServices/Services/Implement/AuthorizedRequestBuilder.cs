@@ -76,20 +76,17 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             return requestUri;
         }
 
-        if (apiKeyProvision.Method == ApiKeyProvisionMethod.QueryString)
+        bool pathHasQuerystring = HttpUtility.ParseQueryString(requestUri.Query).Count > 0;
+        var requestUrlWithQuerystring = new StringBuilder(requestUri.ToString());
+        requestUrlWithQuerystring.Append(pathHasQuerystring ? "&" : "?");
+        requestUrlWithQuerystring.AppendFormat("{0}={1}", apiKeyProvision.Key, apiKey);
+
+        foreach (KeyValuePair<string, string> additionalParameter in apiKeyProvision.AdditionalParameters)
         {
-            bool pathHasQuerystring = HttpUtility.ParseQueryString(requestUri.Query).Count > 0;
-            var requestUrlWithQuerystring = new StringBuilder(requestUri.ToString());
-            requestUrlWithQuerystring.Append(pathHasQuerystring ? "&" : "?");
-            requestUrlWithQuerystring.AppendFormat("{0}={1}", apiKeyProvision.Key, apiKey);
-
-            foreach (KeyValuePair<string, string> additionalParameter in apiKeyProvision.AdditionalParameters)
-            {
-                requestUrlWithQuerystring.AppendFormat("&{0}={1}", additionalParameter.Key, additionalParameter.Value);
-            }
-
-            requestUri = new Uri(requestUrlWithQuerystring.ToString());
+            requestUrlWithQuerystring.AppendFormat("&{0}={1}", additionalParameter.Key, additionalParameter.Value);
         }
+
+        requestUri = new Uri(requestUrlWithQuerystring.ToString());
 
         return requestUri;
     }
