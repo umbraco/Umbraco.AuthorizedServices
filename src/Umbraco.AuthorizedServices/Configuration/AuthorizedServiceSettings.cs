@@ -80,6 +80,8 @@ public class ApiKeyProvision
 
     public string Key { get; set; } = string.Empty;
 
+    public IDictionary<string, string> AdditionalParameters { get; set; } = new Dictionary<string, string>();
+
     public override string ToString() => $"{Method} / {Key}";
 }
 
