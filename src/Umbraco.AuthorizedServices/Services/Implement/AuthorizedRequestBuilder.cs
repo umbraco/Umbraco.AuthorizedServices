@@ -52,12 +52,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             throw new InvalidOperationException("Cannot create an HTTP request message for an API key request as no API key provision detail has been provided in configuration.");
         }
 
-        var requestUri = new Uri(serviceDetail.ApiHost + path);
-        if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.QueryString)
-        {
-            NameValueCollection queryStringParams = HttpUtility.ParseQueryString(requestUri.Query);
-            requestUri = new Uri($"{requestUri}{(queryStringParams.Count > 0 ? "&" : "?")}{serviceDetail.ApiKeyProvision.Key}={apiKey}");
-        }
+        Uri requestUri = BuildRequestUriWithApiKey(serviceDetail.ApiHost, serviceDetail.ApiKeyProvision, path, apiKey);
 
         HttpRequestMessage requestMessage = CreateRequestMessage(
             httpMethod,
@@ -66,11 +61,44 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 
         if (serviceDetail.ApiKeyProvision.Method == ApiKeyProvisionMethod.HttpHeader)
         {
-            requestMessage.Headers.Add(serviceDetail.ApiKeyProvision.Key, apiKey);
+            AddHeadersForRequestWithApiKeyProvisionedInHeader(requestMessage, serviceDetail.ApiKeyProvision, apiKey);
         }
 
         AddCommonHeaders(requestMessage);
         return requestMessage;
+    }
+
+    private static Uri BuildRequestUriWithApiKey(string apiHost, ApiKeyProvision apiKeyProvision, string path, string apiKey)
+    {
+        var requestUri = new Uri(apiHost + path);
+        if (apiKeyProvision.Method != ApiKeyProvisionMethod.QueryString)
+        {
+            return requestUri;
+        }
+
+        bool pathHasQuerystring = HttpUtility.ParseQueryString(requestUri.Query).Count > 0;
+        var requestUrlWithQuerystring = new StringBuilder(requestUri.ToString());
+        requestUrlWithQuerystring.Append(pathHasQuerystring ? "&" : "?");
+        requestUrlWithQuerystring.AppendFormat("{0}={1}", apiKeyProvision.Key, apiKey);
+
+        foreach (KeyValuePair<string, string> additionalParameter in apiKeyProvision.AdditionalParameters)
+        {
+            requestUrlWithQuerystring.AppendFormat("&{0}={1}", additionalParameter.Key, additionalParameter.Value);
+        }
+
+        requestUri = new Uri(requestUrlWithQuerystring.ToString());
+
+        return requestUri;
+    }
+
+    private static void AddHeadersForRequestWithApiKeyProvisionedInHeader(HttpRequestMessage requestMessage, ApiKeyProvision apiKeyProvision, string apiKey)
+    {
+        requestMessage.Headers.Add(apiKeyProvision.Key, apiKey);
+
+        foreach (KeyValuePair<string, string> additionalParameter in apiKeyProvision.AdditionalParameters)
+        {
+            requestMessage.Headers.Add(additionalParameter.Key, additionalParameter.Value);
+        }
     }
 
     public HttpRequestMessage CreateRequestMessageWithOAuth1Token<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, OAuth1Token oauth1Token, TRequest? requestContent) where TRequest : class

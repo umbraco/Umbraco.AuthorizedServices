@@ -37,7 +37,7 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public async Task CreateRequestMessageWithApiKey_WithKeyProvidedInQueryString_ReturnsExpectedResult()
+    public async Task CreateRequestMessageWithApiKey_WithKeyAndAdditionalParametersProvidedInQueryString_ReturnsExpectedResult()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
@@ -48,7 +48,8 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
             ApiKeyProvision = new ApiKeyProvision
             {
                 Key = "x-api-key",
-                Method = ApiKeyProvisionMethod.QueryString
+                Method = ApiKeyProvisionMethod.QueryString,
+                AdditionalParameters = new Dictionary<string, string> { { "foo", "bar" }, { "baz", "buzz" } }
             }
         };
         const string Path = "/api/test";
@@ -59,7 +60,7 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         HttpRequestMessage result = sut.CreateRequestMessageWithApiKey(serviceDetail, Path, HttpMethod.Post, "abc", data);
 
         // Assert
-        var expectedUri = new Uri("https://service.url/api/test?x-api-key=abc");
+        var expectedUri = new Uri("https://service.url/api/test?x-api-key=abc&foo=bar&baz=buzz");
         await AssertResult(result, expectedUri);
 
         result.Headers.Count().Should().Be(2);
@@ -67,7 +68,7 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public async Task CreateRequestMessageWithApiKey_WithKeyProvidedInHttpHeader_ReturnsExpectedResult()
+    public async Task CreateRequestMessageWithApiKey_WithKeyAndAdditionalParametersProvidedInHttpHeader_ReturnsExpectedResult()
     {
         // Arrange
         var serviceDetail = new ServiceDetail
@@ -78,7 +79,8 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
             ApiKeyProvision = new ApiKeyProvision
             {
                 Key = "x-api-key",
-                Method = ApiKeyProvisionMethod.HttpHeader
+                Method = ApiKeyProvisionMethod.HttpHeader,
+                AdditionalParameters = new Dictionary<string, string> { { "foo", "bar" }, { "baz", "buzz" } }
             }
         };
         const string Path = "/api/test";
@@ -92,8 +94,10 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         var expectedUri = new Uri("https://service.url/api/test");
         await AssertResult(result, expectedUri);
 
-        result.Headers.Count().Should().Be(3);
+        result.Headers.Count().Should().Be(5);
         result.Headers.Single(x => x.Key == "x-api-key").Value.First().Should().Be("abc");
+        result.Headers.Single(x => x.Key == "foo").Value.First().Should().Be("bar");
+        result.Headers.Single(x => x.Key == "baz").Value.First().Should().Be("buzz");
         AssertCommonHeaders(result);
     }
 
