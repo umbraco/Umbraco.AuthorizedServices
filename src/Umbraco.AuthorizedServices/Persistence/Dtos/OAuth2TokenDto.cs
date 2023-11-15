@@ -15,11 +15,11 @@ public class OAuth2TokenDto
     public string ServiceAlias { get; set; } = string.Empty;
 
     [Column("accessToken")]
-    [Length(2000)]
+    [Length(Constants.Database.TokenFieldSize)]
     public string AccessToken { get; set; } = string.Empty;
 
     [Column("refreshToken")]
-    [Length(2000)]
+    [Length(Constants.Database.TokenFieldSize)]
     [NullSetting(NullSetting = NullSettings.Null)]
     public string? RefreshToken { get; set; }
 

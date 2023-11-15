@@ -24,25 +24,25 @@ public class AlterTokenColumnLengths : MigrationBase
 
         Alter.Table(Constants.Database.TableNames.OAuth2Token)
             .AlterColumn("accessToken")
-            .AsString(2000)
+            .AsString(Constants.Database.TokenFieldSize)
             .NotNullable()
             .Do();
 
         Alter.Table(Constants.Database.TableNames.OAuth2Token)
             .AlterColumn("refreshToken")
-            .AsString(2000)
+            .AsString(Constants.Database.TokenFieldSize)
             .NotNullable()
             .Do();
 
         Alter.Table(Constants.Database.TableNames.OAuth1Token)
             .AlterColumn("oauthToken")
-            .AsString(2000)
+            .AsString(Constants.Database.TokenFieldSize)
             .NotNullable()
             .Do();
 
         Alter.Table(Constants.Database.TableNames.OAuth1Token)
             .AlterColumn("oauthTokenSecret")
-            .AsString(2000)
+            .AsString(Constants.Database.TokenFieldSize)
             .NotNullable()
             .Do();
     }
