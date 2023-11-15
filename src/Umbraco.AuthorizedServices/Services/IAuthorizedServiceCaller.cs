@@ -64,19 +64,19 @@ public interface IAuthorizedServiceCaller
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>The access token if found, otherwise null.</returns>
-    Attempt<string?> GetOAuth2AccessToken(string serviceAlias);
+    Task<Attempt<string?>> GetOAuth2AccessToken(string serviceAlias);
 
     /// <summary>
     /// Sends a request to an authorized service to receive the unencrypted OAuth token.
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>The OAuth token if found, otherwise null.</returns>
-    Attempt<string?> GetOAuth1Token(string serviceAlias);
+    Task<Attempt<string?>> GetOAuth1Token(string serviceAlias);
 
     /// <summary>
     /// Retrieve's the configured API key for a service.
     /// </summary>
     /// <param name="serviceAlias"></param>
     /// <returns></returns>
-    Attempt<string?> GetApiKey(string serviceAlias);
+    Task<Attempt<string?>> GetApiKey(string serviceAlias);
 }

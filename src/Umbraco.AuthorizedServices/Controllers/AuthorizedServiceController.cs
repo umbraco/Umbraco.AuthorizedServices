@@ -63,11 +63,11 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// </summary>
     /// <param name="alias">The service alias.</param>
     [HttpGet]
-    public AuthorizedServiceDisplay? GetByAlias(string alias)
+    public async Task<AuthorizedServiceDisplay?> GetByAlias(string alias)
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(alias);
 
-        bool isAuthorized = CheckAuthorizationStatus(serviceDetail);
+        bool isAuthorized = await CheckAuthorizationStatus(serviceDetail);
 
         string? authorizationUrl = null;
         if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth2AuthorizationCode)
@@ -156,23 +156,23 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// </summary>
     /// <param name="model">Request model identifying the service.</param>
     [HttpPost]
-    public IActionResult RevokeAccess(RevokeAccess model)
+    public async Task<IActionResult> RevokeAccess(RevokeAccess model)
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(model.Alias);
 
         switch (serviceDetail.AuthenticationMethod)
         {
             case AuthenticationMethod.ApiKey:
-                _keyStorage.DeleteKey(model.Alias);
+                await _keyStorage.DeleteKeyAsync(model.Alias);
                 ClearCachedApiKey(model.Alias);
                 break;
             case AuthenticationMethod.OAuth1:
-                _oauth1TokenStorage.DeleteToken(model.Alias);
+                await _oauth1TokenStorage.DeleteTokenAsync(model.Alias);
                 ClearCachedToken(model.Alias);
                 break;
             case AuthenticationMethod.OAuth2AuthorizationCode:
             case AuthenticationMethod.OAuth2ClientCredentials:
-                _oauth2TokenStorage.DeleteToken(model.Alias);
+                await _oauth2TokenStorage.DeleteTokenAsync(model.Alias);
                 ClearCachedToken(model.Alias);
                 break;
             default:
@@ -200,9 +200,9 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// <param name="model">Request model identifying the service.</param>
     /// <returns></returns>
     [HttpPost]
-    public IActionResult SaveOAuth2Token(AddOAuth2Token model)
+    public async Task<IActionResult> SaveOAuth2Token(AddOAuth2Token model)
     {
-        _oauth2TokenStorage.SaveToken(model.Alias, new OAuth2Token(model.Token));
+        await _oauth2TokenStorage.SaveTokenAsync(model.Alias, new OAuth2Token(model.Token));
         return Ok();
     }
 
@@ -212,9 +212,9 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// <param name="model">Request model identifying the service.</param>
     /// <returns></returns>
     [HttpPost]
-    public IActionResult SaveOAuth1Token(AddOAuth1Token model)
+    public async Task<IActionResult> SaveOAuth1Token(AddOAuth1Token model)
     {
-        _oauth1TokenStorage.SaveToken(model.Alias, new OAuth1Token(model.Token, model.TokenSecret));
+        await _oauth1TokenStorage.SaveTokenAsync(model.Alias, new OAuth1Token(model.Token, model.TokenSecret));
         return Ok();
     }
 
@@ -224,9 +224,9 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     /// <param name="model">Request model identifying the service.</param>
     /// <returns></returns>
     [HttpPost]
-    public IActionResult SaveApiKey(AddApiKey model)
+    public async Task<IActionResult> SaveApiKey(AddApiKey model)
     {
-        _keyStorage.SaveKey(model.Alias, model.ApiKey);
+        await _keyStorage.SaveKeyAsync(model.Alias, model.ApiKey);
         return Ok();
     }
 
@@ -276,17 +276,17 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
         throw new AuthorizedServiceException("Failed to obtain request token");
     }
 
-    private bool CheckAuthorizationStatus(ServiceDetail serviceDetail) => serviceDetail.AuthenticationMethod switch
+    private async Task<bool> CheckAuthorizationStatus(ServiceDetail serviceDetail) => serviceDetail.AuthenticationMethod switch
     {
-        AuthenticationMethod.OAuth1 => StoredOAuth1TokenExists(serviceDetail),
-        AuthenticationMethod.OAuth2AuthorizationCode => StoredOAuth2TokenExists(serviceDetail),
-        AuthenticationMethod.OAuth2ClientCredentials => StoredOAuth2TokenExists(serviceDetail),
+        AuthenticationMethod.OAuth1 => await StoredOAuth1TokenExists(serviceDetail),
+        AuthenticationMethod.OAuth2AuthorizationCode => await StoredOAuth2TokenExists(serviceDetail),
+        AuthenticationMethod.OAuth2ClientCredentials => await StoredOAuth2TokenExists(serviceDetail),
         AuthenticationMethod.ApiKey => !string.IsNullOrEmpty(serviceDetail.ApiKey)
-                                       || _keyStorage.GetKey(serviceDetail.Alias) is not null,
+                                       || await _keyStorage.GetKeyAsync(serviceDetail.Alias) is not null,
         _ => false
     };
 
-    private bool StoredOAuth2TokenExists(ServiceDetail serviceDetail) => _oauth2TokenStorage.GetToken(serviceDetail.Alias) != null;
+    private async Task<bool> StoredOAuth2TokenExists(ServiceDetail serviceDetail) => await _oauth2TokenStorage.GetTokenAsync(serviceDetail.Alias) != null;
 
-    private bool StoredOAuth1TokenExists(ServiceDetail serviceDetail) => _oauth1TokenStorage.GetToken(serviceDetail.Alias) != null;
+    private async Task<bool> StoredOAuth1TokenExists(ServiceDetail serviceDetail) => await _oauth1TokenStorage.GetTokenAsync(serviceDetail.Alias) != null;
 }

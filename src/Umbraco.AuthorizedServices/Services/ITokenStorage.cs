@@ -13,18 +13,18 @@ public interface ITokenStorage<T>
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
     /// <returns>The <see cref="OAuth2Token"/> or <see cref="OAuth1Token"/> instance (or null, if not found).</returns>
-    T? GetToken(string serviceAlias);
+    Task<T?> GetTokenAsync(string serviceAlias);
 
     /// <summary>
     /// Stores a token for a service.
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
     /// <param name="token">The <see cref="OAuth2Token"/> or <see cref="OAuth1Token"/>.</param>
-    void SaveToken(string serviceAlias, T token);
+    Task SaveTokenAsync(string serviceAlias, T token);
 
     /// <summary>
     /// Deletes a stored token.
     /// </summary>
     /// <param name="serviceAlias">The service alias.</param>
-    void DeleteToken(string serviceAlias);
+    Task DeleteTokenAsync(string serviceAlias);
 }

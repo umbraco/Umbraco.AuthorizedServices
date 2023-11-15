@@ -53,7 +53,7 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
-        OAuth2Token? token = GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
+        OAuth2Token? token = await GetStoredToken(serviceAlias) ?? throw new AuthorizedServiceException($"Could not find the access token for {serviceAlias}");
 
         Dictionary<string, string> parameters = _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, token.AccessToken);
 
@@ -102,12 +102,12 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
             if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
             {
                 OAuth1Token token = await CreateOAuth1TokenFromResponse(response);
-                StoreOAuth1Token(serviceDetail.Alias, token);
+                await StoreOAuth1Token(serviceDetail.Alias, token);
             }
             else
             {
                 OAuth2Token token = await CreateOAuth2TokenFromResponse(serviceDetail, response);
-                StoreOAuth2Token(serviceDetail.Alias, token);
+                await StoreOAuth2Token(serviceDetail.Alias, token);
             }
 
             return AuthorizationResult.AsSuccess();

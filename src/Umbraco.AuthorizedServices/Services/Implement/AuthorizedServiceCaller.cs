@@ -125,9 +125,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         switch (serviceDetail.AuthenticationMethod)
         {
             case AuthenticationMethod.ApiKey:
-                return CreateHttpRequestMessageForApiKeyAuthentication(serviceAlias, path, httpMethod, requestContent, serviceDetail);
+                return await CreateHttpRequestMessageForApiKeyAuthentication(serviceAlias, path, httpMethod, requestContent, serviceDetail);
             case AuthenticationMethod.OAuth1:
-                return CreateHttpRequestMessageForOAuth1Authentication(serviceAlias, path, httpMethod, requestContent, serviceDetail);
+                return await CreateHttpRequestMessageForOAuth1Authentication(serviceAlias, path, httpMethod, requestContent, serviceDetail);
             case AuthenticationMethod.OAuth2AuthorizationCode:
             case AuthenticationMethod.OAuth2ClientCredentials:
                 return await CreateRequestMessageForOAuth2Authentication(serviceAlias, path, httpMethod, requestContent, serviceDetail);
@@ -136,11 +136,11 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
     }
 
-    private Attempt<HttpRequestMessage?> CreateHttpRequestMessageForApiKeyAuthentication<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent, ServiceDetail serviceDetail) where TRequest : class
+    private async Task<Attempt<HttpRequestMessage?>> CreateHttpRequestMessageForApiKeyAuthentication<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent, ServiceDetail serviceDetail) where TRequest : class
     {
         var apiKey = !string.IsNullOrEmpty(serviceDetail.ApiKey)
             ? serviceDetail.ApiKey
-            : GetApiKeyFromCacheOrStorage(serviceAlias);
+            : await GetApiKeyFromCacheOrStorage(serviceAlias);
 
         if (string.IsNullOrWhiteSpace(apiKey))
         {
@@ -158,10 +158,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return Attempt.Succeed(requestMessage);
     }
 
-
-    private Attempt<HttpRequestMessage?> CreateHttpRequestMessageForOAuth1Authentication<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent, ServiceDetail serviceDetail) where TRequest : class
+    private async Task<Attempt<HttpRequestMessage?>> CreateHttpRequestMessageForOAuth1Authentication<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent, ServiceDetail serviceDetail) where TRequest : class
     {
-        OAuth1Token? token = GetOAuth1TokenFromCacheOrStorage(serviceAlias);
+        OAuth1Token? token = await GetOAuth1TokenFromCacheOrStorage(serviceAlias);
         if (token is null)
         {
             return Attempt.Fail<HttpRequestMessage?>(
@@ -175,7 +174,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
     private async Task<Attempt<HttpRequestMessage?>> CreateRequestMessageForOAuth2Authentication<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent, ServiceDetail serviceDetail) where TRequest : class
     {
-        OAuth2Token? token = GetOAuth2TokenFromCacheOrStorage(serviceAlias);
+        OAuth2Token? token = await GetOAuth2TokenFromCacheOrStorage(serviceAlias);
         if (token is null)
         {
             return Attempt.Fail<HttpRequestMessage?>(
@@ -191,7 +190,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return Attempt.Succeed(requestMessage);
     }
 
-    public Attempt<string?> GetApiKey(string serviceAlias)
+    public async Task<Attempt<string?>> GetApiKey(string serviceAlias)
     {
         // First check for configured API key.
         var apiKey = GetServiceDetail(serviceAlias)?.ApiKey;
@@ -201,7 +200,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
 
         // If not found, look for stored key.
-        apiKey = KeyStorage.GetKey(serviceAlias);
+        apiKey = await KeyStorage.GetKeyAsync(serviceAlias);
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
             return Attempt.Succeed(apiKey);
@@ -210,9 +209,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return Attempt.Fail<string?>();
     }
 
-    public Attempt<string?> GetOAuth2AccessToken(string serviceAlias)
+    public async Task<Attempt<string?>> GetOAuth2AccessToken(string serviceAlias)
     {
-        var accessToken = GetOAuth2TokenFromCacheOrStorage(serviceAlias)?.AccessToken;
+        var accessToken = (await GetOAuth2TokenFromCacheOrStorage(serviceAlias))?.AccessToken;
         if (!string.IsNullOrWhiteSpace(accessToken))
         {
             return Attempt.Succeed(accessToken);
@@ -221,9 +220,9 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return Attempt.Fail<string?>();
     }
 
-    public Attempt<string?> GetOAuth1Token(string serviceAlias)
+    public async Task<Attempt<string?>> GetOAuth1Token(string serviceAlias)
     {
-        var token = GetOAuth1TokenFromCacheOrStorage(serviceAlias)?.OAuthToken;
+        var token = (await GetOAuth1TokenFromCacheOrStorage(serviceAlias))?.OAuthToken;
         if (!string.IsNullOrWhiteSpace(token))
         {
             return Attempt.Succeed(token);
@@ -243,7 +242,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
                     // For OAuth2 authorization code flow we can get a new access token if we have a refresh token.
                     if (string.IsNullOrEmpty(token.RefreshToken))
                     {
-                        ClearOAuth2AccessToken(serviceAlias);
+                        await ClearOAuth2AccessToken(serviceAlias);
                         throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expire and no refresh token is available to use. The expired token has been deleted.");
                     }
 
@@ -255,7 +254,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
                     AuthorizationResult result = await _authorizedServiceAuthorizer.AuthorizeOAuth2ClientCredentialsServiceAsync(serviceAlias);
                     if (result.Success)
                     {
-                        OAuth2Token? newToken = OAuth2TokenStorage.GetToken(serviceAlias);
+                        OAuth2Token? newToken = await OAuth2TokenStorage.GetTokenAsync(serviceAlias);
                         if (newToken is not null)
                         {
                             return newToken;
@@ -281,7 +280,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         if (response.IsSuccessStatusCode)
         {
             OAuth2Token token = await CreateOAuth2TokenFromResponse(serviceDetail, response);
-            StoreOAuth2Token(serviceAlias, token);
+            await StoreOAuth2Token(serviceAlias, token);
             return token;
         }
         else
@@ -317,7 +316,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         if (response.IsSuccessStatusCode)
         {
             OAuth2Token token = await CreateOAuth2TokenFromResponse(serviceDetail, response);
-            StoreOAuth2Token(serviceAlias, token);
+            await StoreOAuth2Token(serviceAlias, token);
             return token;
         }
         else
@@ -330,7 +329,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
     }
 
-    private string? GetApiKeyFromCacheOrStorage(string serviceAlias)
+    private async Task<string?> GetApiKeyFromCacheOrStorage(string serviceAlias)
     {
         // First look in cache.
         var cacheKey = CacheHelper.GetApiKeyCacheKey(serviceAlias);
@@ -341,7 +340,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
 
         // Second, look in storage, and if found, save to cache.
-        apiKey = KeyStorage.GetKey(serviceAlias);
+        apiKey = await KeyStorage.GetKeyAsync(serviceAlias);
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
             AppCaches.RuntimeCache.InsertCacheItem(cacheKey, () => apiKey);
@@ -351,7 +350,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return null;
     }
 
-    private OAuth2Token? GetOAuth2TokenFromCacheOrStorage(string serviceAlias)
+    private async Task<OAuth2Token?> GetOAuth2TokenFromCacheOrStorage(string serviceAlias)
     {
         // First look in cache.
         var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
@@ -362,7 +361,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
 
         // Second, look in storage, and if found, save to cache.
-        token = OAuth2TokenStorage.GetToken(serviceAlias);
+        token = await OAuth2TokenStorage.GetTokenAsync(serviceAlias);
         if (token != null)
         {
             AppCaches.RuntimeCache.InsertCacheItem(cacheKey, () => token);
@@ -372,7 +371,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return null;
     }
 
-    private OAuth1Token? GetOAuth1TokenFromCacheOrStorage(string serviceAlias)
+    private async Task<OAuth1Token?> GetOAuth1TokenFromCacheOrStorage(string serviceAlias)
     {
         // First look in cache.
         var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
@@ -383,7 +382,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         }
 
         // Second, look in storage, and if found, save to cache.
-        token = OAuth1TokenStorage.GetToken(serviceAlias);
+        token = await OAuth1TokenStorage.GetTokenAsync(serviceAlias);
         if (token != null)
         {
             AppCaches.RuntimeCache.InsertCacheItem(cacheKey, () => token);
@@ -393,10 +392,10 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return null;
     }
 
-    private void ClearOAuth2AccessToken(string serviceAlias)
+    private async Task ClearOAuth2AccessToken(string serviceAlias)
     {
         var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
         AppCaches.RuntimeCache.ClearByKey(cacheKey);
-        OAuth2TokenStorage.DeleteToken(serviceAlias);
+        await OAuth2TokenStorage.DeleteTokenAsync(serviceAlias);
     }
 }

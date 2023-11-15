@@ -10,18 +10,18 @@ internal sealed class InMemoryTokenStorage : IOAuth2TokenStorage
     private static readonly Dictionary<string, OAuth2Token> _tokens = new Dictionary<string, OAuth2Token>();
 
     /// <inheritdoc/>
-    public OAuth2Token? GetToken(string serviceAlias)
+    public Task<OAuth2Token?> GetTokenAsync(string serviceAlias)
     {
         if (_tokens.ContainsKey(serviceAlias))
         {
-            return _tokens[serviceAlias];
+            return Task.FromResult((OAuth2Token?)_tokens[serviceAlias]);
         }
 
-        return null;
+        return Task.FromResult((OAuth2Token?)null);
     }
 
     /// <inheritdoc/>
-    public void SaveToken(string serviceAlias, OAuth2Token token)
+    public Task SaveTokenAsync(string serviceAlias, OAuth2Token token)
     {
         if (_tokens.ContainsKey(serviceAlias))
         {
@@ -31,8 +31,14 @@ internal sealed class InMemoryTokenStorage : IOAuth2TokenStorage
         {
             _tokens.Add(serviceAlias, token);
         }
+
+        return Task.CompletedTask;
     }
 
     /// <inheritdoc/>
-    public void DeleteToken(string serviceAlias) => _tokens.Remove(serviceAlias);
+    public Task DeleteTokenAsync(string serviceAlias)
+    {
+        _tokens.Remove(serviceAlias);
+        return Task.CompletedTask;
+    }
 }
