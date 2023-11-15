@@ -74,6 +74,8 @@ public static class Constants
             public const string OAuth1Token = "umbracoAuthorizedServiceOAuth1Token";
         }
 
+        public const int TokenFieldSize = 5000;
+
         public static class Migrations
         {
 
@@ -88,6 +90,8 @@ public static class Constants
                 public const string AddKeyTable = "authorizedServices-key-db";
 
                 public const string AddOAuth1TokenTable = "authorizedServices-oauth1_token-db";
+
+                public const string AlterTokenColumnLengths = "authorizedServices-alter-token-column-lengths-db";
             }
         }
     }

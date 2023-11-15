@@ -17,12 +17,15 @@ public class AuthorizedServicesMigrationPlan : PackageMigrationPlan
     /// <inheritdoc />
     protected override void DefinePlan()
     {
-        // 0.2
+        // 0.2.0
         To<AddOAuth2TokenTable>(Constants.Database.Migrations.TargetStates.AddOAuth2TokenTable);
 
-        // 0.3
+        // 0.3.0
         To<RenameOAuth2TokenTable>(Constants.Database.Migrations.TargetStates.RenameOAuth2TokenTable);
         To<AddKeyTable>(Constants.Database.Migrations.TargetStates.AddKeyTable);
         To<AddOAuth1TokenTable>(Constants.Database.Migrations.TargetStates.AddOAuth1TokenTable);
+
+        // 0.3.3
+        To<AlterTokenColumnLengths>(Constants.Database.Migrations.TargetStates.AlterTokenColumnLengths);
     }
 }
