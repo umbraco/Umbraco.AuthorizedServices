@@ -18,6 +18,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     private readonly IAuthorizedRequestBuilder _authorizedRequestBuilder;
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
     private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
+    private readonly IAuthorizedServiceAuthorizer _authorizedServiceAuthorizer;
 
     public AuthorizedServiceCaller(
         AppCaches appCaches,
@@ -32,7 +33,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         JsonSerializerFactory jsonSerializerFactory,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder,
-        IExchangeTokenParametersBuilder exchangeTokenParametersBuilder)
+        IExchangeTokenParametersBuilder exchangeTokenParametersBuilder,
+        IAuthorizedServiceAuthorizer authorizedServiceAuthorizer)
         : base(appCaches, tokenFactory, oauth2TokenStorage, oauth1TokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
@@ -40,6 +42,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         _authorizedRequestBuilder = authorizedRequestBuilder;
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
+        _authorizedServiceAuthorizer = authorizedServiceAuthorizer;
     }
 
     public async Task<Attempt<EmptyResponse?>> SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
@@ -182,7 +185,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
 
         token = serviceDetail.CanExchangeToken
             ? await EnsureExchangeAccessToken(serviceAlias, token)
-            : await EnsureAccessToken(serviceAlias, token);
+            : await EnsureAccessToken(serviceAlias, serviceDetail, token);
 
         HttpRequestMessage requestMessage = _authorizedRequestBuilder.CreateRequestMessageWithOAuth2Token(serviceDetail, path, httpMethod, token, requestContent);
         return Attempt.Succeed(requestMessage);
@@ -229,28 +232,49 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         return Attempt.Fail<string?>();
     }
 
-    private async Task<OAuth2Token> EnsureAccessToken(string serviceAlias, OAuth2Token token)
+    private async Task<OAuth2Token> EnsureAccessToken(string serviceAlias, ServiceDetail serviceDetail, OAuth2Token token)
     {
-        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
         if (token.WillBeExpiredAfter(serviceDetail.RefreshAccessTokenWhenExpiresWithin))
         {
-            if (string.IsNullOrEmpty(token.RefreshToken))
+            switch (serviceDetail.AuthenticationMethod)
             {
-                ClearOAuth2AccessToken(serviceAlias);
-                throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expire and no refresh token is available to use. The expired token has been deleted.");
-            }
+                case AuthenticationMethod.OAuth2AuthorizationCode:
 
-            return await RefreshAccessToken(serviceAlias, token.RefreshToken)
-                ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expired and the refresh token could not be used to obtain a new access token.");
+                    // For OAuth2 authorization code flow we can get a new access token if we have a refresh token.
+                    if (string.IsNullOrEmpty(token.RefreshToken))
+                    {
+                        ClearOAuth2AccessToken(serviceAlias);
+                        throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expire and no refresh token is available to use. The expired token has been deleted.");
+                    }
+
+                    return await RefreshAccessToken(serviceAlias, serviceDetail, token.RefreshToken)
+                        ?? throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expired and the refresh token could not be used to obtain a new access token.");
+                case AuthenticationMethod.OAuth2ClientCredentials:
+
+                    // For OAuth2 authorization code flow we can request a new access token via the same means as retrieving the original one.
+                    AuthorizationResult result = await _authorizedServiceAuthorizer.AuthorizeOAuth2ClientCredentialsServiceAsync(serviceAlias);
+                    if (result.Success)
+                    {
+                        OAuth2Token? newToken = OAuth2TokenStorage.GetToken(serviceAlias);
+                        if (newToken is not null)
+                        {
+                            return newToken;
+                        }
+
+                        throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expired and although the client credentials completed successfully a new access token could not be retrieved from storage.");
+                    }
+
+                    throw new AuthorizedServiceException($"Cannot request service '{serviceAlias}' as the access token has or will expired and the client credentials flow did not complete successfully in obtaining a new access token. {result.ErrorMessage}.");
+                default:
+                    throw new ArgumentException($"{serviceDetail.AuthenticationMethod} is not expected here. Only OAuth2 access tokens can be refreshed or renewed.");
+            }
         }
 
         return token;
     }
 
-    private async Task<OAuth2Token?> RefreshAccessToken(string serviceAlias, string refreshToken)
+    private async Task<OAuth2Token?> RefreshAccessToken(string serviceAlias, ServiceDetail serviceDetail, string refreshToken)
     {
-        ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
-
         Dictionary<string, string> parameters = _refreshTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken);
 
         HttpResponseMessage response = await AuthorizationRequestSender.SendOAuth2Request(serviceDetail, parameters);

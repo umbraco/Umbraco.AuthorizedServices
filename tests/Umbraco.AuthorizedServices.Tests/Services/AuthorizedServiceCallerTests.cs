@@ -178,6 +178,24 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
+    public async Task SendRequestAsync_WithExpiredAccessToken_WithClientCredentialsSuccess_ReturnsSuccessAttemptWithExpectedResponse()
+    {
+        // Arrange
+        StoreOAuth2Token(-7);
+
+        var path = "/api/test/";
+        AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }", authenticationMethod: AuthenticationMethod.OAuth2ClientCredentials);
+
+        // Act
+        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+
+        // Assert
+        result.Success.Should().BeTrue();
+        result.Result.Should().NotBeNull();
+        result.Result!.Foo.Should().Be("bar");
+    }
+
+    [Test]
     public void GetApiKey_WithExistingApiKey_ReturnsSuccessAttemptWithApiKey()
     {
         // Arrange
@@ -304,6 +322,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         bool withConfiguredApiKey = false)
     {
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
+        var authorizedServiceAuthorizerMock = new Mock<IAuthorizedServiceAuthorizer>();
 
         // Setup refresh token response.
         var httpResponseMessage = new HttpResponseMessage
@@ -314,6 +333,11 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         authorizationRequestSenderMock
             .Setup(x => x.SendOAuth2Request(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.Is<Dictionary<string, string>>(y => y["grant_type"] == "refresh_token")))
             .ReturnsAsync(httpResponseMessage);
+
+        // Setup client credentials token response.
+        authorizedServiceAuthorizerMock
+            .Setup(x => x.AuthorizeOAuth2ClientCredentialsServiceAsync(It.Is<string>(y => y == ServiceAlias)))
+            .ReturnsAsync(AuthorizationResult.AsSuccess());
 
         Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod, withConfiguredApiKey);
         var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
@@ -331,7 +355,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             factory,
             new AuthorizedRequestBuilder(factory),
             new RefreshTokenParametersBuilder(),
-            new ExchangeTokenParametersBuilder());
+            new ExchangeTokenParametersBuilder(),
+            authorizedServiceAuthorizerMock.Object);
     }
 
     private class TestHttpClientFactory : IHttpClientFactory
