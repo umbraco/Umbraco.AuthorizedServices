@@ -14,10 +14,10 @@ public class OAuth1TokenDto
     public string ServiceAlias { get; set; } = string.Empty;
 
     [Column("oauthToken")]
-    [Length(1000)]
+    [Length(2000)]
     public string OAuthToken { get; set; } = string.Empty;
 
     [Column("oauthTokenSecret")]
-    [Length(1000)]
+    [Length(2000)]
     public string OAuthTokenSecret { get; set; } = string.Empty;
 }

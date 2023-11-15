@@ -88,6 +88,8 @@ public static class Constants
                 public const string AddKeyTable = "authorizedServices-key-db";
 
                 public const string AddOAuth1TokenTable = "authorizedServices-oauth1_token-db";
+
+                public const string AlterTokenColumnLengths = "authorizedServices-alter-token-column-lengths-db";
             }
         }
     }
