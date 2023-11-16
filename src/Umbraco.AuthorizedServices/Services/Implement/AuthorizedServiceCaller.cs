@@ -250,7 +250,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
                         ?? throw new AuthorizedServiceException($"Cannot request service '{serviceDetail.Alias}' as the access token has or will expired and the refresh token could not be used to obtain a new access token.");
                 case AuthenticationMethod.OAuth2ClientCredentials:
 
-                    // For OAuth2 authorization code flow we can request a new access token via the same means as retrieving the original one.
+                    // For OAuth2 client credentials flow we can request a new access token via the same means as retrieving the original one.
                     AuthorizationResult result = await _authorizedServiceAuthorizer.AuthorizeOAuth2ClientCredentialsServiceAsync(serviceDetail.Alias);
                     if (result.Success)
                     {
