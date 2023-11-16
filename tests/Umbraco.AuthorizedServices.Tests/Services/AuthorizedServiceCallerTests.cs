@@ -42,7 +42,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Result!.Foo.Should().Be("bar");
 
         OAuth2TokenStorageMock
-            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
+            .Verify(x => x.SaveTokenAsync(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
     }
 
     [Test]
@@ -60,7 +60,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         // Assert
         result.Success.Should().BeTrue();
         KeyStorageMock
-            .Verify(x => x.SaveKey(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            .Verify(x => x.SaveKeyAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -99,7 +99,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Result.Should().Be("{ \"foo\": \"bar\" }");
 
         OAuth2TokenStorageMock
-            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
+            .Verify(x => x.SaveTokenAsync(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
     }
 
     [Test]
@@ -121,7 +121,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Result!.Foo.Should().Be("bar");
 
         OAuth2TokenStorageMock
-            .Verify(x => x.SaveToken(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
+            .Verify(x => x.SaveTokenAsync(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
     }
 
     [Test]
@@ -174,17 +174,35 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Result!.Foo.Should().Be("bar");
 
         OAuth2TokenStorageMock
-            .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth2Token>(y => y.AccessToken == "abc")), Times.Once);
+            .Verify(x => x.SaveTokenAsync(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth2Token>(y => y.AccessToken == "abc")), Times.Once);
     }
 
     [Test]
-    public void GetApiKey_WithExistingApiKey_ReturnsSuccessAttemptWithApiKey()
+    public async Task SendRequestAsync_WithExpiredAccessToken_WithClientCredentialsSuccess_ReturnsSuccessAttemptWithExpectedResponse()
+    {
+        // Arrange
+        StoreOAuth2Token(-7);
+
+        var path = "/api/test/";
+        AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }", authenticationMethod: AuthenticationMethod.OAuth2ClientCredentials);
+
+        // Act
+        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+
+        // Assert
+        result.Success.Should().BeTrue();
+        result.Result.Should().NotBeNull();
+        result.Result!.Foo.Should().Be("bar");
+    }
+
+    [Test]
+    public async Task GetApiKey_WithExistingApiKey_ReturnsSuccessAttemptWithApiKey()
     {
         // Arrange
         AuthorizedServiceCaller sut = CreateService(authenticationMethod: AuthenticationMethod.ApiKey, withConfiguredApiKey: true);
 
         // Act
-        Attempt<string?> result = sut.GetApiKey(ServiceAlias);
+        Attempt<string?> result = await sut.GetApiKey(ServiceAlias);
 
         // Assert
         result.Success.Should().BeTrue();
@@ -193,14 +211,14 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public void GetApiKey_WithStoredApiKey_ReturnsSuccessAttemptWithStoredApiKey()
+    public async Task GetApiKey_WithStoredApiKey_ReturnsSuccessAttemptWithStoredApiKey()
     {
         // Arrange
         StoreApiKey();
         AuthorizedServiceCaller sut = CreateService(authenticationMethod: AuthenticationMethod.ApiKey, withConfiguredApiKey: false);
 
         // Act
-        Attempt<string?> result = sut.GetApiKey(ServiceAlias);
+        Attempt<string?> result = await sut.GetApiKey(ServiceAlias);
 
         // Assert
         result.Success.Should().BeTrue();
@@ -209,13 +227,13 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public void GetApiKey_WithoutExistingApiKey_ReturnsFailedAttempt()
+    public async Task GetApiKey_WithoutExistingApiKey_ReturnsFailedAttempt()
     {
         // Arrange
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        Attempt<string?> result = sut.GetApiKey(ServiceAlias);
+        Attempt<string?> result = await sut.GetApiKey(ServiceAlias);
 
         // Assert
         result.Success.Should().BeFalse();
@@ -223,14 +241,14 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public void GetOAuth2Token_WithStoredToken_ReturnsSuccessAttemptWithAccessToken()
+    public async Task GetOAuth2Token_WithStoredToken_ReturnsSuccessAttemptWithAccessToken()
     {
         // Arrange
         StoreOAuth2Token();
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        Attempt<string?> result = sut.GetOAuth2AccessToken(ServiceAlias);
+        Attempt<string?> result = await sut.GetOAuth2AccessToken(ServiceAlias);
 
         // Assert
         result.Success.Should().BeTrue();
@@ -239,27 +257,27 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public void GetOAuth2AccessToken_WithoutStoredToken_ReturnsFailedAttempt()
+    public async Task GetOAuth2AccessToken_WithoutStoredToken_ReturnsFailedAttempt()
     {
         // Arrange
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        Attempt<string?> result = sut.GetOAuth2AccessToken(ServiceAlias);
+        Attempt<string?> result = await sut.GetOAuth2AccessToken(ServiceAlias);
 
         // Assert
         result.Success.Should().BeFalse();
     }
 
     [Test]
-    public void GetOAuth1Token_WithStoredToken_ReturnsSuccessAttemptWithAccessToken()
+    public async Task GetOAuth1Token_WithStoredToken_ReturnsSuccessAttemptWithAccessToken()
     {
         // Arrange
         StoreOAuth1Token();
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        Attempt<string?> result = sut.GetOAuth1Token(ServiceAlias);
+        Attempt<string?> result = await sut.GetOAuth1Token(ServiceAlias);
 
         // Assert
         result.Success.Should().BeTrue();
@@ -268,13 +286,13 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
     }
 
     [Test]
-    public void GetOAuth1Token_WithoutStoredToken_ReturnsFailedAttempt()
+    public async Task GetOAuth1Token_WithoutStoredToken_ReturnsFailedAttempt()
     {
         // Arrange
         AuthorizedServiceCaller sut = CreateService();
 
         // Act
-        Attempt<string?> result = sut.GetOAuth1Token(ServiceAlias);
+        Attempt<string?> result = await sut.GetOAuth1Token(ServiceAlias);
 
         // Assert
         result.Success.Should().BeFalse();
@@ -282,18 +300,18 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
 
     private void StoreOAuth2Token(int daysUntilExpiry = 7) =>
         OAuth2TokenStorageMock
-            .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))
-            .Returns(new OAuth2Token("abc", "def", DateTime.Now.AddDays(daysUntilExpiry)));
+            .Setup(x => x.GetTokenAsync(It.Is<string>(y => y == ServiceAlias)))
+            .ReturnsAsync(new OAuth2Token("abc", "def", DateTime.Now.AddDays(daysUntilExpiry)));
 
     private void StoreOAuth1Token() =>
         OAuth1TokenStorageMock
-            .Setup(x => x.GetToken(It.Is<string>(y => y == ServiceAlias)))
-            .Returns(new OAuth1Token("abc", "def"));
+            .Setup(x => x.GetTokenAsync(It.Is<string>(y => y == ServiceAlias)))
+            .ReturnsAsync(new OAuth1Token("abc", "def"));
 
     private void StoreApiKey() =>
         KeyStorageMock
-            .Setup(x => x.GetKey(It.Is<string>(y => y == ServiceAlias)))
-            .Returns("stored-test-api-key");
+            .Setup(x => x.GetKeyAsync(It.Is<string>(y => y == ServiceAlias)))
+            .ReturnsAsync("stored-test-api-key");
 
 
     private AuthorizedServiceCaller CreateService(
@@ -304,6 +322,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         bool withConfiguredApiKey = false)
     {
         var authorizationRequestSenderMock = new Mock<IAuthorizationRequestSender>();
+        var authorizedServiceAuthorizerMock = new Mock<IAuthorizedServiceAuthorizer>();
 
         // Setup refresh token response.
         var httpResponseMessage = new HttpResponseMessage
@@ -314,6 +333,11 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         authorizationRequestSenderMock
             .Setup(x => x.SendOAuth2Request(It.Is<ServiceDetail>(y => y.Alias == ServiceAlias), It.Is<Dictionary<string, string>>(y => y["grant_type"] == "refresh_token")))
             .ReturnsAsync(httpResponseMessage);
+
+        // Setup client credentials token response.
+        authorizedServiceAuthorizerMock
+            .Setup(x => x.AuthorizeOAuth2ClientCredentialsServiceAsync(It.Is<string>(y => y == ServiceAlias)))
+            .ReturnsAsync(AuthorizationResult.AsSuccess());
 
         Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod, withConfiguredApiKey);
         var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
@@ -331,7 +355,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             factory,
             new AuthorizedRequestBuilder(factory),
             new RefreshTokenParametersBuilder(),
-            new ExchangeTokenParametersBuilder());
+            new ExchangeTokenParametersBuilder(),
+            authorizedServiceAuthorizerMock.Object);
     }
 
     private class TestHttpClientFactory : IHttpClientFactory

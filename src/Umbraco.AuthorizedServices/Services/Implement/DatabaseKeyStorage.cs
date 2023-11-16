@@ -18,11 +18,11 @@ internal sealed class DatabaseKeyStorage : DatabaseAuthorizationParameterStorage
     }
 
     /// <inheritdoc/>
-    public string? GetKey(string serviceAlias)
+    public async Task<string?> GetKeyAsync(string serviceAlias)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        KeyDto entity = scope.Database.FirstOrDefault<KeyDto>("where serviceAlias = @0", serviceAlias);
+        KeyDto entity = await scope.Database.FirstOrDefaultAsync<KeyDto>("where serviceAlias = @0", serviceAlias);
         if (entity == null)
         {
             return null;
@@ -30,7 +30,7 @@ internal sealed class DatabaseKeyStorage : DatabaseAuthorizationParameterStorage
 
         if (!Encryptor.TryDecrypt(entity.ApiKey, out string apiKey))
         {
-            RemoveCorruptApiKey(serviceAlias);
+            await RemoveCorruptApiKey(serviceAlias);
             return null;
         }
 
@@ -38,11 +38,11 @@ internal sealed class DatabaseKeyStorage : DatabaseAuthorizationParameterStorage
     }
 
     /// <inheritdoc/>
-    public void SaveKey(string serviceAlias, string key)
+    public async Task SaveKeyAsync(string serviceAlias, string key)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        KeyDto entity = scope.Database.SingleOrDefault<KeyDto>("where serviceAlias = @0", serviceAlias);
+        KeyDto entity = await scope.Database.SingleOrDefaultAsync<KeyDto>("where serviceAlias = @0", serviceAlias);
 
         bool insert = entity == null;
         entity ??= new KeyDto { ServiceAlias = serviceAlias };
@@ -51,31 +51,33 @@ internal sealed class DatabaseKeyStorage : DatabaseAuthorizationParameterStorage
 
         if (insert)
         {
-            scope.Database.Insert(entity);
+            await scope.Database.InsertAsync(entity);
         }
         else
         {
-            scope.Database.Update(entity);
+            await scope.Database.UpdateAsync(entity);
         }
 
         scope.Complete();
     }
 
     /// <inheritdoc/>
-    public void DeleteKey(string serviceAlias)
+    public async Task DeleteKeyAsync(string serviceAlias)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        KeyDto entity = scope.Database.Single<KeyDto>("where serviceAlias = @0", serviceAlias);
-
-        scope.Database.Delete(entity);
+        KeyDto? entity = await scope.Database.SingleOrDefaultAsync<KeyDto>("where serviceAlias = @0", serviceAlias);
+        if (entity is not null)
+        {
+            scope.Database.Delete(entity);
+        }
 
         scope.Complete();
     }
 
-    private void RemoveCorruptApiKey(string serviceAlias)
+    private async Task RemoveCorruptApiKey(string serviceAlias)
     {
-        DeleteKey(serviceAlias);
+        await DeleteKeyAsync(serviceAlias);
         Logger.LogWarning($"Could not decrypt the stored API key for authorized service with alias '{serviceAlias}'. API key has been removed from storage.");
     }
 }

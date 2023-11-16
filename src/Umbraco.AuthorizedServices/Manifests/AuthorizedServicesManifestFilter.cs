@@ -24,8 +24,8 @@ public class AuthorizedServicesManifestFilter : IManifestFilter
         };
 
         // The PackageId property was added in Umbraco 12, so we have to use reflection here to set it if available
-        // as the package depdendency is on Umbraco 10.
-        // If and when we release a version with a depdendency on 12+, this should be removed and replaced with
+        // as the package dependency is on Umbraco 10.
+        // If and when we release a version with a dependency on 12+, this should be removed and replaced with
         // a standard property setter.
         ReflectionHelper.SetOptionalPropertyValue(manifest, "PackageId", Constants.PackageId);
 

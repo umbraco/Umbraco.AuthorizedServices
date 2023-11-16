@@ -200,15 +200,15 @@ public class TestAuthorizedServicesController : AuthorizedServicesApiControllerB
         return Content(response);
     }
 
-    public IActionResult GetApiKey(string serviceAlias)
+    public async Task<IActionResult> GetApiKey(string serviceAlias)
     {
-        Attempt<string?> apiKeyAttempt = AuthorizedServiceCaller.GetApiKey(serviceAlias);
+        Attempt<string?> apiKeyAttempt = await AuthorizedServiceCaller.GetApiKey(serviceAlias);
         return Content(apiKeyAttempt.Result ?? string.Empty);
     }
 
-    public IActionResult GetOAuthToken(string serviceAlias)
+    public async Task<IActionResult> GetOAuthToken(string serviceAlias)
     {
-        Attempt<string?> responseAttempt = AuthorizedServiceCaller.GetOAuth2AccessToken(serviceAlias);
+        Attempt<string?> responseAttempt = await AuthorizedServiceCaller.GetOAuth2AccessToken(serviceAlias);
         if (!responseAttempt.Success || responseAttempt.Result is null)
         {
             return HandleFailedRequest(responseAttempt.Exception, "Could not retrieve access token.");
@@ -218,9 +218,9 @@ public class TestAuthorizedServicesController : AuthorizedServicesApiControllerB
         return Content(response);
     }
 
-    public IActionResult GetOAuth1Token(string serviceAlias)
+    public async Task<IActionResult> GetOAuth1Token(string serviceAlias)
     {
-        Attempt<string?> responseAttempt = AuthorizedServiceCaller.GetOAuth1Token(serviceAlias);
+        Attempt<string?> responseAttempt = await AuthorizedServiceCaller.GetOAuth1Token(serviceAlias);
         if (!responseAttempt.Success || responseAttempt.Result is null)
         {
             return Problem("Could not retrieve the OAuth token.");

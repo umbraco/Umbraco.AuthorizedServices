@@ -59,21 +59,21 @@ internal abstract class AuthorizedServiceBase
         return _tokenFactory.CreateFromOAuth1ResponseContent(responseContent);
     }
 
-    protected OAuth2Token? GetStoredToken(string serviceAlias) => OAuth2TokenStorage.GetToken(serviceAlias);
+    protected async Task<OAuth2Token?> GetStoredToken(string serviceAlias) => await OAuth2TokenStorage.GetTokenAsync(serviceAlias);
 
-    protected void StoreOAuth2Token(string serviceAlias, OAuth2Token token)
+    protected async Task StoreOAuth2Token(string serviceAlias, OAuth2Token token)
     {
         // Add the access token details to the cache.
         var cacheKey = CacheHelper.GetTokenCacheKey(serviceAlias);
         AppCaches.RuntimeCache.InsertCacheItem(cacheKey, () => token);
 
         // Save the refresh token into the storage.
-        OAuth2TokenStorage.SaveToken(serviceAlias, token);
+        await OAuth2TokenStorage.SaveTokenAsync(serviceAlias, token);
     }
 
-    protected void StoreOAuth1Token(string serviceAlias, OAuth1Token token)
+    protected async Task StoreOAuth1Token(string serviceAlias, OAuth1Token token)
     {
         // Save the token information into the storage.
-        OAuth1TokenStorage.SaveToken(serviceAlias, token);
+        await OAuth1TokenStorage.SaveTokenAsync(serviceAlias, token);
     }
 }

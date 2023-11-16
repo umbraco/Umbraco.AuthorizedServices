@@ -19,11 +19,11 @@ internal sealed class DatabaseOAuth1TokenStorage : DatabaseAuthorizationParamete
     }
 
     /// <inheritdoc/>
-    public OAuth1Token? GetToken(string serviceAlias)
+    public async Task<OAuth1Token?> GetTokenAsync(string serviceAlias)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        OAuth1TokenDto entity = scope.Database.FirstOrDefault<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
+        OAuth1TokenDto entity = await scope.Database.FirstOrDefaultAsync<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
         if (entity == null)
         {
             return null;
@@ -31,31 +31,31 @@ internal sealed class DatabaseOAuth1TokenStorage : DatabaseAuthorizationParamete
 
         if (!Encryptor.TryDecrypt(entity.OAuthToken, out string oauthToken))
         {
-            RemoveCorruptToken(serviceAlias, "access");
+            await RemoveCorruptToken(serviceAlias, "access");
             return null;
         }
 
         if (!Encryptor.TryDecrypt(entity.OAuthTokenSecret, out string oauthTokenSecret))
         {
-            RemoveCorruptToken(serviceAlias, "secret");
+            await RemoveCorruptToken(serviceAlias, "secret");
             return null;
         }
 
         return new OAuth1Token(oauthToken, oauthTokenSecret);
     }
 
-    private void RemoveCorruptToken(string serviceAlias, string tokenType)
+    private async Task RemoveCorruptToken(string serviceAlias, string tokenType)
     {
-        DeleteToken(serviceAlias);
+        await DeleteTokenAsync(serviceAlias);
         Logger.LogWarning($"Could not decrypt the stored {tokenType} token for authorized service with alias '{serviceAlias}'. Token has been removed from storage.");
     }
 
     /// <inheritdoc/>
-    public void SaveToken(string serviceAlias, OAuth1Token token)
+    public async Task SaveTokenAsync(string serviceAlias, OAuth1Token token)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        OAuth1TokenDto entity = scope.Database.SingleOrDefault<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
+        OAuth1TokenDto? entity = await scope.Database.SingleOrDefaultAsync<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
 
         bool insert = entity == null;
         entity ??= new OAuth1TokenDto { ServiceAlias = serviceAlias };
@@ -65,24 +65,26 @@ internal sealed class DatabaseOAuth1TokenStorage : DatabaseAuthorizationParamete
 
         if (insert)
         {
-            scope.Database.Insert(entity);
+            await scope.Database.InsertAsync(entity);
         }
         else
         {
-            scope.Database.Update(entity);
+            await scope.Database.UpdateAsync(entity);
         }
 
         scope.Complete();
     }
 
     /// <inheritdoc/>
-    public void DeleteToken(string serviceAlias)
+    public async Task DeleteTokenAsync(string serviceAlias)
     {
         using IScope scope = ScopeProvider.CreateScope();
 
-        OAuth1TokenDto entity = scope.Database.Single<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
-
-        scope.Database.Delete(entity);
+        OAuth1TokenDto? entity = await scope.Database.SingleOrDefaultAsync<OAuth1TokenDto>("where serviceAlias = @0", serviceAlias);
+        if (entity is not null)
+        {
+            scope.Database.Delete(entity);
+        }
 
         scope.Complete();
     }

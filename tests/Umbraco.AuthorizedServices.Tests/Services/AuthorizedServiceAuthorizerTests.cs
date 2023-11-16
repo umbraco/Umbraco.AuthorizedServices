@@ -32,7 +32,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
         result.Success.Should().BeTrue();
 
         OAuth2TokenStorageMock
-            .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth2Token>(y => y.AccessToken == "abc")), Times.Once);
+            .Verify(x => x.SaveTokenAsync(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth2Token>(y => y.AccessToken == "abc")), Times.Once);
     }
 
     [Test]
@@ -61,7 +61,7 @@ internal class AuthorizedServiceAuthorizerTests : AuthorizedServiceTestsBase
         result.Success.Should().BeTrue();
 
         OAuth1TokenStorageMock
-            .Verify(x => x.SaveToken(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth1Token>(y => y.OAuthToken == "abc")), Times.Once);
+            .Verify(x => x.SaveTokenAsync(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth1Token>(y => y.OAuthToken == "abc")), Times.Once);
     }
 
     [Test]
