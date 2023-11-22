@@ -74,7 +74,7 @@ public static class Constants
             public const string OAuth1Token = "umbracoAuthorizedServiceOAuth1Token";
         }
 
-        public const int TokenFieldSize = 5000;
+        public const int TokenFieldSize = 4000;
 
         public static class Migrations
         {
