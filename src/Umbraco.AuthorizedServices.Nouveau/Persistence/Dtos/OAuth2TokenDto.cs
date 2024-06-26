@@ -1,0 +1,29 @@
+using NPoco;
+
+using Umbraco.Cms.Infrastructure.Persistence.DatabaseAnnotations;
+
+namespace Umbraco.AuthorizedServices.Persistence.Dtos;
+
+[TableName(Constants.Database.TableNames.OAuth2Token)]
+[PrimaryKey("serviceAlias", AutoIncrement = false)]
+[ExplicitColumns]
+public class OAuth2TokenDto
+{
+    [Column("serviceAlias")]
+    [PrimaryKeyColumn(Name = "PK_serviceAlias", AutoIncrement = false)]
+    [Length(100)]
+    public string ServiceAlias { get; set; } = string.Empty;
+
+    [Column("accessToken")]
+    [Length(Constants.Database.TokenFieldSize)]
+    public string AccessToken { get; set; } = string.Empty;
+
+    [Column("refreshToken")]
+    [Length(Constants.Database.TokenFieldSize)]
+    [NullSetting(NullSetting = NullSettings.Null)]
+    public string? RefreshToken { get; set; }
+
+    [Column("expiresOn")]
+    [NullSetting(NullSetting = NullSettings.Null)]
+    public DateTime? ExpiresOn { get; set; }
+}
