@@ -35,6 +35,12 @@ export type AuthorizedServiceDisplay = {
     };
 };
 
+export type AuthorizedServiceTreeItemResponseModel = {
+    unique: string;
+    icon: string;
+    name: string;
+};
+
 export enum EventMessageTypeModel {
     DEFAULT = 'Default',
     INFO = 'Info',
@@ -51,6 +57,11 @@ export type NotificationHeaderModel = {
     message: string;
     category: string;
     type: EventMessageTypeModel;
+};
+
+export type PagedViewModel_1 = {
+    total: number;
+    items: Array<(AuthorizedServiceTreeItemResponseModel)>;
 };
 
 export type RevokeAccess = {
@@ -124,6 +135,14 @@ export type RevokeAccessData = {
 };
 
 export type RevokeAccessResponse = string;
+
+export type ChildrenData = {
+    parentId?: string;
+    skip?: number;
+    take?: number;
+};
+
+export type ChildrenResponse = PagedViewModel_1;
 
 export type $OpenApiTs = {
     '/umbraco/authorized-services/management/api/v1/service-response/oauth1': {
@@ -248,6 +267,17 @@ export type $OpenApiTs = {
                  * OK
                  */
                 200: string;
+            };
+        };
+    };
+    '/umbraco/authorized-services/management/api/v1/tree/children': {
+        get: {
+            req: ChildrenData;
+            res: {
+                /**
+                 * OK
+                 */
+                200: PagedViewModel_1;
             };
         };
     };
