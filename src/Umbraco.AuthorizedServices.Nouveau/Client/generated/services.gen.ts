@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { HandleData, HandleResponse, Handle1Data, Handle1Response, GenerateOauth1RequestTokenData, GenerateOauth1RequestTokenResponse, GetByAliasData, GetByAliasResponse, SendSampleRequestData, SendSampleRequestResponse, SaveApiKeyData, SaveApiKeyResponse, SaveOauth1TokenData, SaveOauth1TokenResponse, GenerateOauth1RequestToken1Data, GenerateOauth1RequestToken1Response, SaveOauth2TokenData, SaveOauth2TokenResponse, GenerateOauth2ClientCredentialsTokenData, GenerateOauth2ClientCredentialsTokenResponse, RevokeAccessData, RevokeAccessResponse } from './types.gen';
+import type { HandleData, HandleResponse, Handle1Data, Handle1Response, GenerateOauth1RequestTokenData, GenerateOauth1RequestTokenResponse, GetByAliasData, GetByAliasResponse, SendSampleRequestData, SendSampleRequestResponse, SaveApiKeyData, SaveApiKeyResponse, SaveOauth1TokenData, SaveOauth1TokenResponse, GenerateOauth1RequestToken1Data, GenerateOauth1RequestToken1Response, SaveOauth2TokenData, SaveOauth2TokenResponse, GenerateOauth2ClientCredentialsTokenData, GenerateOauth2ClientCredentialsTokenResponse, RevokeAccessData, RevokeAccessResponse, ChildrenData, ChildrenResponse } from './types.gen';
 
 export class ServiceResponseService {
     /**
@@ -186,6 +186,29 @@ export class ServiceService {
             body: data.requestBody,
             mediaType: 'application/json',
             responseHeader: 'Umb-Notifications'
+        });
+    }
+    
+}
+
+export class TreeService {
+    /**
+     * @param data The data for the request.
+     * @param data.parentId
+     * @param data.skip
+     * @param data.take
+     * @returns unknown OK
+     * @throws ApiError
+     */
+    public static children(data: ChildrenData = {}): CancelablePromise<ChildrenResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/umbraco/authorized-services/management/api/v1/tree/children',
+            query: {
+                parentId: data.parentId,
+                skip: data.skip,
+                take: data.take
+            }
         });
     }
     
