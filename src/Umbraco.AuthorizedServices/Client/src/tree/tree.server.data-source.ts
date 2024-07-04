@@ -1,9 +1,7 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import {
   UmbTreeServerDataSourceBase,
-  type UmbTreeAncestorsOfRequestArgs,
   type UmbTreeChildrenOfRequestArgs,
-  type UmbTreeRootItemsRequestArgs,
 } from "@umbraco-cms/backoffice/tree";
 import {
   type AuthorizedServiceTreeItemResponseModel,
@@ -30,12 +28,12 @@ export class AuthorizedServicesTreeServerDataSource extends UmbTreeServerDataSou
 }
 
 // eslint-disable-next-line local-rules/no-direct-api-import
-const getRootItems = (args: UmbTreeRootItemsRequestArgs) =>
+const getRootItems = () =>
   TreeService.children();
 
 const getChildrenOf = (args: UmbTreeChildrenOfRequestArgs) => {
   if (args.parent.unique === null) {
-    return getRootItems(args);
+    return getRootItems();
   }
   //eslint-disable-next-line local-rules/no-direct-api-import
   return TreeService.children({
@@ -43,7 +41,7 @@ const getChildrenOf = (args: UmbTreeChildrenOfRequestArgs) => {
   });
 };
 
-const getAncestorsOf = (args: UmbTreeAncestorsOfRequestArgs) => {
+const getAncestorsOf = () => {
   throw new Error("Not supported for the authorized services tree");
 };
 
