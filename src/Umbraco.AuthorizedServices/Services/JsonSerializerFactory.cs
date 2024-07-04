@@ -1,8 +1,7 @@
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
-using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Serialization;
-using Umbraco.Cms.Infrastructure.Serialization;
+using SystemTextJsonSerializer = Umbraco.AuthorizedServices.Services.Implement.SystemTextJsonSerializer;
 
 namespace Umbraco.AuthorizedServices.Services;
 
@@ -33,8 +32,6 @@ public class JsonSerializerFactory
         {
             case JsonSerializerOption.Default:
                 return _jsonSerializer;
-            case JsonSerializerOption.JsonNet:
-                return new JsonNetSerializer();
             case JsonSerializerOption.SystemTextJson:
                 return new SystemTextJsonSerializer();
             default:

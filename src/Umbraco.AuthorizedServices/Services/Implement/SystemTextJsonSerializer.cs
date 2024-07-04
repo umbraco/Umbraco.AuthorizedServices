@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Umbraco.Cms.Core.Serialization;
 
@@ -14,4 +15,6 @@ internal class SystemTextJsonSerializer : IJsonSerializer
     public T? Deserialize<T>(string input) => JsonSerializer.Deserialize<T>(input, _jsonSerializerOptions);
 
     public T? DeserializeSubset<T>(string input, string key) => throw new NotSupportedException();
+
+    public bool TryDeserialize<T>(object input, [NotNullWhen(true)] out T? value) where T : class => throw new NotImplementedException();
 }

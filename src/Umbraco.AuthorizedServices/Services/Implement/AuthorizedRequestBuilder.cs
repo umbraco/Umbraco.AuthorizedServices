@@ -1,7 +1,4 @@
-using System.Collections.Specialized;
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Umbraco.AuthorizedServices.Configuration;
