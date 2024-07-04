@@ -14,7 +14,7 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthorizedServiceCaller
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly JsonSerializerFactory _jsonSerializerFactory;
+    private readonly IJsonSerializer _jsonSerializer;
     private readonly IAuthorizedRequestBuilder _authorizedRequestBuilder;
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
     private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
@@ -30,7 +30,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         ILogger<AuthorizedServiceCaller> logger,
         IOptionsMonitor<ServiceDetail> serviceDetailOptions,
         IHttpClientFactory httpClientFactory,
-        JsonSerializerFactory jsonSerializerFactory,
+        IJsonSerializer jsonSerializer,
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder,
         IExchangeTokenParametersBuilder exchangeTokenParametersBuilder,
@@ -38,7 +38,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         : base(appCaches, tokenFactory, oauth2TokenStorage, oauth1TokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
-        _jsonSerializerFactory = jsonSerializerFactory;
+        _jsonSerializer = jsonSerializer;
         _authorizedRequestBuilder = authorizedRequestBuilder;
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
@@ -71,8 +71,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         var responseContent = responseContentAttempt.Result;
         if (!string.IsNullOrWhiteSpace(responseContent))
         {
-            IJsonSerializer jsonSerializer = _jsonSerializerFactory.GetSerializer(serviceAlias);
-            TResponse? result = jsonSerializer.Deserialize<TResponse>(responseContent);
+            TResponse? result = _jsonSerializer.Deserialize<TResponse>(responseContent);
             if (result != null)
             {
                 return Attempt.Succeed(result);

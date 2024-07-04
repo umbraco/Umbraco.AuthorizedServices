@@ -92,7 +92,6 @@ Details of services available need to be applied to the Umbraco web application'
             "RequestTokenPath": "",
             "RequestTokenMethod": "GET|POST",
             "RequestAuthorizationPath": "",
-            "JsonSerializer": "Default|JsonNet|SystemTextJson",
             "RequestTokenFormat": "Querystring|FormUrlEncoded",
             "AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken": true|false,
             "ApiKey": "",
@@ -211,14 +210,6 @@ An enum value that controls how the request to retrieve an access token is forma
 ###### RequestAuthorizationPath
 
 Required in `OAuth1` flows for building the service authorization URL.
-
-###### JsonSerializer
-
-An enum value that defines the JSON serializer to use when creating requests and deserializing responses. Options are `Default` and `JsonNet` and `SystemTextJson`.
-
-- `Default` - uses the Umbraco CMS default `IJsonSerializer`.
-- `JsonNet` - uses the JSON.Net serializer.
-- `SystemTextJson` - uses the System.Text.Json serializer.
 
 ###### AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken
 

@@ -12,27 +12,6 @@ public enum TokenRequestContentFormat
 }
 
 /// <summary>
-/// Defines options for the JSON serializer to use when building requests and deserializing responses.
-/// </summary>
-public enum JsonSerializerOption
-{
-    /// <summary>
-    /// Uses the default Umbraco JSON serializer registered as <see cref="IJsonSerializer" />.
-    /// </summary>
-    Default,
-
-    /// <summary>
-    /// Uses JSON.Net for serialization.
-    /// </summary>
-    JsonNet,
-
-    /// <summary>
-    /// Uses System.Text.Json for serialization.
-    /// </summary>
-    SystemTextJson
-}
-
-/// <summary>
 /// Defines the available authentication methods.
 /// </summary>
 public enum AuthenticationMethod
@@ -194,11 +173,6 @@ public class ServiceDetail : ServiceSummary
     /// Gets or sets the format to use for encoding the request for a token.
     /// </summary>
     public TokenRequestContentFormat? RequestTokenFormat { get; set; }
-
-    /// <summary>
-    /// Gets or sets the JSON serializer to use when building requests and deserializing responses.
-    /// </summary>
-    public JsonSerializerOption JsonSerializer { get; set; } = JsonSerializerOption.Default;
 
     /// <summary>
     /// Gets or sets a value indicating whether the basic token should be included in the token request.
