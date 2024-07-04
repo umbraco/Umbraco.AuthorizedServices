@@ -68,20 +68,6 @@ export type RevokeAccess = {
     alias: string;
 };
 
-export type HandleData = {
-    oauthToken?: string;
-    oauthVerifier?: string;
-};
-
-export type HandleResponse = unknown;
-
-export type Handle1Data = {
-    code?: string;
-    state?: string;
-};
-
-export type Handle1Response = unknown;
-
 export type GenerateOauth1RequestTokenData = {
     requestBody?: GenerateToken;
 };
@@ -136,37 +122,14 @@ export type RevokeAccessData = {
 
 export type RevokeAccessResponse = string;
 
-export type ChildrenData = {
-    parentId?: string;
+export type RootData = {
     skip?: number;
     take?: number;
 };
 
-export type ChildrenResponse = PagedViewModel_1;
+export type RootResponse = PagedViewModel_1;
 
 export type $OpenApiTs = {
-    '/umbraco/authorized-services/management/api/v1/service-response/oauth1': {
-        get: {
-            req: HandleData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: unknown;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service-response/oauth2': {
-        get: {
-            req: Handle1Data;
-            res: {
-                /**
-                 * OK
-                 */
-                200: unknown;
-            };
-        };
-    };
     '/umbraco/authorized-services/management/api/v1/service': {
         post: {
             req: GenerateOauth1RequestTokenData;
@@ -270,9 +233,9 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/umbraco/authorized-services/management/api/v1/tree/children': {
+    '/umbraco/authorized-services/management/api/v1/tree': {
         get: {
-            req: ChildrenData;
+            req: RootData;
             res: {
                 /**
                  * OK

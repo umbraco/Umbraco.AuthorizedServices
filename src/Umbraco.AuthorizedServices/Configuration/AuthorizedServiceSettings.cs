@@ -1,5 +1,3 @@
-using Umbraco.Cms.Core.Serialization;
-
 namespace Umbraco.AuthorizedServices.Configuration;
 
 /// <summary>

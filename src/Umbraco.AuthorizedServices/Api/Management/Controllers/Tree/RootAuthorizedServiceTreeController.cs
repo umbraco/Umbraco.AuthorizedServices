@@ -17,16 +17,16 @@ namespace Umbraco.AuthorizedServices.Controllers.Tree;
 [BackOfficeRoute($"{Constants.ManagementApi.RootPath}/v{{version:apiVersion}}/tree")]
 [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
 [MapToApi(Constants.ManagementApi.ApiName)]
-public class ChildrenAuthorizedServiceTreeController : ControllerBase
+public class RootAuthorizedServiceTreeController : ControllerBase
 {
     private readonly IOptionsMonitor<AuthorizedServiceSettings> _authorizedServiceSettings;
 
-    public ChildrenAuthorizedServiceTreeController(IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings) =>
+    public RootAuthorizedServiceTreeController(IOptionsMonitor<AuthorizedServiceSettings> authorizedServiceSettings) =>
         _authorizedServiceSettings = authorizedServiceSettings;
 
-    [HttpGet("children")]
+    [HttpGet]
     [ProducesResponseType(typeof(PagedViewModel<AuthorizedServiceTreeItemResponseModel>), StatusCodes.Status200OK)]
-    public IActionResult Children(Guid parentId, int skip = 0, int take = 100)
+    public IActionResult Root(int skip = 0, int take = 100)
     {
         IEnumerable<AuthorizedServiceTreeItemResponseModel> treeItems = _authorizedServiceSettings.CurrentValue.Services.Values.OrderBy(x => x.DisplayName)
             .Skip(skip)

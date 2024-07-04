@@ -27,18 +27,14 @@ export class AuthorizedServicesTreeServerDataSource extends UmbTreeServerDataSou
   }
 }
 
-// eslint-disable-next-line local-rules/no-direct-api-import
 const getRootItems = () =>
-  TreeService.children();
+  TreeService.root();
 
 const getChildrenOf = (args: UmbTreeChildrenOfRequestArgs) => {
   if (args.parent.unique === null) {
     return getRootItems();
   }
-  //eslint-disable-next-line local-rules/no-direct-api-import
-  return TreeService.children({
-    parentId: args.parent.unique!,
-  });
+  throw new Error("Not supported for the authorized services tree");
 };
 
 const getAncestorsOf = () => {

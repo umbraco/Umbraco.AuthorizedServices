@@ -346,6 +346,11 @@ npm i
 npm run build
 ```
 
+To generate types from the management API:
+
+```
+npm run generate:api
+```
 
 ### Branching Strategy
 
