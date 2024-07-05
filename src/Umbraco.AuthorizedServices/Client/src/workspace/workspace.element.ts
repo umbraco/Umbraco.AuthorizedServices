@@ -4,7 +4,7 @@ import { LitElement, customElement, html, css, state } from "@umbraco-cms/backof
 const elementName = "authorized-service-workspace";
 
 @customElement(elementName)
-export class AuthorizedServiceWorkspace extends UmbElementMixin(LitElement) {
+export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(LitElement) {
 
   @state()
   serviceDisplay!: string;
@@ -48,7 +48,7 @@ export class AuthorizedServiceWorkspace extends UmbElementMixin(LitElement) {
               <p class="auth-srv">Enter service access token</p>
               <p>This service is configured indicating that a token can be generated via the service's developer portal. Once you have obtained one you can copy and paste it here to authorize the service.</p>
               <div>
-                
+
               </div>
             </uui-card-content-node>
           </uui-icon-registry-essential>
@@ -91,10 +91,10 @@ export class AuthorizedServiceWorkspace extends UmbElementMixin(LitElement) {
 
 }
 
-export default AuthorizedServiceWorkspace;
+export default AuthorizedServiceWorkspaceEditorElement;
 
 declare global {
   interface HTMLElementTagNameMap {
-    [elementName]: AuthorizedServiceWorkspace
+    [elementName]: AuthorizedServiceWorkspaceEditorElement
   }
 }

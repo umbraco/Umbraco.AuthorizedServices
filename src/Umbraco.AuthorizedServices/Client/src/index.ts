@@ -1,7 +1,7 @@
 import type { UmbEntryPointOnInit } from "@umbraco-cms/backoffice/extension-api";
 import { UMB_AUTH_CONTEXT } from "@umbraco-cms/backoffice/auth";
 import { OpenAPI } from "../generated/index.js";
-import { manifest as workspaceManifest } from "./workspace/manifest.js";
+import { manifest as workspaceManifest } from "./workspace/manifests.js";
 import { manifests as treeManifests } from "./tree/manifests.js";
 
 export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {

@@ -23,6 +23,7 @@ export type AuthorizationResult = {
 };
 
 export type AuthorizedServiceDisplay = {
+    alias: string;
     displayName: string;
     isAuthorized: boolean;
     canManuallyProvideToken: boolean;

@@ -58,6 +58,7 @@ namespace Umbraco.AuthorizedServices.Api.Management.Controllers.Service
 
             var authorizedServiceDisplay = new AuthorizedServiceDisplay
             {
+                Alias = alias,
                 DisplayName = serviceDetail.DisplayName,
                 IsAuthorized = isAuthorized,
                 CanManuallyProvideToken = serviceDetail.CanManuallyProvideToken,
