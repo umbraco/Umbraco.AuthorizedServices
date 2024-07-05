@@ -1,7 +1,7 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, customElement, html, css, state } from "@umbraco-cms/backoffice/external/lit";
-import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token";
-import { AuthorizedServiceDisplay } from "../../generated";
+import { type AuthorizedServiceDisplay } from "../../generated/index.js";
+import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token.js";
 
 const elementName = "authorized-service-workspace";
 
@@ -11,7 +11,10 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   #workspaceContext?: typeof AUTHORIZED_SERVICES_WORKSPACE_CONTEXT.TYPE;
 
   @state()
-  _service?: AuthorizedServiceDisplay;
+  private _service?: AuthorizedServiceDisplay;
+  
+  @state()
+  serviceDisplay!: string;
 
   constructor() {
     super();
@@ -27,13 +30,12 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
 	#observeService() {
 		if (!this.#workspaceContext) return;
 		this.observe(this.#workspaceContext.data, (data) => {
+      if (!data) return;
+
       console.log(data);
       this._service = data;
     });
 	}
-
-  @state()
-  serviceDisplay!: string;
 
   render() {
     return html`

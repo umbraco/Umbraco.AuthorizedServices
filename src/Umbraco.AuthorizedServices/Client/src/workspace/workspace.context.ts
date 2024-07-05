@@ -1,15 +1,15 @@
-import type { UmbWorkspaceContext } from "@umbraco-cms/backoffice/workspace";
-import { UmbWorkspaceRouteManager } from "@umbraco-cms/backoffice/workspace";
+import { UmbWorkspaceRouteManager, type UmbWorkspaceContext } from "@umbraco-cms/backoffice/workspace";
 import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controller-api";
 import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
-import { AUTHORIZED_SERVICE_ENTITY_TYPE } from "../entities.js";
-import { WORKSPACE_ALIAS } from "./manifests.js";
-import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
-import AuthorizedServiceWorkspaceEditorElement from "./workspace.element.js";
-import { AuthorizedServiceDisplay, ServiceService } from "../../generated/index.js";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources';
+import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
+import { AUTHORIZED_SERVICE_ENTITY_TYPE } from "../entities.js";
+import { type AuthorizedServiceDisplay, ServiceService } from "../../generated/index.js";
+import { WORKSPACE_ALIAS } from "./manifests.js";
+import { AuthorizedServiceWorkspaceEditorElement } from "./workspace.element.js";
+import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token.js";
 
-export class WorkspaceContext
+export class AuthorizedServiceWorkspaceContext
   extends UmbContextBase<AuthorizedServiceDisplay>
   implements UmbWorkspaceContext
 {
@@ -24,6 +24,8 @@ export class WorkspaceContext
 
   constructor(host: UmbControllerHostElement) {
     super(host, WORKSPACE_ALIAS);
+    this.provideContext(AUTHORIZED_SERVICES_WORKSPACE_CONTEXT, this);
+
     this.workspaceAlias = WORKSPACE_ALIAS;
     this.routes = new UmbWorkspaceRouteManager(host);
 
@@ -68,5 +70,4 @@ export class WorkspaceContext
   }
 }
 
-export const api = WorkspaceContext;
-
+export { AuthorizedServiceWorkspaceContext as api };

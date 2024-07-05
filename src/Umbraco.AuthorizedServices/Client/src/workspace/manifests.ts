@@ -1,8 +1,8 @@
-import { ManifestWorkspace } from "@umbraco-cms/backoffice/extension-registry";
+import { type ManifestWorkspaces } from "@umbraco-cms/backoffice/extension-registry";
 import { AUTHORIZED_SERVICE_ENTITY_TYPE } from "../entities.js";
 
 export const WORKSPACE_ALIAS = "AuthorizedServices.Workspace";
-const workspaceManifest: ManifestWorkspace = {
+const workspaceManifest: ManifestWorkspaces = {
   type: "workspace",
   kind: 'routable',
   alias: WORKSPACE_ALIAS,
