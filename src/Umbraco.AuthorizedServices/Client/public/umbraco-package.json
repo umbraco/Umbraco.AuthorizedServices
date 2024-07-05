@@ -1,7 +1,7 @@
 {
   "id": "Umbraco.AuthorizedServices",
-  "name": "Umbraco CMS Integrations: Search - Algolia",
-  "version": "1.0.0",
+  "name": "Umbraco Authorized Services",
+  "version": "14.0.0-alpha1",
   "extensions": [
     {
       "name": "Umbraco EntryPoint",

@@ -56,6 +56,49 @@ namespace Umbraco.AuthorizedServices.Api.Management.Controllers.Service
                 }
             }
 
+            var settings = new Dictionary<string, string>
+            {
+                { nameof(ServiceDetail.Alias), serviceDetail.Alias },
+                { nameof(ServiceDetail.DisplayName), serviceDetail.DisplayName },
+                { nameof(ServiceDetail.AuthenticationMethod), serviceDetail.AuthenticationMethod.ToString() },
+                { nameof(ServiceDetail.ClientCredentialsProvision), serviceDetail.ClientCredentialsProvision.ToString() },
+                { nameof(ServiceDetail.ApiHost), serviceDetail.ApiHost },
+                { nameof(ServiceDetail.IdentityHost), serviceDetail.IdentityHost },
+                { nameof(ServiceDetail.TokenHost), serviceDetail.TokenHost },
+                { nameof(ServiceDetail.CanManuallyProvideApiKey), serviceDetail.CanManuallyProvideApiKey? "Yes" : "No" },
+                { nameof(ServiceDetail.CanManuallyProvideToken), serviceDetail.CanManuallyProvideToken ? "Yes" : "No" },
+                { nameof(ServiceDetail.RequestAuthorizationPath), serviceDetail.RequestAuthorizationPath },
+                { nameof(ServiceDetail.RequestIdentityPath), serviceDetail.RequestIdentityPath },
+                { nameof(ServiceDetail.AuthorizationUrlRequiresRedirectUrl), serviceDetail.AuthorizationUrlRequiresRedirectUrl ? "Yes" : "No" },
+                { nameof(ServiceDetail.RequestTokenPath), serviceDetail.RequestTokenPath },
+                { nameof(ServiceDetail.RequestTokenMethod), serviceDetail.RequestTokenMethod.ToString() },
+                { nameof(ServiceDetail.RequestTokenFormat), serviceDetail.RequestTokenFormat is not null ? serviceDetail.RequestTokenFormat.Value.ToString() : string.Empty },
+                { nameof(ServiceDetail.AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken), serviceDetail.AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken ? "Yes" : "No" },
+                { nameof(ServiceDetail.ApiKey), new string('*', serviceDetail.ApiKey.Length) },
+                { nameof(ServiceDetail.ApiKeyProvision), serviceDetail.ApiKeyProvision is not null ? serviceDetail.ApiKeyProvision.ToString() : string.Empty },
+                { nameof(ServiceDetail.ClientId), serviceDetail.ClientId },
+                { nameof(ServiceDetail.ClientSecret), new string('*', serviceDetail.ClientSecret.Length) },
+                { nameof(ServiceDetail.Scopes), serviceDetail.Scopes },
+                { nameof(ServiceDetail.IncludeScopesInAuthorizationRequest), serviceDetail.IncludeScopesInAuthorizationRequest ? "Yes" : "No" },
+                { nameof(ServiceDetail.UseProofKeyForCodeExchange), serviceDetail.UseProofKeyForCodeExchange ? "Yes" : "No" },
+                { nameof(ServiceDetail.CanExchangeToken), serviceDetail.CanExchangeToken ? "Yes" : "No" },
+                { nameof(ServiceDetail.ExchangeTokenProvision) + ":" + nameof(ServiceDetail.ExchangeTokenProvision.TokenHost), serviceDetail.ExchangeTokenProvision?.TokenHost ?? string.Empty },
+                { nameof(ServiceDetail.ExchangeTokenProvision) + ":" + nameof(ServiceDetail.ExchangeTokenProvision.RequestTokenPath), serviceDetail.ExchangeTokenProvision?.RequestTokenPath ?? string.Empty },
+                { nameof(ServiceDetail.ExchangeTokenProvision) + ":" + nameof(ServiceDetail.ExchangeTokenProvision.TokenGrantType), serviceDetail.ExchangeTokenProvision?.TokenGrantType ?? string.Empty },
+                { nameof(ServiceDetail.ExchangeTokenProvision) + ":" + nameof(ServiceDetail.ExchangeTokenProvision.RequestRefreshTokenPath), serviceDetail.ExchangeTokenProvision?.RequestRefreshTokenPath ?? string.Empty },
+                { nameof(ServiceDetail.ExchangeTokenProvision) + ":" + nameof(ServiceDetail.ExchangeTokenProvision.RefreshTokenGrantType), serviceDetail.ExchangeTokenProvision?.RefreshTokenGrantType ?? string.Empty },
+                { nameof(ServiceDetail.ExchangeTokenProvision) + ":" + nameof(ServiceDetail.ExchangeTokenProvision.ExchangeTokenWhenExpiresWithin), serviceDetail.ExchangeTokenProvision?.ExchangeTokenWhenExpiresWithin.ToString() ?? string.Empty },
+                { nameof(ServiceDetail.AccessTokenResponseKey), serviceDetail.AccessTokenResponseKey },
+                { nameof(ServiceDetail.RefreshTokenResponseKey), serviceDetail.RefreshTokenResponseKey },
+                { nameof(ServiceDetail.ExpiresInResponseKey), serviceDetail.ExpiresInResponseKey },
+                {
+                    nameof(ServiceDetail.SampleRequest),
+                    !string.IsNullOrEmpty(serviceDetail.SampleRequest)
+                        ? serviceDetail.SampleRequest
+                        : string.Empty
+                }
+            };
+
             var authorizedServiceDisplay = new AuthorizedServiceDisplay
             {
                 Alias = alias,
@@ -66,29 +109,7 @@ namespace Umbraco.AuthorizedServices.Api.Management.Controllers.Service
                 AuthorizationUrl = authorizationUrl,
                 AuthenticationMethod = serviceDetail.AuthenticationMethod.ToString(),
                 SampleRequest = serviceDetail.SampleRequest,
-                Settings = new Dictionary<string, string>
-                {
-                    { nameof(ServiceDetail.Alias), serviceDetail.Alias },
-                    { nameof(ServiceDetail.DisplayName), serviceDetail.DisplayName },
-                    { nameof(ServiceDetail.ApiHost), serviceDetail.ApiHost },
-                    { nameof(ServiceDetail.AuthenticationMethod), serviceDetail.AuthenticationMethod.ToString() },
-                    { nameof(ServiceDetail.IdentityHost), serviceDetail.IdentityHost },
-                    { nameof(ServiceDetail.TokenHost), serviceDetail.TokenHost },
-                    { nameof(ServiceDetail.RequestIdentityPath), serviceDetail.RequestIdentityPath },
-                    { nameof(ServiceDetail.RequestTokenPath), serviceDetail.RequestTokenPath },
-                    { nameof(ServiceDetail.RequestTokenFormat), serviceDetail.RequestTokenFormat is not null ? serviceDetail.RequestTokenFormat.Value.ToString() : string.Empty },
-                    { nameof(ServiceDetail.ApiKey), serviceDetail.ApiKey },
-                    { nameof(ServiceDetail.ApiKeyProvision), serviceDetail.ApiKeyProvision is not null ? serviceDetail.ApiKeyProvision.ToString() : string.Empty },
-                    { nameof(ServiceDetail.ClientId), serviceDetail.ClientId },
-                    { nameof(ServiceDetail.ClientSecret), new string('*', serviceDetail.ClientSecret.Length) },
-                    { nameof(ServiceDetail.Scopes), serviceDetail.Scopes },
-                    {
-                        nameof(ServiceDetail.SampleRequest),
-                        !string.IsNullOrEmpty(serviceDetail.SampleRequest)
-                            ? serviceDetail.SampleRequest
-                            : string.Empty
-                    }
-                }
+                Settings = settings.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value)
             };
 
             return Ok(authorizedServiceDisplay);
