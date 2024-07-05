@@ -1,17 +1,43 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, customElement, html, css, state } from "@umbraco-cms/backoffice/external/lit";
+import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token";
+import { AuthorizedServiceDisplay } from "../../generated";
 
 const elementName = "authorized-service-workspace";
 
 @customElement(elementName)
 export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(LitElement) {
 
+  #workspaceContext?: typeof AUTHORIZED_SERVICES_WORKSPACE_CONTEXT.TYPE;
+
+  @state()
+  _service?: AuthorizedServiceDisplay;
+
+  constructor() {
+    super();
+
+    console.log("consuming context");
+    this.consumeContext(AUTHORIZED_SERVICES_WORKSPACE_CONTEXT, (context) => {
+      console.log("consumed context");
+      this.#workspaceContext = context;
+			this.#observeService();
+		});
+	}
+
+	#observeService() {
+		if (!this.#workspaceContext) return;
+		this.observe(this.#workspaceContext.data, (data) => {
+      console.log(data);
+      this._service = data;
+    });
+	}
+
   @state()
   serviceDisplay!: string;
 
   render() {
     return html`
-      <umb-workspace-editor headline="Authorized Services: ${this.serviceDisplay}" alias="authorizedservice.workspace">
+      <umb-workspace-editor headline="Authorized Services: ${this._service?.displayName}" alias="authorizedservice.workspace">
         <umb-body-layout header-transparent header-fit-height>
             <uui-box headline="Status">
             </uui-box>

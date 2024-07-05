@@ -6,15 +6,14 @@ import { AUTHORIZED_SERVICE_ENTITY_TYPE } from "../entities.js";
 import { WORKSPACE_ALIAS } from "./manifests.js";
 import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
 import AuthorizedServiceWorkspaceEditorElement from "./workspace.element.js";
-import { AuthorizedServiceDisplay } from "../../generated/index.js";
+import { AuthorizedServiceDisplay, ServiceService } from "../../generated/index.js";
+import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources';
 
 export class WorkspaceContext
   extends UmbContextBase<AuthorizedServiceDisplay>
   implements UmbWorkspaceContext
 {
   #data = new UmbObjectState<AuthorizedServiceDisplay | undefined>(undefined);
-
-  //#getDataPromise?: Promise<any>;
 
   readonly data = this.#data.asObservable();
   readonly alias = this.#data.asObservablePart((data) => data?.alias);
@@ -40,14 +39,16 @@ export class WorkspaceContext
     ]);
   }
 
-  async load(id: string) {
-    console.log(id);
-    // this.#getDataPromise = this.prevalueSourceRepository?.requestByUnique(id);
-    // const { data } = await this.#getDataPromise;
+  async load(alias: string) {
 
-    // if (data) {
-    //   this.#data.update(data);
-    // }
+		const { data } = await tryExecuteAndNotify(
+			this,
+			ServiceService.getByAlias({alias})
+		);
+
+    if (data) {
+      this.#data.update(data);
+    }
   }
 
   getData() {
@@ -68,3 +69,4 @@ export class WorkspaceContext
 }
 
 export const api = WorkspaceContext;
+

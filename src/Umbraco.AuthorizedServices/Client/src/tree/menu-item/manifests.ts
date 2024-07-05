@@ -5,7 +5,7 @@ const menuItem: ManifestMenuItemTreeKind = {
   kind: "tree",
   alias: "AuthorizedServices.MenuItem.Service",
   name: "Authorized Services Service Menu Item",
-  weight: 600,
+  weight: 1,
   meta: {
     label: "Authorized Services",
     treeAlias: "AuthorizedServices.Tree.Services",
