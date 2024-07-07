@@ -5,10 +5,8 @@ using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Helpers;
-using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Models.Request;
 using Umbraco.AuthorizedServices.Services;
-using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Cache;
 using Umbraco.Extensions;
 

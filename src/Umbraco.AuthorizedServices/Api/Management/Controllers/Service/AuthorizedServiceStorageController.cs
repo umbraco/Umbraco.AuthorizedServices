@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Options;
-using Umbraco.AuthorizedServices.Api.Management.Controllers.Service;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Services;
 
