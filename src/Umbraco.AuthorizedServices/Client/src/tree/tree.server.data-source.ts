@@ -44,15 +44,13 @@ const getAncestorsOf = () => {
 const mapper = (
   item: AuthorizedServiceTreeItemResponseModel
 ): AuthorizedServicesTreeItemModel => {
-  return {
-    unique: item.unique,
+  return { ...item, ...{
     parent: {
       unique: null,
       entityType: AUTHORIZED_SERVICE_ROOT_ENTITY_TYPE,
     },
-    name: item.name,
     entityType: AUTHORIZED_SERVICE_ENTITY_TYPE,
     isFolder: false,
     hasChildren: false,
-  };
+  }};
 };
