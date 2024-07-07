@@ -1,13 +1,13 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, customElement, html, css, state, when } from "@umbraco-cms/backoffice/external/lit";
-import { ServiceService, type AuthorizedServiceDisplay } from "../../generated/index.js";
-import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token.js";
+import { ServiceService, type AuthorizedServiceDisplay } from "@umbraco-authorizedservices/generated";
 import { tryExecute, tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
 import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
+import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token.js";
 
 const elementName = "authorized-service-workspace";
 
-export enum AuthenticationMethod {
+enum AuthenticationMethod {
   None = "None",
   OAuth1 = "OAuth1",
   OAuth2AuthorizationCode = "OAuth2AuthorizationCode",
@@ -25,7 +25,7 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   private _service?: AuthorizedServiceDisplay;
 
   @state()
-  private _authenticationMethod: AuthenticationMethod = AuthenticationMethod.None;
+  private _authenticationMethod = AuthenticationMethod.None;
 
   @state()
   private _sampleRequestResponse?: string = undefined;
@@ -69,7 +69,7 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
 
       if (data) {
         this.#notificationContext?.peek("positive", {
-          data: { message: "The '" + this._service!.displayName + "' service has been authorized." },
+          data: { message: `The '${this._service!.displayName}' service has been authorized.` },
         });
 
         this.#refreshServiceDetails();
@@ -117,7 +117,7 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
 
     if (!error) {
       this.#notificationContext?.peek("positive", {
-        data: { message: "The '" + this._service!.displayName + "' service access token and token secret have been saved." },
+        data: { message: `The '${this._service!.displayName}' service access token and token secret have been saved.` },
       });
       accessTokenInputElement.value = "";
       this.#refreshServiceDetails();
@@ -138,7 +138,7 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
 
     if (!error) {
       this.#notificationContext?.peek("positive", {
-        data: { message: "The '" + this._service!.displayName + "' service access token has been saved." },
+        data: { message: `The '${this._service!.displayName}' service access token has been saved.` },
       });
       accessTokenInputElement.value = "";
       this.#refreshServiceDetails();
@@ -159,7 +159,7 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
 
     if (!error) {
       this.#notificationContext?.peek("positive", {
-        data: { message: "The '" + this._service!.displayName + "' service API key has been saved." },
+        data: { message: `The '${this._service!.displayName}' service API key has been saved.` },
       });
       apiKeyInputElement.value = "";
       this.#refreshServiceDetails();
@@ -231,9 +231,7 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
                       <uui-button
                         label="Verify Sample Request"
                         look="outline"
-                        @click=${this.#sendSampleRequest}>
-                        Verify Sample Request
-                      </uui-button>
+                        @click=${this.#sendSampleRequest}></uui-button>
                     `)}
                   ${when(this.#isOAuth1() || this.#isOAuth2AuthorizationCode() || this.#isOAuth2ClientCredentials(),
                     () => html`
@@ -241,9 +239,7 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
                         label="Revoke Access"
                         look="primary"
                         color="danger"
-                        @click=${this.#revokeAccess}>
-                        Revoke Access
-                      </uui-button>
+                        @click=${this.#revokeAccess}></uui-button>
                     `)}
 
                   ${when(this._sampleRequestResponse,
@@ -265,9 +261,7 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
                     label="Authorize Service"
                     look="primary"
                     color="positive"
-                    @click=${this.#authorizeAccess}>
-                    Authorize Service
-                  </uui-button>
+                    @click=${this.#authorizeAccess}></uui-button>
                 </div>
               `)}
 
@@ -288,20 +282,18 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
               <uui-form>
                 <uui-form-layout-item class="form-item">
                   <uui-label for="inAccessToken" slot="label">Access Token</uui-label>
-                  <uui-input id="inAccessToken" name="access_token type="text" label="Access Token"></uui-input>
+                  <uui-input id="inAccessToken" name="access_token" type="text" label="Access Token"></uui-input>
                 </uui-form-layout-item>
                 <uui-form-layout-item class="form-item">
                   <uui-label for="inTokenSecret" slot="label">Token Secret</uui-label>
-                  <uui-input id="inTokenSecret" name="token_secret type="text" label="Token Secret"></uui-input>
+                  <uui-input id="inTokenSecret" name="token_secret" type="text" label="Token Secret"></uui-input>
                 </uui-form-layout-item>
                 <div>
                   <uui-button
                     label="Save"
                     look="primary"
                     color="positive"
-                    @click=${this.#saveOAuth1AccessToken}>
-                    Save
-                  </uui-button>
+                    @click=${this.#saveOAuth1AccessToken}></uui-button>
                 </div>
               </uui-form>
             </div>
@@ -321,16 +313,14 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
             <uui-form>
               <uui-form-layout-item class="form-item">
                 <uui-label for="inAccessToken" slot="label">Access Token</uui-label>
-                <uui-input id="inAccessToken" name="access_token type="text" label="Access Token"></uui-input>
+                <uui-input id="inAccessToken" name="access_token" type="text" label="Access Token"></uui-input>
               </uui-form-layout-item>
               <div>
                 <uui-button
                   label="Save"
                   look="primary"
                   color="positive"
-                  @click=${this.#saveOAuth2AccessToken}>
-                  Save
-                </uui-button>
+                  @click=${this.#saveOAuth2AccessToken}></uui-button>
               </div>
             </uui-form>
           </div>
@@ -353,16 +343,14 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
             <uui-form>
               <uui-form-layout-item class="form-item">
                 <uui-label for="inApiKey" slot="label">Api Key</uui-label>
-                <uui-input id="inApiKey" name="api_key type="text" label="Api Key"></uui-input>
+                <uui-input id="inApiKey" name="api_key" type="text" label="Api Key"></uui-input>
               </uui-form-layout-item>
               <div>
                 <uui-button
                   label="Save"
                   look="primary"
                   color="positive"
-                  @click=${this.#saveApiKey}>
-                  Save
-                </uui-button>
+                  @click=${this.#saveApiKey}></uui-button>
               </div>
             </uui-form>
           </div>
