@@ -24,9 +24,6 @@
     "paths": {
       "@umbraco-authorizedservices/generated": [
         "./generated/index.ts"
-      ],
-      "@umbraco-authorizedservices/entities": [
-        "./src/entities.ts"
       ]
     }
   },
