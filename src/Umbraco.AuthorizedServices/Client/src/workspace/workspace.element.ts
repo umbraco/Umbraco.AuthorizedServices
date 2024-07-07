@@ -216,7 +216,6 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   #renderStatusSection(service: AuthorizedServiceDisplay) {
     return html`
       <uui-box headline="Status">
-        <umb-box-content>
           <uui-card-content-node name="${service.displayName}">
             <uui-icon slot="icon" name="${service.isAuthorized ? "unlock" : "lock"}"></uui-icon>
             <uui-tag size="s" slot="tag" color="${service.isAuthorized ? "positive" : "danger"}">
@@ -266,7 +265,6 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
               `)}
 
           </uui-card-content-node>
-        </umb-box-content>
       </uui-box>
       `;
   }
