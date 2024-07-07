@@ -20,6 +20,15 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+
+    "paths": {
+      "@umbraco-authorizedservices/generated": [
+        "./generated/index.ts"
+      ],
+      "@umbraco-authorizedservices/entities": [
+        "./src/entities.ts"
+      ]
+    }
   },
   "include": ["src"]
 }
