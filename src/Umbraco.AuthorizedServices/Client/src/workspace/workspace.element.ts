@@ -216,55 +216,50 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   #renderStatusSection(service: AuthorizedServiceDisplay) {
     return html`
       <uui-box headline="Status">
-          <uui-card-content-node name="${service.displayName}">
-            <uui-icon slot="icon" name="${service.isAuthorized ? "unlock" : "lock"}"></uui-icon>
-            <uui-tag size="s" slot="tag" color="${service.isAuthorized ? "positive" : "danger"}">
-              ${service.isAuthorized ? "Authorized" : "Not Authorized"}
-            </uui-tag>
-            <p><b>${service.displayName}</b> has been configured as an authorized service.</p>
-            ${when(service.isAuthorized,
-              () => html`
-                <div>
-                  ${when(service.sampleRequest,
-                    () => html`
-                      <uui-button
-                        label="Verify Sample Request"
-                        look="outline"
-                        @click=${this.#sendSampleRequest}></uui-button>
-                    `)}
-                  ${when(this.#isOAuth1() || this.#isOAuth2AuthorizationCode() || this.#isOAuth2ClientCredentials(),
-                    () => html`
-                      <uui-button
-                        label="Revoke Access"
-                        look="primary"
-                        color="danger"
-                        @click=${this.#revokeAccess}></uui-button>
-                    `)}
-
-                  ${when(this._sampleRequestResponse,
-                    () => html`
-                      <div>
-                        <div id="sample-response">
-                          <div>${this._sampleRequestResponse}</div>
-                        </div>
-                      </div>`
-                    )}
-                </div>
-              `)}
-
-            ${when(!service.isAuthorized && !this.#isApiKey(),
-              () => html`
-                <div>
-                  <p>To authorize the service click to sign-in to the provider's portal, confirm the permission request and return to Umbraco.</p>
+        <uui-tag size="s" slot="header-actions" color="${service.isAuthorized ? "positive" : "danger"}">
+          ${service.isAuthorized ? "Authorized" : "Not Authorized"}
+        </uui-tag>        
+        <p><b>${service.displayName}</b> has been configured as an authorized service.</p>
+        ${when(service.isAuthorized,
+          () => html`
+            <div>
+              ${when(service.sampleRequest,
+                () => html`
                   <uui-button
-                    label="Authorize Service"
+                    label="Verify Sample Request"
+                    look="outline"
+                    @click=${this.#sendSampleRequest}></uui-button>
+                `)}
+              ${when(this.#isOAuth1() || this.#isOAuth2AuthorizationCode() || this.#isOAuth2ClientCredentials(),
+                () => html`
+                  <uui-button
+                    label="Revoke Access"
                     look="primary"
-                    color="positive"
-                    @click=${this.#authorizeAccess}></uui-button>
-                </div>
-              `)}
+                    color="danger"
+                    @click=${this.#revokeAccess}></uui-button>
+                `)}
 
-          </uui-card-content-node>
+              ${when(this._sampleRequestResponse,
+                () => html`
+                    <div id="sample-response">
+                      <div>${this._sampleRequestResponse}</div>
+                    </div>`
+                )}
+            </div>
+          `)}
+
+        ${when(!service.isAuthorized && !this.#isApiKey(),
+          () => html`
+            <div>
+              <p>To authorize the service click to sign-in to the provider's portal, confirm the permission request and return to Umbraco.</p>
+              <uui-button
+                label="Authorize Service"
+                look="primary"
+                color="positive"
+                @click=${this.#authorizeAccess}></uui-button>
+            </div>
+          `)}
+
       </uui-box>
       `;
   }
@@ -272,30 +267,27 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   #renderOAuth1TokenSection() {
     return html`
        <uui-box headline="Provide OAuth1 Access Token and Token Secret">
-          <uui-card-content-node name="OAuth1 Access Token and Token Secret">
-            <uui-icon slot="icon" name="add"></uui-icon>
-            <p>Enter service access token and token secret</p>
-            <p>This service is configured indicating that an access token and a token secret can be generated via the service's developer portal. Once you have obtained them you can copy and paste them here to authorize the service.</p>
-            <div>
-              <uui-form>
-                <uui-form-layout-item class="form-item">
-                  <uui-label for="inAccessToken" slot="label">Access Token</uui-label>
-                  <uui-input id="inAccessToken" name="access_token" type="text" label="Access Token"></uui-input>
-                </uui-form-layout-item>
-                <uui-form-layout-item class="form-item">
-                  <uui-label for="inTokenSecret" slot="label">Token Secret</uui-label>
-                  <uui-input id="inTokenSecret" name="token_secret" type="text" label="Token Secret"></uui-input>
-                </uui-form-layout-item>
-                <div>
-                  <uui-button
-                    label="Save"
-                    look="primary"
-                    color="positive"
-                    @click=${this.#saveOAuth1AccessToken}></uui-button>
-                </div>
-              </uui-form>
-            </div>
-          </uui-card-content-node>
+          <p>Enter service access token and token secret</p>
+          <p>This service is configured indicating that an access token and a token secret can be generated via the service's developer portal. Once you have obtained them you can copy and paste them here to authorize the service.</p>
+          <div>
+            <uui-form>
+              <uui-form-layout-item class="form-item">
+                <uui-label for="inAccessToken" slot="label">Access Token</uui-label>
+                <uui-input id="inAccessToken" name="access_token" type="text" label="Access Token"></uui-input>
+              </uui-form-layout-item>
+              <uui-form-layout-item class="form-item">
+                <uui-label for="inTokenSecret" slot="label">Token Secret</uui-label>
+                <uui-input id="inTokenSecret" name="token_secret" type="text" label="Token Secret"></uui-input>
+              </uui-form-layout-item>
+              <div>
+                <uui-button
+                  label="Save"
+                  look="primary"
+                  color="positive"
+                  @click=${this.#saveOAuth1AccessToken}></uui-button>
+              </div>
+            </uui-form>
+          </div>
        </uui-box>
     `;
   }
@@ -303,26 +295,23 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   #renderOAuth2TokenSection() {
     return html`
       <uui-box headline="Provide Token">
-        <uui-card-content-node name="Access Token">
-          <uui-icon slot="icon" name="add"></uui-icon>
-          <p>Enter service access token</p>
-          <p>This service is configured indicating that a token can be generated via the service's developer portal. Once you have obtained one you can copy and paste it here to authorize the service.</p>
-          <div>
-            <uui-form>
-              <uui-form-layout-item class="form-item">
-                <uui-label for="inAccessToken" slot="label">Access Token</uui-label>
-                <uui-input id="inAccessToken" name="access_token" type="text" label="Access Token"></uui-input>
-              </uui-form-layout-item>
-              <div>
-                <uui-button
-                  label="Save"
-                  look="primary"
-                  color="positive"
-                  @click=${this.#saveOAuth2AccessToken}></uui-button>
-              </div>
-            </uui-form>
-          </div>
-        </uui-card-content-node>
+        <p>Enter service access token</p>
+        <p>This service is configured indicating that a token can be generated via the service's developer portal. Once you have obtained one you can copy and paste it here to authorize the service.</p>
+        <div>
+          <uui-form>
+            <uui-form-layout-item class="form-item">
+              <uui-label for="inAccessToken" slot="label">Access Token</uui-label>
+              <uui-input id="inAccessToken" name="access_token" type="text" label="Access Token"></uui-input>
+            </uui-form-layout-item>
+            <div>
+              <uui-button
+                label="Save"
+                look="primary"
+                color="positive"
+                @click=${this.#saveOAuth2AccessToken}></uui-button>
+            </div>
+          </uui-form>
+        </div>
       </uui-box>
     `;
   }
@@ -330,29 +319,26 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   #renderKeySection() {
     return html`
       <uui-box headline="Provide API Key">
-        <uui-card-content-node name="API Key">
-          <uui-icon slot="icon" name="add"></uui-icon>
-          <p>Enter service API key</p>
-          <p>
-            This service is configured indicating that an API key can be created via the service's developer portal.
-            Once you have obtained one you can copy and paste it here to authorize the service.
-          </p>
-          <div>
-            <uui-form>
-              <uui-form-layout-item class="form-item">
-                <uui-label for="inApiKey" slot="label">Api Key</uui-label>
-                <uui-input id="inApiKey" name="api_key" type="text" label="Api Key"></uui-input>
-              </uui-form-layout-item>
-              <div>
-                <uui-button
-                  label="Save"
-                  look="primary"
-                  color="positive"
-                  @click=${this.#saveApiKey}></uui-button>
-              </div>
-            </uui-form>
-          </div>
-        </uui-card-content-node>
+        <p>Enter service API key</p>
+        <p>
+          This service is configured indicating that an API key can be created via the service's developer portal.
+          Once you have obtained one you can copy and paste it here to authorize the service.
+        </p>
+        <div>
+          <uui-form>
+            <uui-form-layout-item class="form-item">
+              <uui-label for="inApiKey" slot="label">Api Key</uui-label>
+              <uui-input id="inApiKey" name="api_key" type="text" label="Api Key"></uui-input>
+            </uui-form-layout-item>
+            <div>
+              <uui-button
+                label="Save"
+                look="primary"
+                color="positive"
+                @click=${this.#saveApiKey}></uui-button>
+            </div>
+          </uui-form>
+        </div>
       </uui-box>
     `;
   }
@@ -360,42 +346,32 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   #renderSettingsSection(service: AuthorizedServiceDisplay) {
     return html`
       <uui-box headline="Settings">
-        <uui-card-content-node name="${service.displayName}">
-          <uui-icon slot="icon" name="settings"></uui-icon>
-          <uui-table>
-            <uui-table-head>
-              <uui-table-head-cell>Key</uui-table-head-cell>
-              <uui-table-head-cell>Value</uui-table-head-cell>
-            </uui-table-head>
-            ${Object.entries(service.settings).map(([key, value]) =>
-              html`<uui-table-row>
-                <uui-table-cell>${key}</uui-table-cell>
-                <uui-table-cell>${value}</uui-table-cell>
-              </uui-table-row>`)}
-          </uui-table>
-        </uui-card-content-node>
+        <uui-table>
+          <uui-table-head>
+            <uui-table-head-cell>Key</uui-table-head-cell>
+            <uui-table-head-cell>Value</uui-table-head-cell>
+          </uui-table-head>
+          ${Object.entries(service.settings).map(([key, value]) =>
+            html`<uui-table-row>
+              <uui-table-cell>${key}</uui-table-cell>
+              <uui-table-cell>${value}</uui-table-cell>
+            </uui-table-row>`)}
+        </uui-table>
       </uui-box>
     `;
   }
 
   static styles = [
     css`
-      :host {
-        display: block;
-        width: 100%;
-        height: 100%;
-      }
-
-      uui-box {
-        margin-bottom: 20px;
+      uui-box + uui-box {
+        margin-top: var(--uui-size-8);
       }
 
       #sample-response {
-        background: #F3F3F5;
-        border-radius: 3px;
-        border: 2px solid #F02E28;
-        padding: 10px 20px;
-        margin: 24px 0;
+        background: var(--uui-color-disabled);
+        border-radius: var(--uui-border-radius);
+        border: 2px solid var(--uui-color-default);
+        margin-top: var(--uui-size-8);
       }
 
       #sample-response div {
@@ -405,16 +381,10 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
         max-height: 512px;
         overflow: auto;
         white-space: pre;
-        text-align: left;
-        color: black;
-      }
-
-      .form-item uui-label {
-        font-size: 14px;
+        padding: var(--uui-size-3) var(--uui-size-7);
       }
 
       .form-item uui-input {
-          font-size: 14px;
           width: 40%;
       }
     `
