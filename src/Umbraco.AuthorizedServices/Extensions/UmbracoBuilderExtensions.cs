@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Umbraco.AuthorizedServices.Api.Configuration;
 using Umbraco.Cms.Core.DependencyInjection;
 
 namespace Umbraco.AuthorizedServices.Extensions
@@ -20,6 +21,7 @@ namespace Umbraco.AuthorizedServices.Extensions
                         Description = $"Describes the {Constants.ManagementApi.ApiTitle} available for handling services."
                     });
 
+                options.OperationFilter<BackOfficeSecurityRequirementsOperationFilter>();
                 options.CustomOperationIds(e => $"{e.ActionDescriptor.RouteValues["action"]}");
             });
 
