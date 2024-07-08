@@ -7,7 +7,7 @@ import type {
 import {
   AUTHORIZED_SERVICE_ROOT_ENTITY_TYPE,
   AUTHORIZED_SERVICE_ENTITY_TYPE,
-} from "../entities.js";
+} from "@umbraco-authorizedservices/entities";
 import { AuthorizedServicesTreeRepository } from "./tree.repository.js";
 import { AuthorizedServicesTreeStore } from "./tree.store.js";
 import { manifests as menuManifests } from "./menu-item/manifests.js";

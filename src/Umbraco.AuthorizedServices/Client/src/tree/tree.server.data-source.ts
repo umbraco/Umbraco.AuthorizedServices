@@ -6,11 +6,11 @@ import {
 import {
   type AuthorizedServiceTreeItemResponseModel,
   TreeService,
-} from "../../generated/index.js";
+} from "@umbraco-authorizedservices/generated";
 import {
   AUTHORIZED_SERVICE_ENTITY_TYPE,
   AUTHORIZED_SERVICE_ROOT_ENTITY_TYPE,
-} from "../entities.js";
+} from "@umbraco-authorizedservices/entities";
 import type { AuthorizedServicesTreeItemModel } from "./types.js";
 
 export class AuthorizedServicesTreeServerDataSource extends UmbTreeServerDataSourceBase<

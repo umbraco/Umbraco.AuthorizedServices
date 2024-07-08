@@ -1,7 +1,7 @@
 import type { UmbControllerHost } from "@umbraco-cms/backoffice/controller-api";
 import type { UmbApi } from "@umbraco-cms/backoffice/extension-api";
 import { UmbTreeRepositoryBase } from "@umbraco-cms/backoffice/tree";
-import { AUTHORIZED_SERVICE_ROOT_ENTITY_TYPE } from "../entities.js";
+import { AUTHORIZED_SERVICE_ROOT_ENTITY_TYPE } from "@umbraco-authorizedservices/entities";
 import type {
   AuthorizedServicesTreeItemModel,
   AuthorizedServicesTreeRootModel,

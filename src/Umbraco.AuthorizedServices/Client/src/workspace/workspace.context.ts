@@ -3,8 +3,8 @@ import type { UmbControllerHostElement } from "@umbraco-cms/backoffice/controlle
 import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecuteAndNotify } from '@umbraco-cms/backoffice/resources';
 import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
-import { AUTHORIZED_SERVICE_ENTITY_TYPE } from "../entities.js";
-import { type AuthorizedServiceDisplay, ServiceService } from "../../generated/index.js";
+import { AUTHORIZED_SERVICE_ENTITY_TYPE } from "@umbraco-authorizedservices/entities";
+import { type AuthorizedServiceDisplay, ServiceService } from "@umbraco-authorizedservices/generated";
 import { WORKSPACE_ALIAS } from "./manifests.js";
 import { AuthorizedServiceWorkspaceEditorElement } from "./workspace.element.js";
 import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token.js";

@@ -5,7 +5,7 @@ import type {
 import type {
   AuthorizedServiceEntityType,
   AuthorizedServiceRootEntityType,
-} from "../entities.js";
+} from "@umbraco-authorizedservices/entities";
 
 export interface AuthorizedServicesTreeItemModel extends UmbTreeItemModel {
   entityType: AuthorizedServiceEntityType;
