@@ -7,7 +7,7 @@ export default defineConfig({
       entry: "src/index.ts",
       formats: ["es"],
     },
-    outDir: "../wwwroot",
+    outDir: "../wwwroot/App_Plugins/UmbracoAuthorizedServices",
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
