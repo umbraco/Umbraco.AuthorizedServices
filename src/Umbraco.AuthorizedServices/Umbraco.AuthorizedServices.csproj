@@ -30,12 +30,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="docs\NuGetReadMe.md" Pack="true" PackagePath="\" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <SupportedPlatform Include="browser" />
   </ItemGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>Umbraco.AuthorizedServices.Tests</_Parameter1>
-    </AssemblyAttribute>
+    <None Include="docs\NuGetReadMe.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
