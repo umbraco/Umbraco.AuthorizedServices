@@ -3,7 +3,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <StaticWebAssetBasePath>App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
   </PropertyGroup>
 
@@ -23,16 +22,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="14.0.0" />
     <PackageReference Include="Umbraco.Cms.Api.Common" Version="14.0.0" />
     <PackageReference Include="Umbraco.Cms.Api.Management" Version="14.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <SupportedPlatform Include="browser" />
   </ItemGroup>
 
   <ItemGroup>
