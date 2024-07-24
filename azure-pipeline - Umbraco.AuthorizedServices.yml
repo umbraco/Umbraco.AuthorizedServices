@@ -23,7 +23,7 @@ stages:
     jobs:
       - job: Build
         pool: 
-          vmImage: windows-latest
+          vmImage: ubuntu-latest
         steps:
           # Checkout source (avoid shallow clone to calculate version height)
           - checkout: self
