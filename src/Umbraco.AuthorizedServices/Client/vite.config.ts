@@ -1,13 +1,14 @@
-import { defineConfig, UserConfig } from "vite";
+import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { outputPath } from "./config.outputPath.js";
 
-export const baseConfig = {
+export default defineConfig({
   build: {
     lib: {
       entry: "src/index.ts",
       formats: ["es"],
     },
-    outDir: "../wwwroot",
+    outDir: outputPath,
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {
@@ -16,8 +17,4 @@ export const baseConfig = {
     },
   },
   plugins: [tsconfigPaths()]
-} as UserConfig;
-
-export default defineConfig({
-  ...baseConfig
 });

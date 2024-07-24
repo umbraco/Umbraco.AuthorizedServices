@@ -10,7 +10,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:release": "tsc && vite build --config vite.release.config.ts",
     "preview": "vite preview",
     "watch": "vite build --watch",
     "generate:api": "openapi-ts",
@@ -34,8 +33,5 @@
     "typescript": "^5.2.2",
     "vite": "^5.1.1",
     "vite-tsconfig-paths": "^4.3.1"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.6.1"
   }
 }
