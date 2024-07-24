@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, UserConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export const baseConfig = {
@@ -16,7 +16,7 @@ export const baseConfig = {
     },
   },
   plugins: [tsconfigPaths()]
-}
+} as UserConfig;
 
 export default defineConfig({
   ...baseConfig
