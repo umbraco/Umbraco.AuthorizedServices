@@ -63,7 +63,7 @@ stages:
             inputs:
               command: 'custom'
               workingDir: 'src/Umbraco.AuthorizedServices/Client'
-              customCommand: 'build:cicd'
+              customCommand: 'npm run build:cicd'
 
           # Build
           - script: dotnet build $(solution) --configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true
