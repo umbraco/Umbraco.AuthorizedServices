@@ -7,7 +7,7 @@ parameters:
     default: false
 
 variables:
-  nodeVersion: 20.x
+  nodeVersion: 20
   solution: Umbraco.AuthorizedServices.sln
   buildConfiguration: Release
   DOTNET_NOLOGO: true
