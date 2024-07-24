@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:cicd": "npm ci --quiet && npm run build",
+    "build:cicd": "npm ci --quiet && tsc && vite build --outDir ../obj/Release/net8.0/clientassets",
     "preview": "vite preview",
     "watch": "vite build --watch",
     "generate:api": "openapi-ts",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.46.3",
+    "@types/node": "^20.14.12",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
     "@typescript-eslint/parser": "^7.13.0",
     "@umbraco-cms/backoffice": "^14.0.0",
