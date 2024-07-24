@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:cicd": "npm ci && npm run build",
+    "build:cicd": "npm ci --quiet && npm run build",
     "preview": "vite preview",
     "watch": "vite build --watch",
     "generate:api": "openapi-ts",
