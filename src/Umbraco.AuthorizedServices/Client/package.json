@@ -34,5 +34,8 @@
     "typescript": "^5.2.2",
     "vite": "^5.1.1",
     "vite-tsconfig-paths": "^4.3.1"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.6.1"
   }
 }
