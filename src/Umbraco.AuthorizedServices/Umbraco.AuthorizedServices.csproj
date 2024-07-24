@@ -50,8 +50,8 @@
   </ItemGroup>
 
   <!-- Build client assets using NPM -->
-  <Import Project="build\Microsoft.AspNetCore.ClientAssets.targets" Condition="'$(Configuration)' == 'Release'" />
-  <Target Name="ClientAssetsBuildOutputPath" BeforeTargets="ClientAssetsBuild" Condition="'$(Configuration)' == 'Release'">
+  <Import Project="build\Microsoft.AspNetCore.ClientAssets.targets" />
+  <Target Name="ClientAssetsBuildOutputPath" BeforeTargets="ClientAssetsBuild">
     <WriteLinesToFile File="Client\config.outputPath.js" Lines="export const outputPath = '../$(IntermediateOutputPath.Replace('\', '/'))clientassets';" Overwrite="true" />
   </Target>
 </Project>
