@@ -3,7 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+    <StaticWebAssetBasePath>/App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
 
@@ -47,5 +47,11 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
-  </ItemGroup>   
+  </ItemGroup>
+
+  <!-- Build client assets using NPM -->
+  <Import Project="build\Microsoft.AspNetCore.ClientAssets.targets" Condition="'$(Configuration)' == 'Release'" />
+  <Target Name="ClientAssetsBuildOutputPath" BeforeTargets="ClientAssetsBuild" Condition="'$(Configuration)' == 'Release'">
+    <WriteLinesToFile File="Client\config.outputPath.js" Lines="export const outputPath = '../$(IntermediateOutputPath.Replace('\', '/'))clientassets';" Overwrite="true" />
+  </Target>
 </Project>

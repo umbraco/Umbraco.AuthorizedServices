@@ -57,14 +57,6 @@ stages:
           - script: dotnet restore $(solution) --locked-mode
             displayName: Restore NuGet packages
 
-          # Build - client          
-          - task: Npm@1
-            displayName: Run NPM install and build
-            inputs:
-              command: 'custom'
-              workingDir: 'src/Umbraco.AuthorizedServices/Client'
-              customCommand: 'run build:cicd'
-
           # Build
           - script: dotnet build $(solution) --configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true
             displayName: Run dotnet build
