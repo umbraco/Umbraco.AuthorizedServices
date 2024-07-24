@@ -61,7 +61,7 @@ stages:
           - task: Npm@1
             inputs:
               command: 'custom'
-              workingDir: '/Client'
+              workingDir: 'src/AuthorizedServices/Client'
               customCommand: 'build:cicd'
 
           # Build
