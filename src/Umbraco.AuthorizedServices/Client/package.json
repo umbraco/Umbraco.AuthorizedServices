@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:release": "tsc && vite build --config vite.release.config.js",
+    "build:release": "tsc && vite build --config vite.release.config.ts",
     "preview": "vite preview",
     "watch": "vite build --watch",
     "generate:api": "openapi-ts",
