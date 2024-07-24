@@ -59,9 +59,10 @@ stages:
 
           # Build - client          
           - task: Npm@1
+            displayName: Run NPM install and build
             inputs:
               command: 'custom'
-              workingDir: 'src/AuthorizedServices/Client'
+              workingDir: 'src/Umbraco.AuthorizedServices/Client'
               customCommand: 'build:cicd'
 
           # Build
