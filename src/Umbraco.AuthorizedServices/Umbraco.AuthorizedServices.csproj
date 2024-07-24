@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -27,10 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="14.0.0" />
-    <PackageReference Include="Umbraco.Cms.Api.Common" Version="14.0.0" />
-    <PackageReference Include="Umbraco.Cms.Api.Management" Version="14.0.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="[14.0.0, 15)" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="[14.0.0, 15)" />
+    <PackageReference Include="Umbraco.Cms.Api.Common" Version="[14.0.0, 15)" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="[14.0.0, 15)" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0" />
   </ItemGroup>
 
@@ -46,5 +47,5 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\" />
-  </ItemGroup>
+  </ItemGroup>   
 </Project>
