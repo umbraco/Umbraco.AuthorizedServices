@@ -1,5 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <StaticWebAssetBasePath>/App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <Title>Umbraco Authorized Services</Title>
     <Description>
       Authorized Services is an extension from Umbraco intended to get you up to speed quickly with integrating external services. It handles the authentication and authorization flow for services using OAuth.
@@ -11,17 +19,24 @@
     <PackageProjectUrl>https://github.com/umbraco/Umbraco.AuthorizedServices</PackageProjectUrl>
     <RepositoryUrl>https://github.com/umbraco/Umbraco.AuthorizedServices</RepositoryUrl>
     <PackageTags>umbraco umbraco-marketplace</PackageTags>
-    <StaticWebAssetBasePath>App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
     <PackageReadmeFile>NuGetReadMe.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="[10.0, 14)" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <SupportedPlatform Include="browser" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="buildTransitive\**" PackagePath="buildTransitive" />
-    <Content Update="appsettings-schema.Umbraco.AuthorizedServices.json" PackagePath="" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="[14.0.0, 15)" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="[14.0.0, 15)" />
+    <PackageReference Include="Umbraco.Cms.Api.Common" Version="[14.0.0, 15)" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="[14.0.0, 15)" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="docs\NuGetReadMe.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,21 +45,13 @@
     </AssemblyAttribute>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="docs\NuGetReadMe.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-
   <!-- Build client assets using NPM -->
   <Import Project="build\Microsoft.AspNetCore.ClientAssets.targets" />
+  <PropertyGroup>
+    <!-- Use this to (temporarily) disable building client assets, e.g. to start the project and generate updated API models -->
+    <ShouldRunClientAssetsBuild>true</ShouldRunClientAssetsBuild>
+  </PropertyGroup>
   <Target Name="ClientAssetsBuildOutputPath" BeforeTargets="ClientAssetsBuild">
-	<WriteLinesToFile File="ClientApp\gulp\config.outputPath.js" Lines="export const outputPath = '../$(IntermediateOutputPath.Replace('\', '/'))clientassets';" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="Client\config.outputPath.js" Lines="export const outputPath = '$(Configuration)' !== 'Release' ? '../wwwroot' : '../$(IntermediateOutputPath.Replace('\', '/'))clientassets';" Overwrite="true" />
   </Target>
-  <ItemGroup>
-    <ClientAssetsInputs Remove="ClientApp\src\backoffice\AuthorizedServices\authorizedservice.constants.ts" />
-    <ClientAssetsInputs Remove="ClientApp\src\css\style.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Umbraco.JsonSchema.Extensions" Version="0.3.0" PrivateAssets="all" />
-  </ItemGroup>
 </Project>

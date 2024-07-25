@@ -340,8 +340,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             .ReturnsAsync(AuthorizationResult.AsSuccess());
 
         Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod, withConfiguredApiKey);
-        var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
 
+        var jsonSerializer = new SystemTextJsonSerializer();
         return new AuthorizedServiceCaller(
             AppCaches.Disabled,
             new TokenFactory(new DateTimeProvider()),
@@ -352,8 +352,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             new NullLogger<AuthorizedServiceCaller>(),
             optionsMonitorServiceDetailMock.Object,
             new TestHttpClientFactory(statusCode, responseContent),
-            factory,
-            new AuthorizedRequestBuilder(factory),
+            jsonSerializer,
+            new AuthorizedRequestBuilder(jsonSerializer),
             new RefreshTokenParametersBuilder(),
             new ExchangeTokenParametersBuilder(),
             authorizedServiceAuthorizerMock.Object);

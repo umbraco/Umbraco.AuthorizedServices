@@ -1,5 +1,4 @@
 using System.Runtime.Serialization;
-using Umbraco.AuthorizedServices.Configuration;
 
 namespace Umbraco.AuthorizedServices.Models;
 
@@ -10,7 +9,13 @@ namespace Umbraco.AuthorizedServices.Models;
 public class AuthorizedServiceDisplay
 {
     /// <summary>
-    /// Gets or sets the service's display name..
+    /// Gets or sets the service's alias.
+    /// </summary>
+    [DataMember(Name = "alias")]
+    public string Alias { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the service's display name.
     /// </summary>
     [DataMember(Name = "displayName")]
     public string DisplayName { get; set; } = string.Empty;

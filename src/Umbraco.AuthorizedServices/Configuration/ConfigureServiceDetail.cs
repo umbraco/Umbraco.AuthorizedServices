@@ -11,8 +11,13 @@ internal sealed class ConfigureServiceDetail : IConfigureNamedOptions<ServiceDet
     public ConfigureServiceDetail(IConfiguration configuration)
         => _configuration = configuration;
 
-    public void Configure(string name, ServiceDetail options)
+    public void Configure(string? name, ServiceDetail options)
     {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return;
+        }
+
         // Ensure the configuration section exists
         IConfigurationSection serviceSection = _configuration.GetSection($"Umbraco:AuthorizedServices:Services:{name}");
         if (!serviceSection.Exists())
@@ -20,7 +25,7 @@ internal sealed class ConfigureServiceDetail : IConfigureNamedOptions<ServiceDet
             throw new InvalidOperationException($"Cannot find service config for service alias '{name}'");
         }
 
-        // Bind section to options instance and set the alias
+        // Bind section to options instance and set the alias.
         serviceSection.Bind(options);
         options.Alias = name;
     }

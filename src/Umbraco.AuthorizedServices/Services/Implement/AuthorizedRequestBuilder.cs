@@ -1,7 +1,4 @@
-using System.Collections.Specialized;
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using Umbraco.AuthorizedServices.Configuration;
@@ -13,9 +10,9 @@ namespace Umbraco.AuthorizedServices.Services.Implement;
 
 internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
 {
-    private readonly JsonSerializerFactory _jsonSerializerFactory;
+    private readonly IJsonSerializer _jsonSerializer;
 
-    public AuthorizedRequestBuilder(JsonSerializerFactory jsonSerializerFactory) => _jsonSerializerFactory = jsonSerializerFactory;
+    public AuthorizedRequestBuilder(IJsonSerializer jsonSerializer) => _jsonSerializer = jsonSerializer;
 
     public HttpRequestMessage CreateRequestMessageWithOAuth2Token<TRequest>(
         ServiceDetail serviceDetail,
@@ -157,8 +154,7 @@ internal sealed class AuthorizedRequestBuilder : IAuthorizedRequestBuilder
             return null;
         }
 
-        IJsonSerializer jsonSerializer = _jsonSerializerFactory.GetSerializer(serviceDetail.Alias);
-        var serializedContent = jsonSerializer.Serialize(requestContent);
+        var serializedContent = _jsonSerializer.Serialize(requestContent);
         return new StringContent(serializedContent, Encoding.UTF8, "application/json");
     }
 

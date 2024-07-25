@@ -7,14 +7,15 @@ using Umbraco.AuthorizedServices.Helpers;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.Cms.Core.Cache;
-using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Umbraco.AuthorizedServices.Controllers;
 
 /// <summary>
 /// Controller that handles the returning messages for the authorization flow with an external service.
 /// </summary>
-public class AuthorizedServiceResponseController : UmbracoApiController
+[ApiController]
+[Route("/umbraco/api/AuthorizedServiceResponse")]
+public class AuthorizedServiceResponseController : Controller
 {
     private readonly IAuthorizedServiceAuthorizer _serviceAuthorizer;
     private readonly IOptionsMonitor<ServiceDetail> _serviceDetailOptions;
@@ -38,6 +39,7 @@ public class AuthorizedServiceResponseController : UmbracoApiController
     /// </summary>
     /// <param name="code">The authorization code.</param>
     /// <param name="state">The state.</param>
+    [HttpGet("HandleOAuth2IdentityResponse")]
     public async Task<IActionResult> HandleOAuth2IdentityResponse(string code, string state)
     {
         var stateParts = state.Split(Constants.Separator);
@@ -68,7 +70,7 @@ public class AuthorizedServiceResponseController : UmbracoApiController
 
         if (result.Success)
         {
-            return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");
+            return Redirect($"/umbraco/section/settings/workspace/authorized-service/edit/{serviceAlias}");
         }
 
         throw new AuthorizedServiceException("Failed to obtain access token");

@@ -95,4 +95,19 @@ public static class Constants
             }
         }
     }
+
+    public static class ManagementApi
+    {
+        public const string RootPath = "authorized-services/management/api";
+
+        public const string ApiTitle = "Umbraco Authorized Services Management API";
+
+        public const string ApiName = "authorized-services-management";
+
+        public const string GroupName = "Umbraco Authorized Services";
+
+        public const string ServiceGroupName = "Service";
+
+        public const string ServiceResponseGroupName = "Service Response";
+    }
 }
