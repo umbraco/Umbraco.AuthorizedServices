@@ -23,7 +23,6 @@ internal abstract class AuthorizedServiceTestsBase
             Alias = ServiceAlias,
             ApiHost = "https://service.url",
             AuthenticationMethod = authenticationMethod,
-            JsonSerializer = JsonSerializerOption.JsonNet,
             ApiKey = authenticationMethod == AuthenticationMethod.ApiKey && withConfiguredApiKey ? "test-api-key" : string.Empty,
             ApiKeyProvision = authenticationMethod == AuthenticationMethod.ApiKey
                 ? new ApiKeyProvision { Method = ApiKeyProvisionMethod.QueryString, Key = "key"} : null

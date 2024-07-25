@@ -134,14 +134,14 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
 
         var stringContent = result.Content as StringContent;
         var content = await stringContent!.ReadAsStringAsync();
-        content.Should().Be("{\"Foo\":\"bar\"}");
+        content.Should().Be("{\"foo\":\"bar\"}");
     }
 
     private static AuthorizedRequestBuilder CreateSut()
     {
         Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail();
-        var factory = new JsonSerializerFactory(optionsMonitorServiceDetailMock.Object, new JsonNetSerializer());
-        return new AuthorizedRequestBuilder(factory);
+        var jsonSerializer = new SystemTextJsonSerializer();
+        return new AuthorizedRequestBuilder(jsonSerializer);
     }
 
     private static async Task AssertResult(HttpRequestMessage result, Uri expectedUri)
@@ -152,7 +152,7 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
         result.Content.Should().BeOfType<StringContent>();
         var stringContent = result.Content as StringContent;
         var content = await stringContent!.ReadAsStringAsync();
-        content.Should().Be("{\"Foo\":\"bar\"}");
+        content.Should().Be("{\"foo\":\"bar\"}");
     }
 
     private static void AssertCommonHeaders(HttpRequestMessage result)

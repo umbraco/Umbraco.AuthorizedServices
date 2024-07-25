@@ -11,8 +11,8 @@ parameters:
     default: false
 
 variables:
-  nodeVersion: 18.x
-  solution: Umbraco.AuthorizedServices.Build.sln
+  nodeVersion: 20
+  solution: Umbraco.AuthorizedServices.sln
   buildConfiguration: Release
   DOTNET_NOLOGO: true
   DOTNET_GENERATE_ASPNET_CERTIFICATE: false
@@ -77,7 +77,7 @@ stages:
             displayName: Run dotnet build
 
           # Pack
-          - script: dotnet pack $(solution) --configuration $(buildConfiguration) --no-build --output $(Build.ArtifactStagingDirectory)/nupkg
+          - script: dotnet pack $(solution) --configuration $(buildConfiguration) --no-restore --output $(Build.ArtifactStagingDirectory)/nupkg
             displayName: Run dotnet pack
 
           # Publish

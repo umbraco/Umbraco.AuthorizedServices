@@ -480,6 +480,6 @@ $RECYCLE.BIN/
 ## Umbraco AuthorizedServices specific
 ##
 /src/Umbraco.AuthorizedServices/ClientApp/gulp/config.outputPath.js
-
+/examples/Umbraco.AuthorizedServices.TestSite.V14/umbraco/Data/TEMP/
 # Git
 .orig

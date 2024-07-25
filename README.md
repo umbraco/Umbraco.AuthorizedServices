@@ -92,7 +92,6 @@ Details of services available need to be applied to the Umbraco web application'
             "RequestTokenPath": "",
             "RequestTokenMethod": "GET|POST",
             "RequestAuthorizationPath": "",
-            "JsonSerializer": "Default|JsonNet|SystemTextJson",
             "RequestTokenFormat": "Querystring|FormUrlEncoded",
             "AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken": true|false,
             "ApiKey": "",
@@ -212,14 +211,6 @@ An enum value that controls how the request to retrieve an access token is forma
 
 Required in `OAuth1` flows for building the service authorization URL.
 
-###### JsonSerializer
-
-An enum value that defines the JSON serializer to use when creating requests and deserializing responses. Options are `Default` and `JsonNet` and `SystemTextJson`.
-
-- `Default` - uses the Umbraco CMS default `IJsonSerializer`.
-- `JsonNet` - uses the JSON.Net serializer.
-- `SystemTextJson` - uses the System.Text.Json serializer.
-
 ###### AuthorizationRequestRequiresAuthorizationHeaderWithBasicToken
 
 This flag indicates whether the basic token should be included in the request for access token. If true, a base64 encoding of <clientId>:<clientSecret> will be added to
@@ -289,7 +280,7 @@ Clicking on an item will show some details about the configured service, and it'
 
 If the service is not yet authorized, click the _Authorize Service_ button to trigger the authentication and authorization flow. You will be directed to the service to login, and optionally choose an account.  You will then be asked to agree to the permissions requested by the app. Finally you will be redirect back to the Umbraco backoffice and should see confirmation that an access token has been retrieved and stored such that the service is now authorized. If provided, you can click the _Verify Sample Request_ button to ensure that service's API can be called.
 
-### Calling an Service
+### Calling a Service
 
 To make a call to an authorized service, you first need to obtain an instance of `IAuthorizedServiceCaller`. This is registered with the dependency injection framework and as such can be injected into a controller, view or service class where it needs to be used.
 
@@ -343,6 +334,23 @@ Task<Attempt<TResponse?>> GetRequestAsync<TResponse>(string serviceAlias, string
 The list of providers for which the package has been verified is maintained at the [Umbraco Documentation website](https://docs.umbraco.com/umbraco-dxp/packages/authorized-services#verified-providers).
 
 ## Package Development
+
+To run the solution in a local development environment:
+
+```
+cd \examples\Umbraco.AuthorizedServices.TestSite\
+dotnet run
+
+cd \src\Umbraco.AuthorizedServices\Client>
+npm i
+npm run build
+```
+
+To generate types from the management API:
+
+```
+npm run generate:api
+```
 
 ### Branching Strategy
 

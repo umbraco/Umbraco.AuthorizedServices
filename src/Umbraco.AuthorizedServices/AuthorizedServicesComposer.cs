@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Umbraco.AuthorizedServices.Configuration;
-using Umbraco.AuthorizedServices.Manifests;
-using Umbraco.AuthorizedServices.Models;
+using Umbraco.AuthorizedServices.Extensions;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.AuthorizedServices.Services.Implement;
 using Umbraco.Cms.Core.Composing;
@@ -15,8 +14,8 @@ internal class AuthorizedServicesComposer : IComposer
     public void Compose(IUmbracoBuilder builder)
     {
         ConfigureOptions(builder);
-        RegisterManifestFilter(builder);
         RegisterServices(builder);
+        RegisterSwagger(builder);
     }
 
     private static void ConfigureOptions(IUmbracoBuilder builder)
@@ -34,9 +33,6 @@ internal class AuthorizedServicesComposer : IComposer
 
         builder.Services.ConfigureOptions<ConfigureServiceDetail>();
     }
-
-    private static void RegisterManifestFilter(IUmbracoBuilder builder) =>
-        builder.ManifestFilters().Append<AuthorizedServicesManifestFilter>();
 
     private static void RegisterServices(IUmbracoBuilder builder)
     {
@@ -60,7 +56,8 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IOAuth2TokenStorage, DatabaseOAuth2TokenStorage>();
         builder.Services.AddUnique<IOAuth1TokenStorage, DatabaseOAuth1TokenStorage>();
         builder.Services.AddUnique<IKeyStorage, DatabaseKeyStorage>();
-
-        builder.Services.AddSingleton<JsonSerializerFactory>();
     }
+
+    private static void RegisterSwagger(IUmbracoBuilder builder) =>
+        builder.AddAuthorizedServicesSwaggerGenOptions();
 }
