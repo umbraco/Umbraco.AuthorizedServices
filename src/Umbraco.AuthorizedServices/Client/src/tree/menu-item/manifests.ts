@@ -1,6 +1,5 @@
-import type { ManifestMenuItemTreeKind } from "@umbraco-cms/backoffice/extension-registry";
 
-const menuItem: ManifestMenuItemTreeKind = {
+const menuItem: UmbExtensionManifest = {
   type: "menuItem",
   kind: "tree",
   alias: "AuthorizedServices.MenuItem.Service",
