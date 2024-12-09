@@ -1,7 +1,5 @@
 import type {
   ManifestRepository,
-  ManifestTree,
-  ManifestTreeItem,
   ManifestTreeStore,
 } from "@umbraco-cms/backoffice/extension-registry";
 import {
@@ -33,7 +31,7 @@ const treeStore: ManifestTreeStore = {
   api: AuthorizedServicesTreeStore,
 };
 
-const tree: ManifestTree = {
+const tree: UmbExtensionManifest = {
   type: "tree",
   kind: "default",
   alias: AUTHORIZED_SERVICES_TREE_ALIAS,
@@ -43,7 +41,7 @@ const tree: ManifestTree = {
   },
 };
 
-const treeItem: ManifestTreeItem = {
+const treeItem: UmbExtensionManifest = {
   type: "treeItem",
   kind: "default",
   alias: "AuthorizedServices.TreeItem.Service",
