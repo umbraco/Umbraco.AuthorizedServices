@@ -45,7 +45,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
 
         result.Result!.Data!.Foo.Should().Be("bar");
 
-        result.Result!.Raw.Should().Be(ResponseContent);
+        result.Result!.RawResponse.Should().Be(ResponseContent);
 
         result.Result.Metadata.Should().NotBeNull();
         result.Result.Metadata.Date!.Value.ToString("dd MMM yyyy HH:mm:ss").Should().Be("12 Dec 2024 10:59:09");
@@ -56,6 +56,15 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         result.Result.Metadata.RateLimits.Should().NotBeNull();
         result.Result.Metadata.RateLimits!.Limit = 60;
         result.Result.Metadata.RateLimits.Remaining = 30;
+
+        result.Result.RawHeaders.Count.Should().Be(9);  // We have added 7 explicitly, Content-Type and Content-Length are added automatically.
+        result.Result.RawHeaders["Date"].First().Should().Be("Thu, 12 Dec 2024 10:59:09 GMT");
+        result.Result.RawHeaders["ETag"].First().Should().Be("\"33a64df551425fcc55e4d42a148795d9f25f89d4\"");
+        result.Result.RawHeaders["Expires"].First().Should().Be("Tue, 31 Dec 2024 23:59:59 GMT");
+        result.Result.RawHeaders["Last-Modified"].First().Should().Be("Sun, 01 Dec 2024 23:59:59 GMT");
+        result.Result.RawHeaders["Server"].First().Should().Be("github.com");
+        result.Result.RawHeaders["X-RateLimit-Limit"].First().Should().Be("60");
+        result.Result.RawHeaders["X-RateLimit-Remaining"].First().Should().Be("30");
 
         OAuth2TokenStorageMock
             .Verify(x => x.SaveTokenAsync(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);

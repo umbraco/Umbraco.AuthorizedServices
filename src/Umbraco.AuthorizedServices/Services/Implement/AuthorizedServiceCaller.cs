@@ -61,6 +61,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         Attempt<AuthorizedServiceResponse<string>> responseContentAttempt = await SendRequestRawAsync(serviceAlias, path, httpMethod, requestContent);
 
         ServiceResponseMetadata serviceMetadata = responseContentAttempt.Result?.Metadata ?? new ServiceResponseMetadata();
+        IDictionary<string, IEnumerable<string>> rawHeaders = responseContentAttempt.Result?.RawHeaders ?? new Dictionary<string, IEnumerable<string>>();
 
         if (!responseContentAttempt.Success)
         {
@@ -70,7 +71,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             }
 
             return Attempt.Fail(
-                new AuthorizedServiceResponse<TResponse>(serviceMetadata),
+                new AuthorizedServiceResponse<TResponse>(serviceMetadata, rawHeaders),
                 responseContentAttempt.Exception)!;
         }
 
@@ -81,15 +82,15 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             TResponse? result = jsonSerializer.Deserialize<TResponse>(responseContent);
             if (result != null)
             {
-                return Attempt.Succeed(new AuthorizedServiceResponse<TResponse>(result, responseContent, serviceMetadata))!;
+                return Attempt.Succeed(new AuthorizedServiceResponse<TResponse>(result, responseContent, serviceMetadata, rawHeaders))!;
             }
 
             return Attempt.Fail(
-                new AuthorizedServiceResponse<TResponse>(serviceMetadata),
+                new AuthorizedServiceResponse<TResponse>(serviceMetadata, rawHeaders),
                 new AuthorizedServiceException($"Could not deserialize result of request to service '{serviceAlias}'"))!;
         }
 
-        return Attempt.Succeed(new AuthorizedServiceResponse<TResponse>(serviceMetadata))!;
+        return Attempt.Succeed(new AuthorizedServiceResponse<TResponse>(serviceMetadata, rawHeaders))!;
     }
 
     public async Task<Attempt<AuthorizedServiceResponse<string>>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod)
@@ -113,11 +114,14 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         HttpResponseMessage response = await httpClient.SendAsync(requestMessageAttempt.Result!);
 
         ServiceResponseMetadata serviceMetadata = _serviceResponseMetadataParser.ParseMetadata(response);
+        var rawHeaders = response.Headers
+            .Union(response.Content.Headers)
+            .ToDictionary(x => x.Key, x => x.Value);
 
         if (response.IsSuccessStatusCode)
         {
             var responseContent = await response.Content.ReadAsStringAsync();
-            return Attempt.Succeed(new AuthorizedServiceResponse<string>(responseContent, responseContent, serviceMetadata))!;
+            return Attempt.Succeed(new AuthorizedServiceResponse<string>(responseContent, responseContent, serviceMetadata, rawHeaders))!;
         }
 
         return Attempt.Fail(

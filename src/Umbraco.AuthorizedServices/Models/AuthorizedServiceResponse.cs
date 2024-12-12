@@ -13,28 +13,32 @@ public class AuthorizedServiceResponse<TResponse>
     public AuthorizedServiceResponse()
     {
         Metadata = new ServiceResponseMetadata();
+        RawHeaders = new Dictionary<string, IEnumerable<string>>();
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceResponse{TResponse}"/> class.
     /// </summary>
     /// <param name="metadata">The service response metadata.</param>
-    public AuthorizedServiceResponse(ServiceResponseMetadata metadata)
+    /// <param name="rawHeaders">The raw headers.</param>
+    public AuthorizedServiceResponse(ServiceResponseMetadata metadata, IDictionary<string, IEnumerable<string>> rawHeaders)
     {
         Metadata = metadata;
+        RawHeaders = rawHeaders;
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceResponse{TResponse}"/> class.
     /// </summary>
     /// <param name="responseData">The deserialized response data.</param>
-    /// <param name="responseRaw">The raw JSON response data.</param>
+    /// <param name="rawResponse">The raw JSON response data.</param>
     /// <param name="metadata">The service response metadata.</param>
-    public AuthorizedServiceResponse(TResponse responseData, string responseRaw, ServiceResponseMetadata metadata)
+    /// <param name="rawHeaders">The raw headers.</param>
+    public AuthorizedServiceResponse(TResponse responseData, string rawResponse, ServiceResponseMetadata metadata, IDictionary<string, IEnumerable<string>> rawHeaders)
+        : this(metadata, rawHeaders)
     {
         Data = responseData;
-        Raw = responseRaw;
-        Metadata = metadata;
+        RawResponse = rawResponse;
     }
 
     /// <summary>
@@ -45,10 +49,15 @@ public class AuthorizedServiceResponse<TResponse>
     /// <summary>
     /// Gets the raw JSON response data.
     /// </summary>
-    public string? Raw { get; }
+    public string? RawResponse { get; }
 
     /// <summary>
     /// Gets the deserialized service response metadata.
     /// </summary>
     public ServiceResponseMetadata Metadata { get; }
+
+    /// <summary>
+    /// Gets the raw headers.
+    /// </summary>
+    public IDictionary<string, IEnumerable<string>> RawHeaders { get; }
 }
