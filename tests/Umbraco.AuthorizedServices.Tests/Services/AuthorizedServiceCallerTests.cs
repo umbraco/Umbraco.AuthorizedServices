@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.Http.Headers;
+using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -34,12 +36,21 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
 
         // Act
-        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+        Attempt<AuthorizedServiceResponse<TestResponseData>> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Success.Should().BeTrue();
         result.Result.Should().NotBeNull();
-        result.Result!.Foo.Should().Be("bar");
+        result.Result!.Data!.Foo.Should().Be("bar");
+        result.Result.Metadata.Should().NotBeNull();
+        result.Result.Metadata.Date!.Value.ToString("dd MMM yyyy HH:mm:ss").Should().Be("12 Dec 2024 10:59:09");
+        result.Result.Metadata.ETag.Should().Be("\"33a64df551425fcc55e4d42a148795d9f25f89d4\"");
+        result.Result.Metadata.Expires!.Value.ToString("dd MMM yyyy HH:mm:ss").Should().Be("31 Dec 2024 23:59:59");
+        result.Result.Metadata.LastModified!.Value.ToString("dd MMM yyyy HH:mm:ss").Should().Be("01 Dec 2024 23:59:59");
+        result.Result.Metadata.Server.Should().Be("github.com");
+        result.Result.Metadata.RateLimits.Should().NotBeNull();
+        result.Result.Metadata.RateLimits!.Limit = 60;
+        result.Result.Metadata.RateLimits.Remaining = 30;
 
         OAuth2TokenStorageMock
             .Verify(x => x.SaveTokenAsync(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
@@ -55,7 +66,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, authenticationMethod: AuthenticationMethod.ApiKey);
 
         // Act
-        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+        Attempt<AuthorizedServiceResponse<TestResponseData>> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Success.Should().BeTrue();
@@ -73,7 +84,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.BadRequest);
 
         // Act
-        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+        Attempt<AuthorizedServiceResponse<TestResponseData>> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Success.Should().BeFalse();
@@ -91,12 +102,12 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
 
         // Act
-        Attempt<string?> result = await sut.SendRequestRawAsync(ServiceAlias, path, HttpMethod.Get);
+        Attempt<AuthorizedServiceResponse<string>> result = await sut.SendRequestRawAsync(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Success.Should().BeTrue();
         result.Result.Should().NotBeNull();
-        result.Result.Should().Be("{ \"foo\": \"bar\" }");
+        result.Result!.Data.Should().Be("{ \"foo\": \"bar\" }");
 
         OAuth2TokenStorageMock
             .Verify(x => x.SaveTokenAsync(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
@@ -113,12 +124,12 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
 
         // Act
-        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestRequestData, TestResponseData>(ServiceAlias, path, HttpMethod.Get, data);
+        Attempt<AuthorizedServiceResponse<TestResponseData>> result = await sut.SendRequestAsync<TestRequestData, TestResponseData>(ServiceAlias, path, HttpMethod.Get, data);
 
         // Assert
         result.Success.Should().BeTrue();
         result.Result.Should().NotBeNull();
-        result.Result!.Foo.Should().Be("bar");
+        result.Result!.Data!.Foo.Should().Be("bar");
 
         OAuth2TokenStorageMock
             .Verify(x => x.SaveTokenAsync(It.IsAny<string>(), It.IsAny<OAuth2Token>()), Times.Never);
@@ -132,7 +143,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK);
 
         // Act
-        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+        Attempt<AuthorizedServiceResponse<TestResponseData>> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Success.Should().BeFalse();
@@ -166,12 +177,12 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
 
         // Act
-        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+        Attempt<AuthorizedServiceResponse<TestResponseData>> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Success.Should().BeTrue();
         result.Result.Should().NotBeNull();
-        result.Result!.Foo.Should().Be("bar");
+        result.Result!.Data!.Foo.Should().Be("bar");
 
         OAuth2TokenStorageMock
             .Verify(x => x.SaveTokenAsync(It.Is<string>(y => y == ServiceAlias), It.Is<OAuth2Token>(y => y.AccessToken == "abc")), Times.Once);
@@ -187,12 +198,12 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }", authenticationMethod: AuthenticationMethod.OAuth2ClientCredentials);
 
         // Act
-        Attempt<TestResponseData?> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
+        Attempt<AuthorizedServiceResponse<TestResponseData>> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
 
         // Assert
         result.Success.Should().BeTrue();
         result.Result.Should().NotBeNull();
-        result.Result!.Foo.Should().Be("bar");
+        result.Result!.Data!.Foo.Should().Be("bar");
     }
 
     [Test]
@@ -356,7 +367,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             new AuthorizedRequestBuilder(factory),
             new RefreshTokenParametersBuilder(),
             new ExchangeTokenParametersBuilder(),
-            authorizedServiceAuthorizerMock.Object);
+            authorizedServiceAuthorizerMock.Object,
+            new ServiceResponseMetadataParser());
     }
 
     private class TestHttpClientFactory : IHttpClientFactory
@@ -373,13 +385,23 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         public HttpClient CreateClient(string name)
         {
             var httpMessageHandlerMock = new Mock<HttpMessageHandler>();
+
+            var responseMessage = new HttpResponseMessage
+            {
+                StatusCode = _statusCode,
+                Content = new StringContent(_responseContent ?? string.Empty),
+            };
+            responseMessage.Headers.Add("Date", "Thu, 12 Dec 2024 10:59:09 GMT");
+            responseMessage.Headers.ETag = new EntityTagHeaderValue("\"33a64df551425fcc55e4d42a148795d9f25f89d4\"");
+            responseMessage.Content.Headers.Add("Expires", "Tue, 31 Dec 2024 23:59:59 GMT");
+            responseMessage.Content.Headers.Add("Last-Modified", "Sun, 01 Dec 2024 23:59:59 GMT");
+            responseMessage.Headers.Add("Server", "github.com");
+            responseMessage.Headers.Add("X-RateLimit-Limit", "60");
+            responseMessage.Headers.Add("X-RateLimit-Remaining", "30");
+
             httpMessageHandlerMock.Protected()
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = _statusCode,
-                    Content = new StringContent(_responseContent ?? string.Empty),
-                });
+                .ReturnsAsync(responseMessage);
             return new HttpClient(httpMessageHandlerMock.Object);
         }
     }

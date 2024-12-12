@@ -296,7 +296,7 @@ To make a call to an authorized service, you first need to obtain an instance of
 If making a request where all information is provided via the path and querystring, such as GET requests, the following method should be invoked:
 
 ```csharp
-Task<Attempt<TResponse?>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod);
+Task<Attempt<AuthorizedServiceResponse<TResponse>>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod);
 ```
 
 The parameters for the request are as follows:
@@ -311,7 +311,7 @@ There is also a type parameter:
 If you need to provide data in the request, as is usually the case for POST or PUT requests that required the creation or update of a resource, an overload is available:
 
 ```csharp
-Task<Attempt<TResponse>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+Task<Attempt<AuthorizedServiceResponse<TResponse>>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
     where TRequest : class;
 ```
 
@@ -326,17 +326,22 @@ And additional type parameter:
 If you need to work with the raw JSON response, there are equivalent methods for both of these that omit the deserialization step:
 
 ```csharp
-Task<Attempt<string?>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod);
+Task<Attempt<AuthorizedServiceResponse<string>>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod);
 
-Task<<Attempt<string?>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+Task<Attempt<AuthorizedServiceResponse<string>>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
     where TRequest : class;
 ```
 
 Finally, there are convenience extension methods available for each of the common HTTP verbs, allowing you to simplify the requests and omit the `HttpMethod` parameter, e.g.
 
 ```csharp
-Task<Attempt<TResponse?>> GetRequestAsync<TResponse>(string serviceAlias, string path);
+Task<Attempt<AuthorizedServiceResponse<TResponse>>> GetRequestAsync<TResponse>(string serviceAlias, string path);
 ```
+
+The response is received wrapped in an instance of `AuthorizedServiceResponse` which has two properties:
+
+- `Data` - the response data deserialized into an instance of the provided `TResponse` type.
+- `Metadata` - various metadata from the service response, provided in headers and parsed into an instance of `ServiceResponseMetadata`.
 
 ## Providers
 
@@ -447,6 +452,10 @@ Switching the encryption engine to for example `AesSecretEncryptor` can be done 
 ```
 builder.Services.AddUnique<ISecretEncryptor, AesSecretEncryptor>();
 ```
+
+#### IServiceResponseMetadataParser
+
+Responsible for parsing header values from the response received when calling an authorized service into an instance of `ServiceResponseMetadata`.
 
 #### ITokenFactory
 
