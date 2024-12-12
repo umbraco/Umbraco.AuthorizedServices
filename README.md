@@ -338,9 +338,10 @@ Finally, there are convenience extension methods available for each of the commo
 Task<Attempt<AuthorizedServiceResponse<TResponse>>> GetRequestAsync<TResponse>(string serviceAlias, string path);
 ```
 
-The response is received wrapped in an instance of `AuthorizedServiceResponse` which has two properties:
+The response is received wrapped in an instance of `AuthorizedServiceResponse` which has three properties:
 
 - `Data` - the response data deserialized into an instance of the provided `TResponse` type.
+- `Raw` - the raw JSON response string.
 - `Metadata` - various metadata from the service response, provided in headers and parsed into an instance of `ServiceResponseMetadata`.
 
 ## Providers

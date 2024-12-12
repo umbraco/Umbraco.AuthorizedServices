@@ -81,7 +81,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
             TResponse? result = jsonSerializer.Deserialize<TResponse>(responseContent);
             if (result != null)
             {
-                return Attempt.Succeed(new AuthorizedServiceResponse<TResponse>(result, serviceMetadata))!;
+                return Attempt.Succeed(new AuthorizedServiceResponse<TResponse>(result, responseContent, serviceMetadata))!;
             }
 
             return Attempt.Fail(
@@ -117,7 +117,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         if (response.IsSuccessStatusCode)
         {
             var responseContent = await response.Content.ReadAsStringAsync();
-            return Attempt.Succeed(new AuthorizedServiceResponse<string>(responseContent, serviceMetadata))!;
+            return Attempt.Succeed(new AuthorizedServiceResponse<string>(responseContent, responseContent, serviceMetadata))!;
         }
 
         return Attempt.Fail(

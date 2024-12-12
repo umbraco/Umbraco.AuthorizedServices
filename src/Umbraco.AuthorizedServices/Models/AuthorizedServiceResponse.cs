@@ -27,11 +27,13 @@ public class AuthorizedServiceResponse<TResponse>
     /// <summary>
     /// Initializes a new instance of the <see cref="AuthorizedServiceResponse{TResponse}"/> class.
     /// </summary>
-    /// <param name="responseData">The response data.</param>
+    /// <param name="responseData">The deserialized response data.</param>
+    /// <param name="responseRaw">The raw JSON response data.</param>
     /// <param name="metadata">The service response metadata.</param>
-    public AuthorizedServiceResponse(TResponse? responseData, ServiceResponseMetadata metadata)
+    public AuthorizedServiceResponse(TResponse responseData, string responseRaw, ServiceResponseMetadata metadata)
     {
         Data = responseData;
+        Raw = responseRaw;
         Metadata = metadata;
     }
 
@@ -39,6 +41,11 @@ public class AuthorizedServiceResponse<TResponse>
     /// Gets the deserialized model response data.
     /// </summary>
     public TResponse? Data { get; }
+
+    /// <summary>
+    /// Gets the raw JSON response data.
+    /// </summary>
+    public string? Raw { get; }
 
     /// <summary>
     /// Gets the deserialized service response metadata.

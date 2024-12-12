@@ -33,7 +33,8 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         StoreOAuth2Token();
 
         var path = "/api/test/";
-        AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, "{ \"foo\": \"bar\" }");
+        const string ResponseContent = "{ \"foo\": \"bar\" }";
+        AuthorizedServiceCaller sut = CreateService(HttpStatusCode.OK, ResponseContent);
 
         // Act
         Attempt<AuthorizedServiceResponse<TestResponseData>> result = await sut.SendRequestAsync<TestResponseData>(ServiceAlias, path, HttpMethod.Get);
@@ -41,7 +42,11 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
         // Assert
         result.Success.Should().BeTrue();
         result.Result.Should().NotBeNull();
+
         result.Result!.Data!.Foo.Should().Be("bar");
+
+        result.Result!.Raw.Should().Be(ResponseContent);
+
         result.Result.Metadata.Should().NotBeNull();
         result.Result.Metadata.Date!.Value.ToString("dd MMM yyyy HH:mm:ss").Should().Be("12 Dec 2024 10:59:09");
         result.Result.Metadata.ETag.Should().Be("\"33a64df551425fcc55e4d42a148795d9f25f89d4\"");
