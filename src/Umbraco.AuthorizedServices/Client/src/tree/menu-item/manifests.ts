@@ -1,6 +1,6 @@
-import type { ManifestMenuItemTreeKind } from "@umbraco-cms/backoffice/extension-registry";
 
-const menuItem: ManifestMenuItemTreeKind = {
+export const manifests: Array<UmbExtensionManifest> = [
+  {
   type: "menuItem",
   kind: "tree",
   alias: "AuthorizedServices.MenuItem.Service",
@@ -11,6 +11,5 @@ const menuItem: ManifestMenuItemTreeKind = {
     treeAlias: "AuthorizedServices.Tree.Services",
     menus: ['Umb.Menu.AdvancedSettings'],
   },
-};
-
-export const manifests = [menuItem];
+  }
+];

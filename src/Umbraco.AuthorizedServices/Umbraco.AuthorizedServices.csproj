@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>/App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
@@ -27,11 +27,16 @@
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
+  <!-- Umbraco packages -->
+  <PropertyGroup>
+    <UmbracoCmsPackageVersion>[15.0.0, 15.999.999)</UmbracoCmsPackageVersion>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="[14.0.0, 15)" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="[14.0.0, 15)" />
-    <PackageReference Include="Umbraco.Cms.Api.Common" Version="[14.0.0, 15)" />
-    <PackageReference Include="Umbraco.Cms.Api.Management" Version="[14.0.0, 15)" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageReference Include="Umbraco.Cms.Api.Common" Version="$(UmbracoCmsPackageVersion)" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0" />
   </ItemGroup>
 
