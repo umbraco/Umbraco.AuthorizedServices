@@ -1,5 +1,6 @@
 
-const menuItem: UmbExtensionManifest = {
+export const manifests: Array<UmbExtensionManifest> = [
+  {
   type: "menuItem",
   kind: "tree",
   alias: "AuthorizedServices.MenuItem.Service",
@@ -10,6 +11,5 @@ const menuItem: UmbExtensionManifest = {
     treeAlias: "AuthorizedServices.Tree.Services",
     menus: ['Umb.Menu.AdvancedSettings'],
   },
-};
-
-export const manifests = [menuItem];
+  }
+];

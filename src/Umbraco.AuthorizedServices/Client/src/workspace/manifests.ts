@@ -2,7 +2,8 @@ import { AUTHORIZED_SERVICE_ENTITY_TYPE } from "@umbraco-authorizedservices/enti
 
 export const WORKSPACE_ALIAS = "AuthorizedServices.Workspace";
 
-const workspaceManifest: UmbExtensionManifest = {
+export const manifests: Array<UmbExtensionManifest> = [
+{
   type: "workspace",
   kind: 'routable',
   alias: WORKSPACE_ALIAS,
@@ -11,7 +12,5 @@ const workspaceManifest: UmbExtensionManifest = {
   meta: {
     entityType: AUTHORIZED_SERVICE_ENTITY_TYPE
   }
-};
-
-
-export const manifest = workspaceManifest;
+  }
+];
