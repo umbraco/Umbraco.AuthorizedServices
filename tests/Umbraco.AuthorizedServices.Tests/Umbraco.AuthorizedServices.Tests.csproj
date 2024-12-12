@@ -10,7 +10,7 @@
     <PackageReference Include="FluentAssertions" Version="6.10.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-    <PackageReference Include="Umbraco.Cms.Tests" Version="[15.0.0, 16)" />
+    <PackageReference Include="Umbraco.Cms.Tests" Version="[15.0.0, 15.999.999)" />
   </ItemGroup>
 
   <ItemGroup>
