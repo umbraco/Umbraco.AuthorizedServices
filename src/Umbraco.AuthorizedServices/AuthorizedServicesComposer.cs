@@ -45,6 +45,7 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IAuthorizedRequestBuilder, AuthorizedRequestBuilder>();
 
         builder.Services.AddUnique<IAuthorizedServiceCaller, AuthorizedServiceCaller>();
+        builder.Services.AddUnique<IServiceResponseMetadataParser, ServiceResponseMetadataParser>();
         builder.Services.AddUnique<IDateTimeProvider, DateTimeProvider>();
         builder.Services.AddUnique<IRefreshTokenParametersBuilder, RefreshTokenParametersBuilder>();
 
