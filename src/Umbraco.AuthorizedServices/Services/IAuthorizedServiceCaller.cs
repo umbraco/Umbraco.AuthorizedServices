@@ -1,3 +1,4 @@
+using Umbraco.AuthorizedServices.Models;
 using Umbraco.Cms.Core;
 
 namespace Umbraco.AuthorizedServices.Services;
@@ -13,7 +14,7 @@ public interface IAuthorizedServiceCaller
     /// <param name="serviceAlias">The service alias.</param>
     /// <param name="path">The request path.</param>
     /// <param name="httpMethod">The HTTP method.</param>
-    Task<Attempt<EmptyResponse?>> SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod);
+    Task<Attempt<AuthorizedServiceResponse<EmptyResponse>>> SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod);
 
     /// <summary>
     /// Sends a request to an authorized service to receive a deserialized, strongly typed response.
@@ -23,7 +24,7 @@ public interface IAuthorizedServiceCaller
     /// <param name="path">The request path.</param>
     /// <param name="httpMethod">The HTTP method.</param>
     /// <returns>A <see cref="Task{TResponse}"/> representing the result of the asynchronous operation.</returns>
-    Task<Attempt<TResponse?>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod);
+    Task<Attempt<AuthorizedServiceResponse<TResponse>>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod);
 
     /// <summary>
     /// Sends a request with data to an authorized service to receive a deserialized, strongly typed response.
@@ -35,7 +36,7 @@ public interface IAuthorizedServiceCaller
     /// <param name="httpMethod">The HTTP method.</param>
     /// <param name="requestContent">The request data.</param>
     /// <returns>A <see cref="Task{TResponse}"/> representing the result of the asynchronous operation.</returns>
-    Task<Attempt<TResponse?>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+    Task<Attempt<AuthorizedServiceResponse<TResponse>>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class;
 
     /// <summary>
@@ -45,7 +46,7 @@ public interface IAuthorizedServiceCaller
     /// <param name="path">The request path.</param>
     /// <param name="httpMethod">The HTTP method.</param>
     /// <returns>A <see cref="Task{String}"/> representing the result of the asynchronous operation.</returns>
-    Task<Attempt<string?>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod);
+    Task<Attempt<AuthorizedServiceResponse<string>>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod);
 
     /// <summary>
     /// Sends a request with data to an authorized service to receive a raw string response.
@@ -56,7 +57,7 @@ public interface IAuthorizedServiceCaller
     /// <param name="httpMethod">The HTTP method.</param>
     /// <param name="requestContent">The request data.</param>
     /// <returns>A <see cref="Task{String}"/> representing the result of the asynchronous operation.</returns>
-    Task<Attempt<string?>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+    Task<Attempt<AuthorizedServiceResponse<string>>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class;
 
     /// <summary>

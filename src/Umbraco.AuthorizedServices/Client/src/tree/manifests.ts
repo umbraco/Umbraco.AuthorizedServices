@@ -1,7 +1,5 @@
 import type {
   ManifestRepository,
-  ManifestTree,
-  ManifestTreeItem,
   ManifestTreeStore,
 } from "@umbraco-cms/backoffice/extension-registry";
 import {
@@ -33,31 +31,35 @@ const treeStore: ManifestTreeStore = {
   api: AuthorizedServicesTreeStore,
 };
 
-const tree: ManifestTree = {
-  type: "tree",
-  kind: "default",
-  alias: AUTHORIZED_SERVICES_TREE_ALIAS,
-  name: "Authorized Services Tree",
-  meta: {
-    repositoryAlias: AUTHORIZED_SERVICES_TREE_REPOSITORY_ALIAS,
-  },
-};
+const treeManifests: Array<UmbExtensionManifest> = [
+  {
+    type: "tree",
+    kind: "default",
+    alias: AUTHORIZED_SERVICES_TREE_ALIAS,
+    name: "Authorized Services Tree",
+    meta: {
+      repositoryAlias: AUTHORIZED_SERVICES_TREE_REPOSITORY_ALIAS,
+    },
+  }
+];
 
-const treeItem: ManifestTreeItem = {
-  type: "treeItem",
-  kind: "default",
-  alias: "AuthorizedServices.TreeItem.Service",
-  name: "Authorized Services Tree Item",
-  forEntityTypes: [
-    AUTHORIZED_SERVICE_ROOT_ENTITY_TYPE,
-    AUTHORIZED_SERVICE_ENTITY_TYPE,
-  ],
-};
+const treeItemManifests: Array<UmbExtensionManifest> = [
+  {
+    type: "treeItem",
+    kind: "default",
+    alias: "AuthorizedServices.TreeItem.Service",
+    name: "Authorized Services Tree Item",
+    forEntityTypes: [
+      AUTHORIZED_SERVICE_ROOT_ENTITY_TYPE,
+      AUTHORIZED_SERVICE_ENTITY_TYPE,
+    ],
+  }
+];
 
 export const manifests = [
   treeRepository,
   treeStore,
-  tree,
-  treeItem,
+  ...treeManifests,
+  ...treeItemManifests,
   ...menuManifests,
 ];

@@ -19,6 +19,7 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
     private readonly IRefreshTokenParametersBuilder _refreshTokenParametersBuilder;
     private readonly IExchangeTokenParametersBuilder _exchangeTokenParametersBuilder;
     private readonly IAuthorizedServiceAuthorizer _authorizedServiceAuthorizer;
+    private readonly IServiceResponseMetadataParser _serviceResponseMetadataParser;
 
     public AuthorizedServiceCaller(
         AppCaches appCaches,
@@ -34,7 +35,8 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         IAuthorizedRequestBuilder authorizedRequestBuilder,
         IRefreshTokenParametersBuilder refreshTokenParametersBuilder,
         IExchangeTokenParametersBuilder exchangeTokenParametersBuilder,
-        IAuthorizedServiceAuthorizer authorizedServiceAuthorizer)
+        IAuthorizedServiceAuthorizer authorizedServiceAuthorizer,
+        IServiceResponseMetadataParser serviceResponseMetadataParser)
         : base(appCaches, tokenFactory, oauth2TokenStorage, oauth1TokenStorage, keyStorage, authorizationRequestSender, logger, serviceDetailOptions)
     {
         _httpClientFactory = httpClientFactory;
@@ -43,83 +45,93 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         _refreshTokenParametersBuilder = refreshTokenParametersBuilder;
         _exchangeTokenParametersBuilder = exchangeTokenParametersBuilder;
         _authorizedServiceAuthorizer = authorizedServiceAuthorizer;
+        _serviceResponseMetadataParser = serviceResponseMetadataParser;
     }
 
-    public async Task<Attempt<EmptyResponse?>> SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
+    public async Task<Attempt<AuthorizedServiceResponse<EmptyResponse>>> SendRequestAsync(string serviceAlias, string path, HttpMethod httpMethod)
       => await SendRequestAsync<object, EmptyResponse>(serviceAlias, path, httpMethod, null);
 
-    public async Task<Attempt<TResponse?>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod)
+    public async Task<Attempt<AuthorizedServiceResponse<TResponse>>> SendRequestAsync<TResponse>(string serviceAlias, string path, HttpMethod httpMethod)
       => await SendRequestAsync<object, TResponse>(serviceAlias, path, httpMethod, null);
 
-    public async Task<Attempt<TResponse?>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+    public async Task<Attempt<AuthorizedServiceResponse<TResponse>>> SendRequestAsync<TRequest, TResponse>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class
     {
-        Attempt<string?> responseContentAttempt = await SendRequestRawAsync(serviceAlias, path, httpMethod, requestContent);
+        Attempt<AuthorizedServiceResponse<string>> responseContentAttempt = await SendRequestRawAsync(serviceAlias, path, httpMethod, requestContent);
+
+        ServiceResponseMetadata serviceMetadata = responseContentAttempt.Result?.Metadata ?? new ServiceResponseMetadata();
+        IDictionary<string, IEnumerable<string>> rawHeaders = responseContentAttempt.Result?.RawHeaders ?? new Dictionary<string, IEnumerable<string>>();
 
         if (!responseContentAttempt.Success)
         {
             if (responseContentAttempt.Exception is null)
             {
-                return Attempt.Fail<TResponse?>();
+                return Attempt.Fail<AuthorizedServiceResponse<TResponse>>();
             }
 
-            return Attempt.Fail<TResponse?>(
-                default,
-                responseContentAttempt.Exception);
+            return Attempt.Fail(
+                new AuthorizedServiceResponse<TResponse>(serviceMetadata, rawHeaders),
+                responseContentAttempt.Exception)!;
         }
 
-        var responseContent = responseContentAttempt.Result;
+        var responseContent = responseContentAttempt.Result?.Data;
         if (!string.IsNullOrWhiteSpace(responseContent))
         {
             TResponse? result = _jsonSerializer.Deserialize<TResponse>(responseContent);
             if (result != null)
             {
-                return Attempt.Succeed(result);
+                return Attempt.Succeed(new AuthorizedServiceResponse<TResponse>(result, responseContent, serviceMetadata, rawHeaders))!;
             }
 
-            return Attempt.Fail<TResponse?>(
-                default,
-                new AuthorizedServiceException($"Could not deserialize result of request to service '{serviceAlias}'"));
+            return Attempt.Fail(
+                new AuthorizedServiceResponse<TResponse>(serviceMetadata, rawHeaders),
+                new AuthorizedServiceException($"Could not deserialize result of request to service '{serviceAlias}'"))!;
         }
 
-        return Attempt.Succeed<TResponse?>(default);
+        return Attempt.Succeed(new AuthorizedServiceResponse<TResponse>(serviceMetadata, rawHeaders))!;
     }
 
-    public async Task<Attempt<string?>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod)
+    public async Task<Attempt<AuthorizedServiceResponse<string>>> SendRequestRawAsync(string serviceAlias, string path, HttpMethod httpMethod)
       => await SendRequestRawAsync<object>(serviceAlias, path, httpMethod, null);
 
-    public async Task<Attempt<string?>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
+    public async Task<Attempt<AuthorizedServiceResponse<string>>> SendRequestRawAsync<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent = null)
         where TRequest : class
     {
         ServiceDetail serviceDetail = GetServiceDetail(serviceAlias);
 
         HttpClient httpClient = _httpClientFactory.CreateClient();
 
-        Attempt<HttpRequestMessage?> requestMessageAttempt = await CreateHttpRequestMessage(serviceAlias, path, httpMethod, requestContent, serviceDetail);
+        Attempt<HttpRequestMessage?> requestMessageAttempt = await CreateHttpRequestMessage(serviceDetail, path, httpMethod, requestContent);
         if (!requestMessageAttempt.Success)
         {
-            return Attempt.Fail<string?>(
-                default,
-                requestMessageAttempt.Exception!);
+            return Attempt.Fail(
+                new AuthorizedServiceResponse<string>(),
+                requestMessageAttempt.Exception!)!;
         }
 
         HttpResponseMessage response = await httpClient.SendAsync(requestMessageAttempt.Result!);
 
+        ServiceResponseMetadata serviceMetadata = _serviceResponseMetadataParser.ParseMetadata(response);
+        var rawHeaders = response.Headers
+            .Union(response.Content.Headers)
+            .ToDictionary(x => x.Key, x => x.Value);
+
         if (response.IsSuccessStatusCode)
         {
-            return Attempt.Succeed(await response.Content.ReadAsStringAsync());
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return Attempt.Succeed(new AuthorizedServiceResponse<string>(responseContent, responseContent, serviceMetadata, rawHeaders))!;
         }
 
-        return Attempt.Fail<string?>(
-            default,
+        return Attempt.Fail(
+            new AuthorizedServiceResponse<string>(),
             new AuthorizedServiceHttpException(
                 $"Error response received from request to '{serviceAlias}'.",
                 response.StatusCode,
                 response.ReasonPhrase,
-                await response.Content.ReadAsStringAsync()));
+                await response.Content.ReadAsStringAsync()))!;
     }
 
-    private async Task<Attempt<HttpRequestMessage?>> CreateHttpRequestMessage<TRequest>(string serviceAlias, string path, HttpMethod httpMethod, TRequest? requestContent, ServiceDetail serviceDetail) where TRequest : class
+    private async Task<Attempt<HttpRequestMessage?>> CreateHttpRequestMessage<TRequest>(ServiceDetail serviceDetail, string path, HttpMethod httpMethod, TRequest? requestContent) where TRequest : class
     {
         switch (serviceDetail.AuthenticationMethod)
         {

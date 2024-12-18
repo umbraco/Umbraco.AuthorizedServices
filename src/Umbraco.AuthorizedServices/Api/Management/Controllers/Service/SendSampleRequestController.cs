@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Umbraco.AuthorizedServices.Configuration;
 using Umbraco.AuthorizedServices.Exceptions;
+using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.Cms.Core;
 
@@ -31,7 +32,7 @@ namespace Umbraco.AuthorizedServices.Api.Management.Controllers.Service
         {
             ServiceDetail serviceDetail = ServiceDetailOptions.Get(alias);
 
-            Attempt<string?> responseAttempt = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.SampleRequest ?? string.Empty, HttpMethod.Get);
+            Attempt<AuthorizedServiceResponse<string>> responseAttempt = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.SampleRequest ?? string.Empty, HttpMethod.Get);
             if (responseAttempt.Success && responseAttempt.Result is not null)
             {
                 return Ok(responseAttempt.Result);
