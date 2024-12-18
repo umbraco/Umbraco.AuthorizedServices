@@ -114,11 +114,12 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         }
         else
         {
+            var responseContent = await response.Content.ReadAsStringAsync();
             throw new AuthorizedServiceHttpException(
-                $"Error response from token request to '{serviceDetail.Alias}'.",
+                $"Error response from token request to '{serviceDetail.Alias}'. Status: {response.StatusCode}. Reason: {response.ReasonPhrase}. Content: {responseContent}.",
                 response.StatusCode,
                 response.ReasonPhrase,
-                await response.Content.ReadAsStringAsync());
+                responseContent);
         }
     }
 }
