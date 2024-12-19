@@ -151,10 +151,10 @@ public class AuthorizedServiceController : BackOfficeNotificationsController
     {
         ServiceDetail serviceDetail = _serviceDetailOptions.Get(alias);
 
-        Attempt<string?> responseAttempt = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.SampleRequest ?? string.Empty, HttpMethod.Get);
+        Attempt<AuthorizedServiceResponse<string>> responseAttempt = await _authorizedServiceCaller.SendRequestRawAsync(alias, serviceDetail.SampleRequest ?? string.Empty, HttpMethod.Get);
         if (responseAttempt.Success && responseAttempt.Result is not null)
         {
-            return Ok(responseAttempt.Result);
+            return Ok(responseAttempt.Result.Data ?? string.Empty);
         }
 
         if (responseAttempt.Exception is not null)

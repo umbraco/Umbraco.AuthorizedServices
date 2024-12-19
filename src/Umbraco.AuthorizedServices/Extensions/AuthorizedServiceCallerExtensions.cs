@@ -1,3 +1,4 @@
+using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Services;
 using Umbraco.Cms.Core;
 
@@ -16,7 +17,7 @@ public static class AuthorizedServiceCallerExtensions
     /// <param name="serviceAlias">The service alias.</param>
     /// <param name="path">The request path.</param>
     /// <returns>A <see cref="Task{TResponse}"/> representing the result of the asynchronous operation.</returns>
-    public static async Task<Attempt<TResponse?>> GetRequestAsync<TResponse>(this IAuthorizedServiceCaller caller, string serviceAlias, string path) =>
+    public static async Task<Attempt<AuthorizedServiceResponse<TResponse>>> GetRequestAsync<TResponse>(this IAuthorizedServiceCaller caller, string serviceAlias, string path) =>
         await caller.SendRequestAsync<TResponse>(serviceAlias, path, HttpMethod.Get);
 
     /// <summary>
@@ -29,7 +30,7 @@ public static class AuthorizedServiceCallerExtensions
     /// <param name="path">The request path.</param>
     /// <param name="requestContent">The typed request data.</param>
     /// <returns>A <see cref="Task{TResponse}"/> representing the result of the asynchronous operation.</returns>
-    public static async Task<Attempt<TResponse?>> PostRequestAsync<TRequest, TResponse>(this IAuthorizedServiceCaller caller, string serviceAlias, string path, TRequest? requestContent = null) where TRequest : class =>
+    public static async Task<Attempt<AuthorizedServiceResponse<TResponse>>> PostRequestAsync<TRequest, TResponse>(this IAuthorizedServiceCaller caller, string serviceAlias, string path, TRequest? requestContent = null) where TRequest : class =>
         await caller.SendRequestAsync<TRequest, TResponse>(serviceAlias, path, HttpMethod.Post, requestContent);
 
     /// <summary>
@@ -42,7 +43,7 @@ public static class AuthorizedServiceCallerExtensions
     /// <param name="path">The request path.</param>
     /// <param name="requestContent">The typed request data.</param>
     /// <returns>A <see cref="Task{TResponse}"/> representing the result of the asynchronous operation.</returns>
-    public static async Task<Attempt<TResponse?>> PutRequestAsync<TRequest, TResponse>(this IAuthorizedServiceCaller caller, string serviceAlias, string path, TRequest? requestContent = null) where TRequest : class =>
+    public static async Task<Attempt<AuthorizedServiceResponse<TResponse>>> PutRequestAsync<TRequest, TResponse>(this IAuthorizedServiceCaller caller, string serviceAlias, string path, TRequest? requestContent = null) where TRequest : class =>
         await caller.SendRequestAsync<TRequest, TResponse>(serviceAlias, path, HttpMethod.Put, requestContent);
 
     /// <summary>
@@ -55,7 +56,7 @@ public static class AuthorizedServiceCallerExtensions
     /// <param name="path">The request path.</param>
     /// <param name="requestContent">The typed request data.</param>
     /// <returns>A <see cref="Task{TResponse}"/> representing the result of the asynchronous operation.</returns>
-    public static async Task<Attempt<TResponse?>> PatchRequestAsync<TRequest, TResponse>(this IAuthorizedServiceCaller caller, string serviceAlias, string path, TRequest? requestContent = null) where TRequest : class =>
+    public static async Task<Attempt<AuthorizedServiceResponse<TResponse>>> PatchRequestAsync<TRequest, TResponse>(this IAuthorizedServiceCaller caller, string serviceAlias, string path, TRequest? requestContent = null) where TRequest : class =>
         await caller.SendRequestAsync<TRequest, TResponse>(serviceAlias, path, HttpMethod.Patch, requestContent);
 
     /// <summary>
