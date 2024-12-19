@@ -47,17 +47,11 @@ internal abstract class AuthorizedServiceBase
 
     protected ServiceDetail GetServiceDetail(string serviceAlias) => _serviceDetailOptions.Get(serviceAlias);
 
-    protected async Task<OAuth2Token> CreateOAuth2TokenFromResponse(ServiceDetail serviceDetail, HttpResponseMessage response)
-    {
-        var responseContent = await response.Content.ReadAsStringAsync();
-        return _tokenFactory.CreateFromOAuth2ResponseContent(responseContent, serviceDetail);
-    }
+    protected OAuth1Token CreateOAuth1TokenFromResponse(string responseContent) =>
+        _tokenFactory.CreateFromOAuth1ResponseContent(responseContent);
 
-    protected async Task<OAuth1Token> CreateOAuth1TokenFromResponse(HttpResponseMessage response)
-    {
-        var responseContent = await response.Content.ReadAsStringAsync();
-        return _tokenFactory.CreateFromOAuth1ResponseContent(responseContent);
-    }
+    protected OAuth2Token CreateOAuth2TokenFromResponse(ServiceDetail serviceDetail, string responseContent) =>
+        _tokenFactory.CreateFromOAuth2ResponseContent(responseContent, serviceDetail);
 
     protected async Task<OAuth2Token?> GetStoredToken(string serviceAlias) => await OAuth2TokenStorage.GetTokenAsync(serviceAlias);
 
