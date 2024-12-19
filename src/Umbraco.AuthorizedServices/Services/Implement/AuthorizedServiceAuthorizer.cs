@@ -74,18 +74,18 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
     public async Task<AuthorizationResult> GenerateOAuth1RequestTokenAsync(string serviceAlias, string url)
     {
         HttpResponseMessage response = await AuthorizationRequestSender.SendOAuth1RequestForRequestToken(url);
+        var responseContent = await response.Content.ReadAsStringAsync();
         if (response.IsSuccessStatusCode)
         {
-            var responseContent = await response.Content.ReadAsStringAsync();
             return AuthorizationResult.AsSuccess(responseContent);
         }
         else
         {
             throw new AuthorizedServiceHttpException(
-                $"Error response retrieving request token for '{serviceAlias}'.",
+                $"Error response retrieving request token for '{serviceAlias}'. Status: {response.StatusCode}. Reason: {response.ReasonPhrase}. Content: {responseContent}.",
                 response.StatusCode,
                 response.ReasonPhrase,
-                await response.Content.ReadAsStringAsync());
+                responseContent);
         }
     }
 
@@ -97,16 +97,17 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
                     ? await AuthorizationRequestSender.SendOAuth2ExchangeRequest(serviceDetail, parameters)
                     : await AuthorizationRequestSender.SendOAuth2Request(serviceDetail, parameters));
 
+        var responseContent = await response.Content.ReadAsStringAsync();
         if (response.IsSuccessStatusCode)
         {
             if (serviceDetail.AuthenticationMethod == AuthenticationMethod.OAuth1)
             {
-                OAuth1Token token = await CreateOAuth1TokenFromResponse(response);
+                OAuth1Token token = CreateOAuth1TokenFromResponse(responseContent);
                 await StoreOAuth1Token(serviceDetail.Alias, token);
             }
             else
             {
-                OAuth2Token token = await CreateOAuth2TokenFromResponse(serviceDetail, response);
+                OAuth2Token token = CreateOAuth2TokenFromResponse(serviceDetail, responseContent);
                 await StoreOAuth2Token(serviceDetail.Alias, token);
             }
 
@@ -114,7 +115,6 @@ internal sealed class AuthorizedServiceAuthorizer : AuthorizedServiceBase, IAuth
         }
         else
         {
-            var responseContent = await response.Content.ReadAsStringAsync();
             throw new AuthorizedServiceHttpException(
                 $"Error response from token request to '{serviceDetail.Alias}'. Status: {response.StatusCode}. Reason: {response.ReasonPhrase}. Content: {responseContent}.",
                 response.StatusCode,

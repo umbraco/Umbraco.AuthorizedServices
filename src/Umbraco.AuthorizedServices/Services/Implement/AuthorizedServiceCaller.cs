@@ -289,19 +289,20 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         Dictionary<string, string> parameters = _refreshTokenParametersBuilder.BuildParameters(serviceDetail, refreshToken);
 
         HttpResponseMessage response = await AuthorizationRequestSender.SendOAuth2Request(serviceDetail, parameters);
+        var responseContent = await response.Content.ReadAsStringAsync();
         if (response.IsSuccessStatusCode)
         {
-            OAuth2Token token = await CreateOAuth2TokenFromResponse(serviceDetail, response);
+            OAuth2Token token = CreateOAuth2TokenFromResponse(serviceDetail, responseContent);
             await StoreOAuth2Token(serviceDetail.Alias, token);
             return token;
         }
         else
         {
             throw new AuthorizedServiceHttpException(
-                $"Error response from refresh token request to '{serviceDetail.Alias}'.",
+                $"Error response from refresh token request to '{serviceDetail.Alias}'. Status: {response.StatusCode}. Reason: {response.ReasonPhrase}. Content: {responseContent}.",
                 response.StatusCode,
                 response.ReasonPhrase,
-                await response.Content.ReadAsStringAsync());
+                responseContent);
         }
     }
 
@@ -324,19 +325,20 @@ internal sealed class AuthorizedServiceCaller : AuthorizedServiceBase, IAuthoriz
         Dictionary<string, string> parameters = _exchangeTokenParametersBuilder.BuildParameters(serviceDetail, accessToken);
 
         HttpResponseMessage response = await AuthorizationRequestSender.SendOAuth2ExchangeRequest(serviceDetail, parameters);
+        var responseContent = await response.Content.ReadAsStringAsync();
         if (response.IsSuccessStatusCode)
         {
-            OAuth2Token token = await CreateOAuth2TokenFromResponse(serviceDetail, response);
+            OAuth2Token token = CreateOAuth2TokenFromResponse(serviceDetail, responseContent);
             await StoreOAuth2Token(serviceAlias, token);
             return token;
         }
         else
         {
             throw new AuthorizedServiceHttpException(
-                $"Error response from exchange access token request to '{serviceAlias}'.",
+                $"Error response from exchange access token request to '{serviceDetail.Alias}'. Status: {response.StatusCode}. Reason: {response.ReasonPhrase}. Content: {responseContent}.",
                 response.StatusCode,
                 response.ReasonPhrase,
-                await response.Content.ReadAsStringAsync());
+                responseContent);
         }
     }
 
