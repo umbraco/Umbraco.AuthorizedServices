@@ -47,6 +47,7 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IAuthorizedServiceAuthorizer, AuthorizedServiceAuthorizer>();
         builder.Services.AddUnique<IAuthorizationUrlBuilder, AuthorizationUrlBuilder>();
         builder.Services.AddUnique<IAuthorizedRequestBuilder, AuthorizedRequestBuilder>();
+        builder.Services.AddUnique<IAuthorizedServiceHttpClientFactory, AuthorizedServiceHttpClientFactory>();
 
         builder.Services.AddUnique<IAuthorizedServiceCaller, AuthorizedServiceCaller>();
         builder.Services.AddUnique<IServiceResponseMetadataParser, ServiceResponseMetadataParser>();
