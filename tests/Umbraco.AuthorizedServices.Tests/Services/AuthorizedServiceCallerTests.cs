@@ -376,7 +376,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
             authorizationRequestSenderMock.Object,
             new NullLogger<AuthorizedServiceCaller>(),
             optionsMonitorServiceDetailMock.Object,
-            new TestHttpClientFactory(statusCode, responseContent),
+            new AuthorizedServiceHttpClientFactory(new TestHttpClientFactory(statusCode, responseContent)),
             jsonSerializer,
             new AuthorizedRequestBuilder(jsonSerializer),
             new RefreshTokenParametersBuilder(),
