@@ -442,6 +442,10 @@ Responsible for defining the operations building the dictionary of parameters us
 
 Responsible for making requests to the authorized services for the purposes of accessing business functionality. This is used by Umbraco solution developers and is described in detail above. Implemented by `AuthorizedServiceCaller`.
 
+#### IAuthorizedServiceHttpClientFactory
+
+Responsible for constructing an HTTP client used for making requests to the authorized service. Implemented by `AuthorizedServiceHttpClientFactory`.
+
 #### IRefreshTokenParametersBuilder
 
 Responsible for creating a dictionary of parameters provided in the request to retrieve an access token from a refresh token. Implemented by `RefreshTokenParametersBuilder`.
