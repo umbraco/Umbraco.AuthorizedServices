@@ -29,7 +29,7 @@
 
   <!-- Umbraco packages -->
   <PropertyGroup>
-    <UmbracoCmsPackageVersion>[15.0.0, 15.999.999)</UmbracoCmsPackageVersion>
+    <UmbracoCmsPackageVersion>[16.0.0, 16.999.999)</UmbracoCmsPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,7 +37,7 @@
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Umbraco.Cms.Api.Common" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Umbraco.Cms.Api.Management" Version="$(UmbracoCmsPackageVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.13.0" />
   </ItemGroup>
 
   <ItemGroup>
