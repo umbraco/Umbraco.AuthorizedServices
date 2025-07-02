@@ -32,7 +32,7 @@ export type AuthorizedServiceDisplay = {
     authenticationMethod: string;
     sampleRequest?: string | null;
     settings: {
-        [key: string]: (string);
+        [key: string]: string;
     };
 };
 
@@ -60,189 +60,248 @@ export type NotificationHeaderModel = {
     type: EventMessageTypeModel;
 };
 
-export type PagedViewModel_1 = {
+export type PagedViewModel1 = {
     total: number;
-    items: Array<(AuthorizedServiceTreeItemResponseModel)>;
+    items: Array<AuthorizedServiceTreeItemResponseModel>;
 };
 
 export type RevokeAccess = {
     alias: string;
 };
 
-export type GenerateOauth1RequestTokenData = {
-    requestBody?: GenerateToken;
+export type GenerateOAuth1RequestTokenData = {
+    body?: GenerateToken;
+    path?: never;
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service';
 };
 
-export type GenerateOauth1RequestTokenResponse = string;
+export type GenerateOAuth1RequestTokenErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
+};
+
+export type GenerateOAuth1RequestTokenResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type GenerateOAuth1RequestTokenResponse = GenerateOAuth1RequestTokenResponses[keyof GenerateOAuth1RequestTokenResponses];
 
 export type GetByAliasData = {
-    alias: string;
+    body?: never;
+    path: {
+        alias: string;
+    };
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service/{alias}';
 };
 
-export type GetByAliasResponse = AuthorizedServiceDisplay;
+export type GetByAliasErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
+};
+
+export type GetByAliasResponses = {
+    /**
+     * OK
+     */
+    200: AuthorizedServiceDisplay;
+};
+
+export type GetByAliasResponse = GetByAliasResponses[keyof GetByAliasResponses];
 
 export type SendSampleRequestData = {
-    alias: string;
+    body?: never;
+    path: {
+        alias: string;
+    };
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service/{alias}/sample-request';
 };
 
-export type SendSampleRequestResponse = string;
+export type SendSampleRequestErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+};
+
+export type SendSampleRequestResponses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type SendSampleRequestResponse = SendSampleRequestResponses[keyof SendSampleRequestResponses];
 
 export type SaveApiKeyData = {
-    requestBody?: AddApiKey;
+    body?: AddApiKey;
+    path?: never;
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service/api-key';
 };
 
-export type SaveApiKeyResponse = string;
-
-export type SaveOauth1TokenData = {
-    requestBody?: AddOAuth1Token;
+export type SaveApiKeyErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
 };
 
-export type SaveOauth1TokenResponse = string;
-
-export type GenerateOauth1RequestToken1Data = {
-    requestBody?: GenerateToken;
+export type SaveApiKeyResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
 };
 
-export type GenerateOauth1RequestToken1Response = string;
-
-export type SaveOauth2TokenData = {
-    requestBody?: AddOAuth2Token;
+export type SaveOAuth1TokenData = {
+    body?: AddOAuth1Token;
+    path?: never;
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service/oauth1';
 };
 
-export type SaveOauth2TokenResponse = string;
-
-export type GenerateOauth2ClientCredentialsTokenData = {
-    requestBody?: GenerateToken;
+export type SaveOAuth1TokenErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
 };
 
-export type GenerateOauth2ClientCredentialsTokenResponse = AuthorizationResult;
+export type SaveOAuth1TokenResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GenerateOAuth1RequestToken2Data = {
+    body?: GenerateToken;
+    path?: never;
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service/oauth1/request-token';
+};
+
+export type GenerateOAuth1RequestToken2Errors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
+};
+
+export type GenerateOAuth1RequestToken2Responses = {
+    /**
+     * OK
+     */
+    200: string;
+};
+
+export type GenerateOAuth1RequestToken2Response = GenerateOAuth1RequestToken2Responses[keyof GenerateOAuth1RequestToken2Responses];
+
+export type SaveOAuth2TokenData = {
+    body?: AddOAuth2Token;
+    path?: never;
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service/oauth2';
+};
+
+export type SaveOAuth2TokenErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
+};
+
+export type SaveOAuth2TokenResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type GenerateOAuth2ClientCredentialsTokenData = {
+    body?: GenerateToken;
+    path?: never;
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service/oauth2/client-credentials';
+};
+
+export type GenerateOAuth2ClientCredentialsTokenErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
+};
+
+export type GenerateOAuth2ClientCredentialsTokenResponses = {
+    /**
+     * OK
+     */
+    200: AuthorizationResult;
+};
+
+export type GenerateOAuth2ClientCredentialsTokenResponse = GenerateOAuth2ClientCredentialsTokenResponses[keyof GenerateOAuth2ClientCredentialsTokenResponses];
 
 export type RevokeAccessData = {
-    requestBody?: RevokeAccess;
+    body?: RevokeAccess;
+    path?: never;
+    query?: never;
+    url: '/umbraco/authorized-services/management/api/v1/service/revoke';
 };
 
-export type RevokeAccessResponse = string;
+export type RevokeAccessErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
+};
+
+export type RevokeAccessResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
 
 export type RootData = {
-    skip?: number;
-    take?: number;
+    body?: never;
+    path?: never;
+    query?: {
+        skip?: number;
+        take?: number;
+    };
+    url: '/umbraco/authorized-services/management/api/v1/tree';
 };
 
-export type RootResponse = PagedViewModel_1;
+export type RootErrors = {
+    /**
+     * The resource is protected and requires an authentication token
+     */
+    401: unknown;
+};
 
-export type $OpenApiTs = {
-    '/umbraco/authorized-services/management/api/v1/service': {
-        post: {
-            req: GenerateOauth1RequestTokenData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: string;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service/{alias}': {
-        get: {
-            req: GetByAliasData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: AuthorizedServiceDisplay;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service/{alias}/sample-request': {
-        get: {
-            req: SendSampleRequestData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: string;
-                /**
-                 * Internal Server Error
-                 */
-                500: unknown;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service/api-key': {
-        post: {
-            req: SaveApiKeyData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: string;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service/oauth1': {
-        post: {
-            req: SaveOauth1TokenData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: string;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service/oauth1/request-token': {
-        post: {
-            req: GenerateOauth1RequestToken1Data;
-            res: {
-                /**
-                 * OK
-                 */
-                200: string;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service/oauth2': {
-        post: {
-            req: SaveOauth2TokenData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: string;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service/oauth2/client-credentials': {
-        post: {
-            req: GenerateOauth2ClientCredentialsTokenData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: AuthorizationResult;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/service/revoke': {
-        post: {
-            req: RevokeAccessData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: string;
-            };
-        };
-    };
-    '/umbraco/authorized-services/management/api/v1/tree': {
-        get: {
-            req: RootData;
-            res: {
-                /**
-                 * OK
-                 */
-                200: PagedViewModel_1;
-            };
-        };
-    };
+export type RootResponses = {
+    /**
+     * OK
+     */
+    200: PagedViewModel1;
+};
+
+export type RootResponse = RootResponses[keyof RootResponses];
+
+export type ClientOptions = {
+    baseUrl: 'http://localhost:3010' | (string & {});
 };

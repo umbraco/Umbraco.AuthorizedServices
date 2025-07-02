@@ -1,7 +1,7 @@
 import { UmbElementMixin } from "@umbraco-cms/backoffice/element-api";
 import { LitElement, customElement, html, css, state, when } from "@umbraco-cms/backoffice/external/lit";
 import { ServiceService, type AuthorizedServiceDisplay } from "@umbraco-authorizedservices/generated";
-import { tryExecute, tryExecuteAndNotify } from "@umbraco-cms/backoffice/resources";
+import { tryExecute } from "@umbraco-cms/backoffice/resources";
 import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
 import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token.js";
 
@@ -60,9 +60,9 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
 
   async #authorizeAccess() {
     if (this.#isOAuth2ClientCredentials()) {
-      const { data } = await tryExecuteAndNotify(
+      const { data } = await tryExecute(
         this,
-        ServiceService.generateOauth2ClientCredentialsToken({requestBody: {
+        ServiceService.generateOAuth2ClientCredentialsToken({ body: {
           alias: this._service!.alias
         }})
       );
@@ -75,9 +75,9 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
         this.#refreshServiceDetails();
       }
     } else if (this.#isOAuth1()) {
-      const { data } = await tryExecuteAndNotify(
+      const { data } = await tryExecute(
         this,
-        ServiceService.generateOauth1RequestToken({requestBody: {
+        ServiceService.generateOAuth1RequestToken({ body: {
           alias: this._service!.alias
         }})
       );
@@ -91,9 +91,9 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   }
 
   async #revokeAccess() {
-		await tryExecuteAndNotify(
+		await tryExecute(
 			this,
-			ServiceService.revokeAccess({requestBody: {
+			ServiceService.revokeAccess({ body: {
         alias: this._service!.alias
       }})
 		);
@@ -106,9 +106,9 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
     const tokenSecretInputElement = <HTMLInputElement>this.shadowRoot?.getElementById("inTokenSecret");
     if (!accessTokenInputElement || !tokenSecretInputElement) return;
 
-		const { error } = await tryExecuteAndNotify(
+		const { error } = await tryExecute(
 			this,
-			ServiceService.saveOauth1Token({requestBody: {
+			ServiceService.saveOAuth1Token({ body: {
         alias: this._service!.alias,
         token: accessTokenInputElement.value,
         tokenSecret: tokenSecretInputElement.value
@@ -128,9 +128,9 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
     const accessTokenInputElement = <HTMLInputElement>this.shadowRoot?.getElementById("inAccessToken");
     if (!accessTokenInputElement) return;
 
-		const { error } = await tryExecuteAndNotify(
+		const { error } = await tryExecute(
 			this,
-			ServiceService.saveOauth2Token({requestBody: {
+			ServiceService.saveOAuth2Token({ body: {
         alias: this._service!.alias,
         token: accessTokenInputElement.value
       }})
@@ -149,9 +149,9 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
     const apiKeyInputElement = <HTMLInputElement>this.shadowRoot?.getElementById("inApiKey");
     if (!apiKeyInputElement) return;
 
-		const { error } = await tryExecuteAndNotify(
+		const { error } = await tryExecute(
 			this,
-			ServiceService.saveApiKey({requestBody: {
+			ServiceService.saveApiKey({ body: {
         alias: this._service!.alias,
         apiKey: apiKeyInputElement.value
       }})
@@ -174,9 +174,12 @@ export class AuthorizedServiceWorkspaceEditorElement extends UmbElementMixin(Lit
   async #sendSampleRequest() {
     this._sampleRequestResponse = undefined;
 
-		const { data, error } = await tryExecute(
-			ServiceService.sendSampleRequest({
-        alias: this._service!.alias
+    const { data, error } = await tryExecute(
+      this,
+      ServiceService.sendSampleRequest({
+        path: {
+          alias: this._service!.alias
+        }
       })
 		);
 
