@@ -481,3 +481,7 @@ Responsible for storing API keys. Implemented by `DatabaseKeyStorage`.
 #### ITokenStorage | IOAuth1TokenStorage | IOAuth2TokenStorage
 
 Responsible for storing tokens. Implemented by `InMemoryTokenStorage`, `DatabaseOAuth1TokenStorage` and `DatabaseOAuth2TokenStorage`.
+
+## Issues
+
+Please raise all issues / feature requests on the central issue tracker at [https://github.com/umbraco/Umbraco.Integrations.Issues](https://github.com/umbraco/Umbraco.Integrations.Issues)
