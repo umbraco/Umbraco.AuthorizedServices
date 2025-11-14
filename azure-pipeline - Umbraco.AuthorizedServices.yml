@@ -18,6 +18,7 @@ variables:
   DOTNET_GENERATE_ASPNET_CERTIFICATE: false
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  productName: 'Umbraco.AuthorizedServices'
   productGroup: 'DXP'
   productVersion: 'v13'
   DT_API_KEY: $(dtApiKey)
