@@ -366,7 +366,7 @@ internal class AuthorizedServiceCallerTests : AuthorizedServiceTestsBase
 
         Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail(authenticationMethod, withConfiguredApiKey);
 
-        var jsonSerializer = new SystemTextJsonSerializer();
+        var jsonSerializer = new SystemTextJsonSerializer(new DefaultJsonSerializerEncoderFactory());
         return new AuthorizedServiceCaller(
             AppCaches.Disabled,
             new TokenFactory(new DateTimeProvider()),

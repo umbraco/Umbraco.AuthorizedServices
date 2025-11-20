@@ -140,7 +140,7 @@ internal class AuthorizedRequestBuilderTests : AuthorizedServiceTestsBase
     private static AuthorizedRequestBuilder CreateSut()
     {
         Mock<IOptionsMonitor<ServiceDetail>> optionsMonitorServiceDetailMock = CreateOptionsMonitorServiceDetail();
-        var jsonSerializer = new SystemTextJsonSerializer();
+        var jsonSerializer = new SystemTextJsonSerializer(new DefaultJsonSerializerEncoderFactory());
         return new AuthorizedRequestBuilder(jsonSerializer);
     }
 
