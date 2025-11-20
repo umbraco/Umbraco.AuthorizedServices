@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>/App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
@@ -30,7 +30,7 @@
 
   <!-- Umbraco packages -->
   <PropertyGroup>
-    <UmbracoCmsPackageVersion>[16.0.0, 16.999.999)</UmbracoCmsPackageVersion>
+    <UmbracoCmsPackageVersion>[17.0.0-rc2, 17.999.999)</UmbracoCmsPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
