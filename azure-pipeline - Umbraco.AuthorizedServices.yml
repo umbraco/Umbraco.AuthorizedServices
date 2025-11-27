@@ -20,7 +20,7 @@ variables:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   productName: 'Umbraco.AuthorizedServices'
   productGroup: 'DXP'
-  productVersion: 'v16'
+  productVersion: 'v17'
   DT_API_KEY: $(dtApiKey)
   DT_BASE_URL: $(dtBaseUrl)
 

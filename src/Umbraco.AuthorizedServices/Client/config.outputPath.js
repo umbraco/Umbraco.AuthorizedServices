@@ -1,1 +1,1 @@
-export const outputPath = 'Debug' !== 'Release' ? '../wwwroot' : '../obj/Debug/net9.0/clientassets'
+export const outputPath = 'Debug' !== 'Release' ? '../wwwroot' : '../obj/Debug/net10.0/clientassets'

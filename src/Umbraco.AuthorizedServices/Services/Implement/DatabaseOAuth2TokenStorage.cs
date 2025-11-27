@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using NPoco;
 using Umbraco.AuthorizedServices.Models;
 using Umbraco.AuthorizedServices.Persistence.Dtos;
 using Umbraco.Cms.Infrastructure.Scoping;

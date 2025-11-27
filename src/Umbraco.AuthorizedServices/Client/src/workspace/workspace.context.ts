@@ -4,7 +4,7 @@ import { UmbObjectState } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecute } from '@umbraco-cms/backoffice/resources';
 import { UmbContextBase } from "@umbraco-cms/backoffice/class-api";
 import { AUTHORIZED_SERVICE_ENTITY_TYPE } from "@umbraco-authorizedservices/entities";
-import { type AuthorizedServiceDisplay, ServiceService } from "@umbraco-authorizedservices/generated";
+import { type AuthorizedServiceDisplay, Service } from "@umbraco-authorizedservices/generated";
 import { WORKSPACE_ALIAS } from "./manifests.js";
 import { AuthorizedServiceWorkspaceEditorElement } from "./workspace.element.js";
 import { AUTHORIZED_SERVICES_WORKSPACE_CONTEXT } from "./workspace.context-token.js";
@@ -45,7 +45,7 @@ export class AuthorizedServiceWorkspaceContext
     
 		const { data } = await tryExecute(
       this,
-      ServiceService.getByAlias({ path: { alias } })
+      Service.getServiceByAlias({ path: { alias } })
 		);
 
     if (data) {

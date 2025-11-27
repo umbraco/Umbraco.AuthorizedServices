@@ -5,7 +5,7 @@ import {
 } from "@umbraco-cms/backoffice/tree";
 import {
   type AuthorizedServiceTreeItemResponseModel,
-  TreeService,
+  Tree,
 } from "@umbraco-authorizedservices/generated";
 import {
   AUTHORIZED_SERVICE_ENTITY_TYPE,
@@ -28,7 +28,7 @@ export class AuthorizedServicesTreeServerDataSource extends UmbTreeServerDataSou
 }
 
 const getRootItems = () =>
-  TreeService.root();
+  Tree.getTree();
 
 const getChildrenOf = (args: UmbTreeChildrenOfRequestArgs) => {
   if (args.parent.unique === null) {
