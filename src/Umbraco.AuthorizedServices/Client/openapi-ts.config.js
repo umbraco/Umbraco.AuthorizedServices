@@ -4,14 +4,13 @@ export default defineConfig({
     logs: {
         level: 'debug',
     },
-    input: 'http://localhost:3010/umbraco/swagger/authorized-services-management/swagger.json',
+    input: 'http://localhost:3010/umbraco/openapi/authorized-services-management.json',
     output: {
         path: 'generated',
     },
     plugins: [
         {
             name: '@hey-api/client-fetch',
-            bundle: false,
             exportFromIndex: true,
             throwOnError: true,
         },

@@ -15,7 +15,7 @@ internal class AuthorizedServicesComposer : IComposer
     {
         ConfigureOptions(builder);
         RegisterServices(builder);
-        RegisterSwagger(builder);
+        RegisterOpenApi(builder);
     }
 
     private static void ConfigureOptions(IUmbracoBuilder builder)
@@ -60,6 +60,6 @@ internal class AuthorizedServicesComposer : IComposer
         builder.Services.AddUnique<IKeyStorage, DatabaseKeyStorage>();
     }
 
-    private static void RegisterSwagger(IUmbracoBuilder builder) =>
-        builder.AddAuthorizedServicesSwaggerGenOptions();
+    private static void RegisterOpenApi(IUmbracoBuilder builder) =>
+        builder.AddAuthorizedServicesOpenApiDocument();
 }

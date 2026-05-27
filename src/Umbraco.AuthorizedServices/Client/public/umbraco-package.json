@@ -1,7 +1,7 @@
 {
   "id": "Umbraco.AuthorizedServices",
   "name": "Umbraco Authorized Services",
-  "version": "17.0.0",
+  "version": "18.0.0-rc1",
   "extensions": [
     {
       "name": "Umbraco EntryPoint",

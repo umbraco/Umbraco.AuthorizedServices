@@ -30,7 +30,7 @@
 
   <!-- Umbraco packages -->
   <PropertyGroup>
-    <UmbracoCmsPackageVersion>[17.0.0, 17.999.999)</UmbracoCmsPackageVersion>
+    <UmbracoCmsPackageVersion>[18.0.0-rc1, 19.0.0)</UmbracoCmsPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

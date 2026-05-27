@@ -7,6 +7,7 @@ using Umbraco.Cms.Core;
 
 namespace Umbraco.AuthorizedServices.TestSite.Controllers;
 
+[Route("umbraco/api/[controller]/[action]")]
 public class TestAuthorizedServicesController : AuthorizedServicesApiControllerBase
 {
     public TestAuthorizedServicesController(IAuthorizedServiceCaller authorizedServiceCaller)
