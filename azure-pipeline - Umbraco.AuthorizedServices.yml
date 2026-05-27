@@ -125,7 +125,7 @@ stages:
                 --project-name "$(productName)" \
                 --project-version "$(productVersion)" \
                 --server-url "$(DT_BASE_URL)" \
-                --api-key "$(DT_API_KEY)"
+                --api-key "$(DT_API_KEY)" \
                 --spec-version 1.6
             displayName: 'Generate & Upload SBOM with cdxgen'
             env:
