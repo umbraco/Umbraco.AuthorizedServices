@@ -1,5 +1,12 @@
 name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
 
+resources:
+  repositories:
+    - repository: build
+      type: github
+      name: umbraco/umbraco.build
+      endpoint: umbraco-github-service-connection
+
 parameters:
   - name: cache_npm
     displayName: Cache NPM packages
@@ -9,170 +16,38 @@ parameters:
     displayName: Cache NuGet packages
     type: boolean
     default: false
-
-variables:
-  nodeVersion: 18.x
-  solution: Umbraco.AuthorizedServices.Build.sln
-  buildConfiguration: Release
-  DOTNET_NOLOGO: true
-  DOTNET_GENERATE_ASPNET_CERTIFICATE: false
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
-  productName: 'Umbraco.AuthorizedServices'
-  productGroup: 'DXP'
-  productVersion: 'v13'
-  DT_API_KEY: $(dtApiKey)
-  DT_BASE_URL: $(dtBaseUrl)
-
-stages: 
-  - stage: Build
-    variables:
-      NUGET_PACKAGES: $(Pipeline.Workspace)/.nuget/packages
-      npm_config_cache: $(Pipeline.Workspace)/.npm_client
-    jobs:
-      - job: Build
-        pool: 
-          vmImage: ubuntu-latest
-        steps:
-          # Checkout source (avoid shallow clone to calculate version height)
-          - checkout: self
-            fetchDepth: 0
-
-          # Setup build environment
-          - task: NuGetAuthenticate@1
-            displayName: Authenticate NuGet
-
-          - task: NodeTool@0
-            displayName: Use Node.js $(nodeVersion)
-            inputs:
-              versionSpec: $(nodeVersion)
-
-          - task: UseDotNet@2
-            displayName: Use .NET SDK from global.json
-            inputs:
-              useGlobalJson: true
-
-          # Cache and restore NPM packages
-          - task: Cache@2
-            condition: ${{ parameters.cache_npm }}
-            displayName: Cache NPM packages
-            inputs:
-              key: 'npm | "$(Agent.OS)" | **/package-lock.json, !**/node_modules/**'
-              restoreKeys: |
-                npm | "$(Agent.OS)"
-                npm
-              path: $(npm_config_cache)
-
-          # Cache and restore NuGet packages
-          - task: Cache@2
-            condition: ${{ parameters.cache_nuget }}
-            displayName: Cache NuGet packages
-            inputs:
-              key: 'nuget | "$(Agent.OS)" | **/packages.lock.json, !**/bin/**, !**/obj/**'
-              restoreKeys: |
-                nuget | "$(Agent.OS)"
-                nuget
-              path: $(NUGET_PACKAGES)
-
-          - script: dotnet restore $(solution) --locked-mode
-            displayName: Restore NuGet packages
-
-          # Build
-          - script: dotnet build $(solution) --configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true
-            displayName: Run dotnet build
-
-          # Pack
-          - script: dotnet pack $(solution) --configuration $(buildConfiguration) --no-build --output $(Build.ArtifactStagingDirectory)/nupkg
-            displayName: Run dotnet pack
-
-          # Publish
-          - task: PublishPipelineArtifact@1
-            displayName: Publish NuGet packages
-            inputs:
-              targetPath: $(Build.ArtifactStagingDirectory)/nupkg
-              artifactName: nupkg
-
-          - task: PublishPipelineArtifact@1
-            displayName: Publish build output
-            inputs:
-              targetPath: $(Build.SourcesDirectory)
-              artifactName: build_output
-
-  - stage: GenerateSBOM
+  # Releases aren't published from this pipeline yet, so both default to skip: skip removes the stage and
+  # its service connections at compile time. Switch to auto once the MyGet and NuGet connections are authorized.
+  - name: prerelease
+    displayName: Prerelease
+    type: string
+    default: skip
+    values:
+      - auto # Only release to MyGet on public releases, otherwise skip
+      - prerelease # Release to MyGet pre-release feed, regardless of release type
+      - nightly # Release to MyGet nightly feed, regardless of release type
+      - skip # Skip releasing to MyGet, regardless of release type
+  - name: release
+    displayName: Release
+    type: string
+    default: skip
+    values:
+      - auto # Only release to NuGet on public releases, otherwise skip
+      - public # Release to NuGet, regardless of release type
+      - skip # Skip releasing to NuGet, regardless of release type
+  - name: sbom_generate
     displayName: Generate SBOM
-    dependsOn: Build
-    jobs:
-      - job: GenerateSBOMJob
-        displayName: Generate SBOM
-        pool: 
-          vmImage: ubuntu-latest
-        steps:
-          # Install cdxgen globally
-          - script: |
-              cd $(Build.SourcesDirectory)
-              npm install --global @cyclonedx/cdxgen
-            displayName: 'Install cdxgen'
+    type: boolean
+    default: false # SBOM is still generated for release/hotfix branches and release-* tags
 
-          # Generate and upload SBOM
-          - script: |
-              mkdir -p $(Build.ArtifactStagingDirectory)/bom
-              cd $(Build.SourcesDirectory)
-
-              cdxgen --recurse \
-                --output $(Build.ArtifactStagingDirectory)/bom/bom.json \
-                --json-pretty \
-                --project-group "$(productGroup)" \
-                --project-name "$(productName)" \
-                --project-version "$(productVersion)" \
-                --server-url "$(DT_BASE_URL)" \
-                --api-key "$(DT_API_KEY)"
-            displayName: 'Generate & Upload SBOM with cdxgen'
-            env:
-              DT_API_KEY: $(DT_API_KEY)
-              DT_BASE_URL: $(DT_BASE_URL)
-
-          # Publish SBOM artifact
-          - task: PublishPipelineArtifact@1
-            displayName: 'Publish SBOM Artifact'
-            inputs:
-              targetPath: $(Build.ArtifactStagingDirectory)/bom
-              artifactName: SBOM
-
-  - stage: UnitTests
-    displayName: Unit Tests
-    dependsOn: Build
-    jobs:
-      - job: UnitTests
-        displayName: Run Unit Tests
-        pool:
-          vmImage: 'windows-latest'
-        steps:
-          # Checkout source
-          - checkout: self
-
-          # Setup test environment
-          - task: DownloadPipelineArtifact@2
-            displayName: Download build artifacts
-            inputs:
-              artifact: build_output
-              path: $(Build.SourcesDirectory)
-
-          - task: UseDotNet@2
-            displayName: Use .NET SDK from global.json
-            inputs:
-              useGlobalJson: true
-
-          # Test
-          - script: dotnet test $(solution) --configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Build.ArtifactStagingDirectory)/tests
-            displayName: Run dotnet test
-
-          # Publish
-          - task: PublishTestResults@2
-            displayName: Publish test results
-            condition: succeededOrFailed()
-            inputs:
-              testResultsFormat: VSTest
-              testResultsFiles: '*.trx'
-              searchFolder: $(Build.ArtifactStagingDirectory)/tests
-              testRunTitle: Unit Tests - $(Agent.OS)
-              configuration: $(buildConfiguration)
+extends:
+  template: devops/templates/azure-pipelines-template.yml@build
+  parameters:
+    product_name: 'Umbraco.AuthorizedServices'
+    solution: 'Umbraco.AuthorizedServices.Build.sln' # excludes the example site
+    nodeVersion: '18.x' # the gulp ClientApp build predates Node 24
+    cache_npm: ${{ parameters.cache_npm }}
+    cache_nuget: ${{ parameters.cache_nuget }}
+    prerelease: ${{ parameters.prerelease }}
+    release: ${{ parameters.release }}
+    sbom_generate: ${{ parameters.sbom_generate }}
