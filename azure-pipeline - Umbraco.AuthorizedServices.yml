@@ -4,8 +4,8 @@ resources:
   repositories:
     - repository: build
       type: github
-      name: umbraco/umbraco.build
-      endpoint: umbraco-github-service-connection
+      name: umbraco/Umbraco.Build
+      endpoint: umbraco
 
 parameters:
   - name: cache_npm
