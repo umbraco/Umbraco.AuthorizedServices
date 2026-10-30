@@ -7,7 +7,6 @@ import type {
   AuthorizedServicesTreeRootModel,
 } from "./types.js";
 import { AuthorizedServicesTreeServerDataSource } from "./tree.server.data-source.js";
-import { AUTHORIZED_SERVICES_TREE_STORE_CONTEXT } from "./tree.store.js";
 
 export class AuthorizedServicesTreeRepository
   extends UmbTreeRepositoryBase<
@@ -17,11 +16,7 @@ export class AuthorizedServicesTreeRepository
   implements UmbApi
 {
   constructor(host: UmbControllerHost) {
-    super(
-      host,
-      AuthorizedServicesTreeServerDataSource,
-      AUTHORIZED_SERVICES_TREE_STORE_CONTEXT
-    );
+    super(host, AuthorizedServicesTreeServerDataSource);
   }
 
   async requestTreeRoot() {

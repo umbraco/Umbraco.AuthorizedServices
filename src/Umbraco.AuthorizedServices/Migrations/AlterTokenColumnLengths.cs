@@ -4,13 +4,13 @@ using Umbraco.Cms.Infrastructure.Persistence;
 
 namespace Umbraco.AuthorizedServices.Migrations;
 
-public class AlterTokenColumnLengths : MigrationBase
+public class AlterTokenColumnLengths : AsyncMigrationBase
 {
     public AlterTokenColumnLengths(IMigrationContext context) : base(context)
     {
     }
 
-    protected override void Migrate()
+    protected override Task MigrateAsync()
     {
         Logger.LogDebug($"Running migration {nameof(AlterTokenColumnLengths)}");
 
@@ -19,7 +19,7 @@ public class AlterTokenColumnLengths : MigrationBase
         if (IsSqlite(Database.SqlContext))
         {
             Logger.LogDebug($"Skipping altering udi field column lengths in Authorized Services tables as running on SQLite.");
-            return;
+            return Task.CompletedTask;
         }
 
         Alter.Table(Constants.Database.TableNames.OAuth2Token)
@@ -45,6 +45,8 @@ public class AlterTokenColumnLengths : MigrationBase
             .AsString(Constants.Database.TokenFieldSize)
             .NotNullable()
             .Do();
+
+        return Task.CompletedTask;
     }
 
     private static bool IsSqlite(ISqlContext sqlContext) => Type.GetType("Umbraco.Cms.Persistence.Sqlite.Services.SqliteSyntaxProvider, Umbraco.Cms.Persistence.Sqlite") == sqlContext.SqlSyntax.GetType();

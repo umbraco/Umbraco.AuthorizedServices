@@ -2,11 +2,10 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.AuthorizedServices.Exceptions;
 using Umbraco.AuthorizedServices.Services;
-using Umbraco.Cms.Web.Common.Controllers;
 
 namespace Umbraco.AuthorizedServices.TestSite.Controllers;
 
-public abstract class AuthorizedServicesApiControllerBase : UmbracoApiController
+public abstract class AuthorizedServicesApiControllerBase : ControllerBase
 {
     public AuthorizedServicesApiControllerBase(IAuthorizedServiceCaller authorizedServiceCaller) => AuthorizedServiceCaller = authorizedServiceCaller;
 

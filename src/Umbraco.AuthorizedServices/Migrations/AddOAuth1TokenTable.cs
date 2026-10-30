@@ -4,13 +4,13 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace Umbraco.AuthorizedServices.Migrations;
 
-public class AddOAuth1TokenTable : MigrationBase
+public class AddOAuth1TokenTable : AsyncMigrationBase
 {
     public AddOAuth1TokenTable(IMigrationContext context) : base(context)
     {
     }
 
-    protected override void Migrate()
+    protected override Task MigrateAsync()
     {
         Logger.LogDebug($"Running migration {nameof(AddOAuth1TokenTable)}");
 
@@ -22,5 +22,7 @@ public class AddOAuth1TokenTable : MigrationBase
         {
             Create.Table<OAuth1TokenDto>().Do();
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -67,6 +67,7 @@ export class AuthorizedServiceWorkspaceContext
 
   destroy() {
     this.#data.destroy();
+    super.destroy();
   }
 }
 

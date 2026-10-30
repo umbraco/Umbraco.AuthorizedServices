@@ -3,13 +3,13 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace Umbraco.AuthorizedServices.Migrations;
 
-public class RenameOAuth2TokenTable : MigrationBase
+public class RenameOAuth2TokenTable : AsyncMigrationBase
 {
     public RenameOAuth2TokenTable(IMigrationContext context) : base(context)
     {
     }
 
-    protected override void Migrate()
+    protected override Task MigrateAsync()
     {
         Logger.LogDebug($"Running migration {nameof(RenameOAuth2TokenTable)}");
 
@@ -18,5 +18,7 @@ public class RenameOAuth2TokenTable : MigrationBase
         {
             Rename.Table(OriginalTableName).To(Constants.Database.TableNames.OAuth2Token);
         }
+
+        return Task.CompletedTask;
     }
 }

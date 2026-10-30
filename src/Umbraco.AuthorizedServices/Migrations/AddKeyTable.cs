@@ -4,13 +4,13 @@ using Umbraco.Cms.Infrastructure.Migrations;
 
 namespace Umbraco.AuthorizedServices.Migrations;
 
-public class AddKeyTable : MigrationBase
+public class AddKeyTable : AsyncMigrationBase
 {
     public AddKeyTable(IMigrationContext context) : base(context)
     {
     }
 
-    protected override void Migrate()
+    protected override Task MigrateAsync()
     {
         Logger.LogDebug($"Running migration {nameof(AddKeyTable)}");
 
@@ -22,5 +22,7 @@ public class AddKeyTable : MigrationBase
         {
             Create.Table<KeyDto>().Do();
         }
+
+        return Task.CompletedTask;
     }
 }
