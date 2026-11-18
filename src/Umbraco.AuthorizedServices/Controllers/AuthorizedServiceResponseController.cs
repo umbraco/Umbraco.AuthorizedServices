@@ -84,6 +84,7 @@ public class AuthorizedServiceResponseController : Controller
     /// <returns></returns>
     /// <exception cref="AuthorizedServiceException"></exception>
     [HttpGet("HandleOAuth1IdentityResponse")]
+    [HttpGet] // Bare route kept for providers registered against it before the named route existed.
     public async Task<IActionResult> HandleOAuth1IdentityResponse(string oauth_token, string oauth_verifier)
     {
         var serviceAlias = _appCaches.RuntimeCache.Get(oauth_token) as string
