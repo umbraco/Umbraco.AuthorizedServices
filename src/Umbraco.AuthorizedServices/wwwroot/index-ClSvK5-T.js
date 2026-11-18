@@ -23,14 +23,14 @@ function re({
     const v = l.signal ?? new AbortController().signal;
     for (; !v.aborted; ) {
       h++;
-      const O = l.headers instanceof Headers ? l.headers : new Headers(l.headers);
-      u !== void 0 && O.set("Last-Event-ID", u);
+      const C = l.headers instanceof Headers ? l.headers : new Headers(l.headers);
+      u !== void 0 && C.set("Last-Event-ID", u);
       try {
         const z = {
           redirect: "follow",
           ...l,
           body: l.serializedBody,
-          headers: O,
+          headers: C,
           signal: v
         };
         let A = new Request(b, z);
@@ -59,27 +59,27 @@ function re({
             y = U.pop() ?? "";
             for (const G of U) {
               const K = G.split(`
-`), C = [];
+`), O = [];
               let $;
-              for (const w of K)
-                if (w.startsWith("data:"))
-                  C.push(w.replace(/^data:\s*/, ""));
-                else if (w.startsWith("event:"))
-                  $ = w.replace(/^event:\s*/, "");
-                else if (w.startsWith("id:"))
-                  u = w.replace(/^id:\s*/, "");
-                else if (w.startsWith("retry:")) {
-                  const _ = Number.parseInt(w.replace(/^retry:\s*/, ""), 10);
+              for (const T of K)
+                if (T.startsWith("data:"))
+                  O.push(T.replace(/^data:\s*/, ""));
+                else if (T.startsWith("event:"))
+                  $ = T.replace(/^event:\s*/, "");
+                else if (T.startsWith("id:"))
+                  u = T.replace(/^id:\s*/, "");
+                else if (T.startsWith("retry:")) {
+                  const _ = Number.parseInt(T.replace(/^retry:\s*/, ""), 10);
                   Number.isNaN(_) || (d = _);
                 }
               let E, B = !1;
-              if (C.length) {
-                const w = C.join(`
+              if (O.length) {
+                const T = O.join(`
 `);
                 try {
-                  E = JSON.parse(w), B = !0;
+                  E = JSON.parse(T), B = !0;
                 } catch {
-                  E = w;
+                  E = T;
                 }
               }
               B && (o && await o(E), s && (E = await s(E))), r == null || r({
@@ -87,7 +87,7 @@ function re({
                 event: $,
                 id: u,
                 retry: d
-              }), C.length && (yield E);
+              }), O.length && (yield E);
             }
           }
         } finally {
@@ -465,8 +465,8 @@ const pe = () => ({
       m = new Request(h, v);
       for (const p of o.request.fns)
         p && (m = await p(m, d));
-      const O = d.fetch;
-      f = await O(m);
+      const C = d.fetch;
+      f = await C(m);
       for (const p of o.response.fns)
         p && (f = await p(f, m, d));
       const z = {
@@ -585,10 +585,10 @@ const pe = () => ({
     },
     trace: a("TRACE")
   };
-}, T = be(M({ baseUrl: "http://localhost:3010/", throwOnError: !0 }));
+}, w = be(M({ baseUrl: "http://localhost:3010/", throwOnError: !0 }));
 class Ue {
   static postService(e) {
-    return (e.client ?? T).post({
+    return (e.client ?? w).post({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service",
       ...e,
@@ -599,21 +599,21 @@ class Ue {
     });
   }
   static getServiceByAlias(e) {
-    return (e.client ?? T).get({
+    return (e.client ?? w).get({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service/{alias}",
       ...e
     });
   }
   static getServiceByAliasSampleRequest(e) {
-    return (e.client ?? T).get({
+    return (e.client ?? w).get({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service/{alias}/sample-request",
       ...e
     });
   }
   static postServiceApiKey(e) {
-    return (e.client ?? T).post({
+    return (e.client ?? w).post({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service/api-key",
       ...e,
@@ -624,7 +624,7 @@ class Ue {
     });
   }
   static postServiceOauth1(e) {
-    return (e.client ?? T).post({
+    return (e.client ?? w).post({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service/oauth1",
       ...e,
@@ -635,7 +635,7 @@ class Ue {
     });
   }
   static postServiceOauth1RequestToken(e) {
-    return (e.client ?? T).post({
+    return (e.client ?? w).post({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service/oauth1/request-token",
       ...e,
@@ -646,7 +646,7 @@ class Ue {
     });
   }
   static postServiceOauth2(e) {
-    return (e.client ?? T).post({
+    return (e.client ?? w).post({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service/oauth2",
       ...e,
@@ -657,7 +657,7 @@ class Ue {
     });
   }
   static postServiceOauth2ClientCredentials(e) {
-    return (e.client ?? T).post({
+    return (e.client ?? w).post({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service/oauth2/client-credentials",
       ...e,
@@ -668,7 +668,7 @@ class Ue {
     });
   }
   static postServiceRevoke(e) {
-    return (e.client ?? T).post({
+    return (e.client ?? w).post({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/service/revoke",
       ...e,
@@ -681,30 +681,30 @@ class Ue {
 }
 class ve {
   static getTree(e) {
-    return ((e == null ? void 0 : e.client) ?? T).get({
+    return ((e == null ? void 0 : e.client) ?? w).get({
       security: [{ scheme: "bearer", type: "http" }],
       url: "/umbraco/authorized-services/management/api/v1/tree",
       ...e
     });
   }
 }
-const k = "authorized-service", x = "authorized-service-root", Se = "AuthorizedServices.Workspace", ge = [
+const x = "authorized-service", k = "authorized-service-root", Se = "AuthorizedServices.Workspace", ge = [
   {
     type: "workspace",
     kind: "routable",
     alias: Se,
     name: "Authorized Service Workspace",
-    api: () => import("./workspace.context-Cw0injd0.js"),
+    api: () => import("./workspace.context-DViGrZh2.js"),
     meta: {
-      entityType: k
+      entityType: x
     }
   }
 ];
-class we extends X {
+class Te extends X {
   constructor(e) {
     super(e, {
       getRootItems: F,
-      getChildrenOf: Te,
+      getChildrenOf: we,
       getAncestorsOf: ze,
       mapper: Ae
     });
@@ -713,7 +713,7 @@ class we extends X {
 const F = async (t) => {
   const { data: e } = await ve.getTree();
   return e ? { data: { ...e, total: Number(e.total), totalBefore: 0, totalAfter: 0 } } : { error: void 0 };
-}, Te = (t) => {
+}, we = (t) => {
   if (t.parent.unique === null)
     return F();
   throw new Error("Not supported for the authorized services tree");
@@ -721,23 +721,23 @@ const F = async (t) => {
   throw new Error("Not supported for the authorized services tree");
 }, Ae = (t) => ({ ...t, parent: {
   unique: null,
-  entityType: x
-}, entityType: k, isFolder: !1, hasChildren: !1 });
+  entityType: k
+}, entityType: x, isFolder: !1, hasChildren: !1 });
 class Ee extends ee {
   constructor(e) {
-    super(e, we);
+    super(e, Te);
   }
   async requestTreeRoot() {
     return { data: {
       unique: null,
-      entityType: x,
+      entityType: k,
       name: "Authorized Services",
       hasChildren: !0,
       isFolder: !0
     } };
   }
 }
-const Oe = [
+const Ce = [
   {
     type: "menuItem",
     kind: "tree",
@@ -750,7 +750,7 @@ const Oe = [
       menus: ["Umb.Menu.AdvancedSettings"]
     }
   }
-], J = "AuthorizedServices.Repository.Services.Tree", Ce = "AuthorizedServices.Tree.Services", Ie = {
+], J = "AuthorizedServices.Repository.Services.Tree", Oe = "AuthorizedServices.Tree.Services", Ie = {
   type: "repository",
   alias: J,
   name: "Authorized Services Tree Repository",
@@ -759,7 +759,7 @@ const Oe = [
   {
     type: "tree",
     kind: "default",
-    alias: Ce,
+    alias: Oe,
     name: "Authorized Services Tree",
     meta: {
       repositoryAlias: J
@@ -772,30 +772,28 @@ const Oe = [
     alias: "AuthorizedServices.TreeItem.Service",
     name: "Authorized Services Tree Item",
     forEntityTypes: [
-      x,
-      k
+      k,
+      x
     ]
   }
-], ke = [
+], xe = [
   Ie,
   ...je,
   ...Re,
-  ...Oe
-], $e = (t, e) => {
-  e.registerMany([...ge, ...ke]), t.consumeContext(Q, async (r) => {
-    if (!r) return;
-    const s = r.getOpenApiConfiguration();
-    T.setConfig({
-      baseUrl: (s == null ? void 0 : s.base) ?? "",
-      auth: (s == null ? void 0 : s.token) ?? void 0,
-      credentials: (s == null ? void 0 : s.credentials) ?? "same-origin"
-    });
-  });
+  ...Ce
+], $e = async (t, e) => {
+  e.registerMany([...ge, ...xe]);
+  const r = await t.getContext(Q);
+  if (!r) {
+    console.warn("UMB_AUTH_CONTEXT is not available, so the Authorized Services API client is not configured");
+    return;
+  }
+  r.configureClient(w);
 };
 export {
-  k as A,
+  x as A,
   Ue as S,
   Se as W,
   $e as o
 };
-//# sourceMappingURL=index-BJOu1Tl7.js.map
+//# sourceMappingURL=index-ClSvK5-T.js.map

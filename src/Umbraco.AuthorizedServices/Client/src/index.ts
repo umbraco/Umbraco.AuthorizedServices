@@ -4,17 +4,16 @@ import { client } from "../generated/index.js";
 import { manifests as workspaceManifests } from "./workspace/manifests.js";
 import { manifests as treeManifests } from "./tree/manifests.js";
 
-export const onInit: UmbEntryPointOnInit = (_host, extensionRegistry) => {
+export const onInit: UmbEntryPointOnInit = async (host, extensionRegistry) => {
+  // Register first so the tree and workspace aren't held up waiting for the auth context.
   extensionRegistry.registerMany([...workspaceManifests, ...treeManifests]);
 
-  _host.consumeContext(UMB_AUTH_CONTEXT, async (auth) => {
-    if (!auth) return;
+  // getContext resolves once the context is provided, as the docs recommend for a one-off configuration.
+  const authContext = await host.getContext(UMB_AUTH_CONTEXT);
+  if (!authContext) {
+    console.warn("UMB_AUTH_CONTEXT is not available, so the Authorized Services API client is not configured");
+    return;
+  }
 
-    const config = auth.getOpenApiConfiguration();
-    client.setConfig({
-      baseUrl: config?.base ?? "",
-      auth: config?.token ?? undefined,
-      credentials: config?.credentials ?? "same-origin",
-    });
-  });
+  authContext.configureClient(client);
 };
