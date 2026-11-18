@@ -70,7 +70,7 @@ public class AuthorizedServiceResponseController : Controller
 
         if (result.Success)
         {
-            return Redirect($"/umbraco/section/settings/workspace/authorized-service/edit/{serviceAlias}");
+            return Redirect(GetServiceWorkspaceUrl(serviceAlias));
         }
 
         throw new AuthorizedServiceException("Failed to obtain access token");
@@ -91,7 +91,7 @@ public class AuthorizedServiceResponseController : Controller
         AuthorizationResult result = await _serviceAuthorizer.AuthorizeOAuth1ServiceAsync(serviceAlias, oauth_token, oauth_verifier);
         if (result.Success)
         {
-            return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceAlias}");
+            return Redirect(GetServiceWorkspaceUrl(serviceAlias));
         }
 
         throw new AuthorizedServiceException("Failed to obtain access token");
@@ -112,9 +112,12 @@ public class AuthorizedServiceResponseController : Controller
 
         if (exchangeResult.Success)
         {
-            return Redirect($"/umbraco#/settings/AuthorizedServices/edit/{serviceDetail.Alias}");
+            return Redirect(GetServiceWorkspaceUrl(serviceDetail.Alias));
         }
 
         throw new AuthorizedServiceException("Failed to exchange the access token.");
     }
+
+    private static string GetServiceWorkspaceUrl(string serviceAlias)
+        => $"/umbraco/section/settings/workspace/authorized-service/edit/{serviceAlias}";
 }
