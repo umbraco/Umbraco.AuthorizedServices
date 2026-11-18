@@ -585,7 +585,7 @@ const pe = () => ({
     },
     trace: a("TRACE")
   };
-}, w = be(M({ baseUrl: "http://localhost:3010/", throwOnError: !0 }));
+}, w = be(M({ baseUrl: "http://localhost:3010", throwOnError: !0 }));
 class Ue {
   static postService(e) {
     return (e.client ?? w).post({
@@ -694,7 +694,7 @@ const x = "authorized-service", k = "authorized-service-root", Se = "AuthorizedS
     kind: "routable",
     alias: Se,
     name: "Authorized Service Workspace",
-    api: () => import("./workspace.context-DViGrZh2.js"),
+    api: () => import("./workspace.context-bJ6LBuCU.js"),
     meta: {
       entityType: x
     }
@@ -796,4 +796,4 @@ export {
   Se as W,
   $e as o
 };
-//# sourceMappingURL=index-ClSvK5-T.js.map
+//# sourceMappingURL=index-B8SlSkwW.js.map
