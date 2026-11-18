@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Umbraco.AuthorizedServices.Controllers;
 using AuthorizedServicesHttpContextExtensions = Umbraco.AuthorizedServices.Extensions.HttpContextExtensions;
 
@@ -16,6 +17,27 @@ internal class AuthorizedServiceResponseControllerRoutingTests
 
         action.GetCustomAttributes<HttpGetAttribute>().Select(x => x.Template)
             .Should().Contain(actionName);
+    }
+
+    [Test]
+    public void OAuth1Action_AlsoAnswersAtTheBareControllerRoute()
+    {
+        MethodInfo action = typeof(AuthorizedServiceResponseController)
+            .GetMethod(nameof(AuthorizedServiceResponseController.HandleOAuth1IdentityResponse))!;
+
+        action.GetCustomAttributes<HttpGetAttribute>().Select(x => x.Template)
+            .Should().Contain(x => string.IsNullOrEmpty(x));
+    }
+
+    [Test]
+    public void OnlyTheOAuth1Action_AnswersAtTheBareControllerRoute()
+    {
+        var bareRouteActions = typeof(AuthorizedServiceResponseController)
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+            .Where(m => m.GetCustomAttributes<HttpMethodAttribute>().Any(a => string.IsNullOrEmpty(a.Template)))
+            .Select(m => m.Name);
+
+        bareRouteActions.Should().BeEquivalentTo(new[] { nameof(AuthorizedServiceResponseController.HandleOAuth1IdentityResponse) });
     }
 
     [Test]
