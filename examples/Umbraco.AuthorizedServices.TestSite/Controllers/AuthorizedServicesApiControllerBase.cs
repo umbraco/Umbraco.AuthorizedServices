@@ -5,6 +5,7 @@ using Umbraco.AuthorizedServices.Services;
 
 namespace Umbraco.AuthorizedServices.TestSite.Controllers;
 
+[ApiController]
 public abstract class AuthorizedServicesApiControllerBase : ControllerBase
 {
     public AuthorizedServicesApiControllerBase(IAuthorizedServiceCaller authorizedServiceCaller) => AuthorizedServiceCaller = authorizedServiceCaller;

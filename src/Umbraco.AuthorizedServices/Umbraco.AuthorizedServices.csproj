@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>/App_Plugins/UmbracoAuthorizedServices</StaticWebAssetBasePath>
@@ -30,7 +30,7 @@
 
   <!-- Umbraco packages -->
   <PropertyGroup>
-    <UmbracoCmsPackageVersion>[18.0.0, 19.0.0)</UmbracoCmsPackageVersion>
+    <UmbracoCmsPackageVersion>[19.0.0-rc1, 20.0.0)</UmbracoCmsPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,7 +38,6 @@
     <PackageReference Include="Umbraco.Cms.Web.Common" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Umbraco.Cms.Api.Common" Version="$(UmbracoCmsPackageVersion)" />
     <PackageReference Include="Umbraco.Cms.Api.Management" Version="$(UmbracoCmsPackageVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.13.0" />
   </ItemGroup>
 
   <ItemGroup>

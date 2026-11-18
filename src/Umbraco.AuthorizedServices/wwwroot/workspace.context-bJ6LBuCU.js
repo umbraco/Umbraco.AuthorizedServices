@@ -7,7 +7,7 @@ import { UmbWorkspaceRouteManager as F } from "@umbraco-cms/backoffice/workspace
 import { UmbObjectState as G } from "@umbraco-cms/backoffice/observable-api";
 import { tryExecute as d } from "@umbraco-cms/backoffice/resources";
 import { UmbContextBase as J } from "@umbraco-cms/backoffice/class-api";
-import { A as I, S as v, W as $ } from "./index-BJOu1Tl7.js";
+import { A as I, S as v, W as $ } from "./index-B8SlSkwW.js";
 import { UmbElementMixin as j } from "@umbraco-cms/backoffice/element-api";
 import { LitElement as Q, when as l, html as r, css as ee, state as O, customElement as te } from "@umbraco-cms/backoffice/external/lit";
 import { UMB_NOTIFICATION_CONTEXT as ie } from "@umbraco-cms/backoffice/notification";
@@ -438,4 +438,4 @@ export {
   ye as AuthorizedServiceWorkspaceContext,
   ye as api
 };
-//# sourceMappingURL=workspace.context-Cw0injd0.js.map
+//# sourceMappingURL=workspace.context-bJ6LBuCU.js.map
