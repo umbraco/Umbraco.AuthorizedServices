@@ -1,0 +1,13 @@
+{
+  "id": "Umbraco.AuthorizedServices",
+  "name": "Umbraco Authorized Services",
+  "version": "17.0.1",
+  "extensions": [
+    {
+      "name": "Umbraco EntryPoint",
+      "alias": "Umb.AuthorizedServices.EntryPoint",
+      "type": "backofficeEntryPoint",
+      "js": "/App_Plugins/UmbracoAuthorizedServices/umbraco-authorizedservices.js"
+    }
+  ]
+}
